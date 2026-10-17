@@ -1,0 +1,242 @@
+{
+  "schema": "dosul-build-v3",
+  "name": "연타 개선 3 · 파쇄·폭주 증폭",
+  "baseline": "2026-09-29",
+  "skills": [
+    "s063",
+    "s086",
+    "s012",
+    "s060",
+    "s011",
+    "s021",
+    "s015",
+    "s067",
+    "s018"
+  ],
+  "skillNames": [
+    "화염구",
+    "최후의 저항",
+    "휘둘러 내려치기",
+    "연쇄 번개",
+    "주먹 지르기",
+    "대검 찍기",
+    "회전 난격",
+    "강인한 의지",
+    "폭주"
+  ],
+  "baseSlots": [
+    "s012",
+    "s011",
+    "s015",
+    "s063",
+    "s086"
+  ],
+  "validation": {
+    "normal": 8,
+    "ultimate": 1,
+    "counts": {
+      "연타": 3,
+      "파멸": 1,
+      "헌신": 1
+    },
+    "issues": [],
+    "complete": true
+  },
+  "comparison": {
+    "reference": "동일 구성의 기존 사용 순서",
+    "horizonSeconds": 60,
+    "metrics": {
+      "casts": 47,
+      "firstActivationSeconds": 0.5,
+      "additionalCastsFromShinsik": 0,
+      "attacksDuringShinsik": 44,
+      "ultimateDuringShinsik": 2
+    }
+  },
+  "timingReview": {
+    "horizonSeconds": 180,
+    "before": {
+      "order": [
+        "휘둘러 내려치기",
+        "최후의 저항",
+        "대검 찍기",
+        "회전 난격",
+        "연쇄 번개",
+        "화염구",
+        "폭주",
+        "주먹 지르기",
+        "강인한 의지"
+      ],
+      "score": 197.21,
+      "baseSlots": [
+        "s012",
+        "s015",
+        "s011",
+        "s086",
+        "s021"
+      ],
+      "validation": {
+        "normal": 8,
+        "ultimate": 1,
+        "counts": {
+          "연타": 3,
+          "헌신": 1,
+          "강타": 1
+        },
+        "issues": [],
+        "complete": true
+      },
+      "rage": {
+        "uptime": 94.722222,
+        "resets": 13,
+        "max": 50,
+        "first50": 59.3,
+        "sensitivity": [
+          {
+            "phase": "early",
+            "resets": 12,
+            "uptime": 95.111111,
+            "max": 50,
+            "first50": 16.2
+          },
+          {
+            "phase": "uniform",
+            "resets": 13,
+            "uptime": 94.722222,
+            "max": 50,
+            "first50": 59.3
+          },
+          {
+            "phase": "late",
+            "resets": 14,
+            "uptime": 94.111111,
+            "max": 50,
+            "first50": 59.35
+          }
+        ]
+      },
+      "heal": {
+        "pass": 48,
+        "total": 126,
+        "percent": 38.095238095238095,
+        "first": "pass"
+      },
+      "burn": {
+        "pass": 42,
+        "total": 44,
+        "percent": 95.45454545454545,
+        "first": "pass"
+      },
+      "cold": null,
+      "amp": {
+        "pass": 22,
+        "total": 44,
+        "percent": 50,
+        "first": "pass"
+      },
+      "casts": {
+        "휘둘러 내려치기": 29,
+        "최후의 저항": 6,
+        "대검 찍기": 13,
+        "회전 난격": 18,
+        "연쇄 번개": 8,
+        "화염구": 17,
+        "폭주": 4,
+        "주먹 지르기": 24,
+        "강인한 의지": 14
+      }
+    },
+    "after": {
+      "order": [
+        "화염구",
+        "최후의 저항",
+        "휘둘러 내려치기",
+        "연쇄 번개",
+        "주먹 지르기",
+        "대검 찍기",
+        "회전 난격",
+        "강인한 의지",
+        "폭주"
+      ],
+      "score": 218.24,
+      "baseSlots": [
+        "s012",
+        "s011",
+        "s015",
+        "s063",
+        "s086"
+      ],
+      "validation": {
+        "normal": 8,
+        "ultimate": 1,
+        "counts": {
+          "연타": 3,
+          "파멸": 1,
+          "헌신": 1
+        },
+        "issues": [],
+        "complete": true
+      },
+      "rage": {
+        "uptime": 98.166667,
+        "resets": 5,
+        "max": 50,
+        "first50": 16.6,
+        "sensitivity": [
+          {
+            "phase": "early",
+            "resets": 4,
+            "uptime": 98.277778,
+            "max": 50,
+            "first50": 16.5
+          },
+          {
+            "phase": "uniform",
+            "resets": 5,
+            "uptime": 98.166667,
+            "max": 50,
+            "first50": 16.6
+          },
+          {
+            "phase": "late",
+            "resets": 6,
+            "uptime": 97.972222,
+            "max": 50,
+            "first50": 16.675
+          }
+        ]
+      },
+      "heal": {
+        "pass": 48,
+        "total": 126,
+        "percent": 38.095238095238095,
+        "first": "pass"
+      },
+      "burn": {
+        "pass": 43,
+        "total": 44,
+        "percent": 97.72727272727273,
+        "first": "pass"
+      },
+      "cold": null,
+      "amp": {
+        "pass": 22,
+        "total": 44,
+        "percent": 50,
+        "first": "pass"
+      },
+      "casts": {
+        "화염구": 18,
+        "최후의 저항": 6,
+        "휘둘러 내려치기": 29,
+        "연쇄 번개": 8,
+        "주먹 지르기": 25,
+        "대검 찍기": 13,
+        "회전 난격": 18,
+        "강인한 의지": 15,
+        "폭주": 4
+      }
+    },
+    "note": "대상 1명, 모든 모델 타격 적중, 돌파 없음. 모션 내 타격 배분은 추정. 평타·지속피해·미확인 장판·적 이동·처치량·DPS 제외. 점수는 탐색용이며 전투력 점수가 아님."
+  }
+}

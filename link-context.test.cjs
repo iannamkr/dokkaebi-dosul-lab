@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict'),D=require('./dist/data.json'),G=require('./dist/graph.js'),Q=require('./dist/sequence.js');
+const id=n=>D.skills.find(s=>s.name===n).id,edges=G.buildGraph(D),build=['대검 찍기','회전 난격'].map(id);
+const direct=Q.candidates(D,edges,build,2,['explicit'],'replace','previous').filter(x=>x.positive.length);
+assert.deepEqual(direct.map(x=>x.skill.name).sort(),['사격','연쇄 번개','화염 분출'].sort());
+assert.ok(direct.every(x=>x.positive.every(e=>e.source===id('회전 난격')&&e.effect==='파쇄')));
+const all=Q.candidates(D,edges,build,2,['explicit'],'replace','all');
+const old=all.find(x=>x.skill.name==='연속 찌르기');
+assert.ok(old.positive.some(e=>e.source===id('대검 찍기')&&e.effect==='기세'));
+assert.ok(!old.positive.some(e=>e.source===id('회전 난격')));
+assert.ok(edges.some(e=>e.effect==='파열'));
+assert.ok(direct.every(x=>x.positive.every(e=>e.reference&&e.evidence.includes('kkaebigg'))));
+console.log('Passed: screenshot order, previous-skill 파쇄 successors, earlier 기세 provenance, reference evidence, distinct 파열 preserved.');

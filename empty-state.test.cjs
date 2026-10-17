@@ -1,0 +1,25 @@
+const vm=require('vm'),fs=require('fs'),assert=require('node:assert/strict');
+const els=new Map();
+function el(k){if(!els.has(k))els.set(k,{innerHTML:'',textContent:'',value:k==='#candidate-mode'?'all':'',checked:true,clientHeight:500,classList:{add(){},remove(){},toggle(){}},addEventListener(){},getBoundingClientRect(){return{};}});return els.get(k);}
+const c={console,window:{},document:{querySelector:el,querySelectorAll(){return[];},addEventListener(){}},localStorage:{getItem(){return null;},setItem(){}},requestAnimationFrame(){},setTimeout(){},clearTimeout(){},ResizeObserver:class{observe(){}}};
+c.window=c;vm.createContext(c);
+for(const f of ['data','graph','sequence','targets','timing','hit-timing','timing-auto','combat','link-timing','planner','game-ui'])vm.runInContext(fs.readFileSync('dist/'+f+'.js','utf8'),c,{filename:f});
+const run=s=>vm.runInContext(s,c);
+assert.equal(run('selected'),null);
+assert.equal(el('#candidate-nodes').innerHTML,'');
+assert.match(el('#detail').innerHTML,/도술을 선택하세요/);
+assert.ok(!el('#skill-list').innerHTML.includes('skill-item selected'));
+run('select(S[10].id)');
+assert.match(el('#detail').innerHTML,/주먹 지르기/);
+assert.equal(el('#candidate-nodes').innerHTML,'');
+run('pick(S[10].id)');
+assert.equal(run('build.length'),1);
+assert.ok(el('#candidate-nodes').innerHTML.includes('candidate-node'));
+run("$('#clear').onclick()");
+assert.equal(run('selected'),null);
+assert.equal(el('#candidate-nodes').innerHTML,'');
+assert.equal(el('#predecessors').innerHTML,'');
+run("$('#undo').onclick()");
+assert.equal(run('build.length'),1);
+assert.match(el('#detail').innerHTML,/주먹 지르기/);
+console.log('Passed: fresh start, explicit inspection, first placement, reset, undo; no implicit selection or empty-build recommendations.');

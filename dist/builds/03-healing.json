@@ -1,0 +1,130 @@
+{
+  "schema": "dosul-build-v3",
+  "name": "추천 3 · 폭발하는 화살 대신 생명의 흐름",
+  "baseline": "2026-09-29",
+  "skills": [
+    "s060",
+    "s026",
+    "s064",
+    "s063",
+    "s059",
+    "s085",
+    "s041",
+    "s037",
+    "s066"
+  ],
+  "skillNames": [
+    "연쇄 번개",
+    "검기 폭발",
+    "요기 폭발",
+    "화염구",
+    "얼음화살",
+    "생명의 흐름",
+    "쐐기 화살",
+    "밀쳐내는 화살",
+    "대폭발"
+  ],
+  "baseSlots": [
+    "s026",
+    "s059",
+    "s063",
+    "s085",
+    "s064"
+  ],
+  "baseSlotNames": [
+    "검기 폭발",
+    "얼음화살",
+    "화염구",
+    "생명의 흐름",
+    "요기 폭발"
+  ],
+  "validation": {
+    "normal": 8,
+    "ultimate": 1,
+    "counts": {
+      "강타": 1,
+      "파멸": 3,
+      "헌신": 1
+    },
+    "issues": [],
+    "complete": true
+  },
+  "comparison": {
+    "reference": "깨비지지 #214 쌀먹왕 파멸저격 ver2 *궁 순서 중요 *",
+    "source": "https://kkaebigg.com/deck/",
+    "horizonSeconds": 60,
+    "metrics": {
+      "firstActivationSeconds": 6,
+      "casts": 54,
+      "additionalCastsFromShinsik": 10,
+      "attacksDuringShinsik": 26,
+      "ultimateDuringShinsik": 1,
+      "ultimateCasts": 1,
+      "resetTimes": [
+        6,
+        32.7,
+        59.4
+      ],
+      "perSkill": {
+        "연쇄 번개": 6,
+        "검기 폭발": 5,
+        "요기 폭발": 5,
+        "화염구": 10,
+        "얼음화살": 7,
+        "생명의 흐름": 7,
+        "쐐기 화살": 7,
+        "밀쳐내는 화살": 6,
+        "대폭발": 1
+      },
+      "unusedSkills": []
+    },
+    "relativeIndices": {
+      "activation": 95.8,
+      "repeat": 100,
+      "window": 86.7,
+      "mean": 94.2
+    },
+    "formula": "원본=100. 발동속도=원본 첫 발동/후보 첫 발동×100; 반복사용=후보 시전횟수/원본 시전횟수×100; 강화구간=후보 신식 유지 중 공격횟수/원본 횟수×100. 종합은 세 지수의 동일 가중 평균. DPS·생존력 점수 아님.",
+    "reason": "파멸 초기화와 궁극기 후순위 구조를 유지하며 지속 회복 도술을 추가. 공격만 있는 원본에서 생존 수단이 필요한 경우의 대안.",
+    "tradeoff": "공격 도술 한 자리를 회복에 사용해 공격 횟수와 강화 중 공격 횟수가 줄 수 있음. 비교 계산은 체력 조건 없이 회복 도술도 준비될 때 사용하는 설정을 가정하며 실제 회복량·생존력은 점수에 미포함.",
+    "assumptions": [
+      "파멸 신식만 개방",
+      "기본 장착 5칸과 사용 순서 분리",
+      "시작 시 모든 저장 횟수 가득, 자원 0",
+      "사용 가능한 앞순위 도술부터 재검사",
+      "저장 횟수 순차 충전, 초기화 시 전체 회복",
+      "파멸 상세값 사용당 25/최대200; 상단15와 불일치",
+      "최대 차지, 모션 종료 적중 가정",
+      "모든 도술의 사용 조건 충족 가정; 체력 조건·이동·피격·장비·돌파·실측 피해 미반영"
+    ],
+    "longWindow180": {
+      "firstActivationSeconds": 6,
+      "casts": 152,
+      "additionalCastsFromShinsik": 31,
+      "attacksDuringShinsik": 83,
+      "ultimateDuringShinsik": 2,
+      "ultimateCasts": 2,
+      "resetTimes": [
+        6,
+        32.7,
+        59.4,
+        86.1,
+        112.8,
+        139.5,
+        166.2
+      ],
+      "perSkill": {
+        "연쇄 번개": 14,
+        "검기 폭발": 14,
+        "요기 폭발": 14,
+        "화염구": 28,
+        "얼음화살": 21,
+        "생명의 흐름": 20,
+        "쐐기 화살": 20,
+        "밀쳐내는 화살": 19,
+        "대폭발": 2
+      },
+      "unusedSkills": []
+    }
+  }
+}

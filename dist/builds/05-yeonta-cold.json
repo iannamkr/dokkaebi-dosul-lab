@@ -1,0 +1,242 @@
+{
+  "schema": "dosul-build-v3",
+  "name": "연타 개선 2 · 한기·격노 유지",
+  "baseline": "2026-09-29",
+  "skills": [
+    "s021",
+    "s055",
+    "s015",
+    "s067",
+    "s040",
+    "s011",
+    "s012",
+    "s063",
+    "s018"
+  ],
+  "skillNames": [
+    "대검 찍기",
+    "날카로운 얼음창",
+    "회전 난격",
+    "강인한 의지",
+    "쇠뇌 사격",
+    "주먹 지르기",
+    "휘둘러 내려치기",
+    "화염구",
+    "폭주"
+  ],
+  "baseSlots": [
+    "s015",
+    "s011",
+    "s012",
+    "s021",
+    "s055"
+  ],
+  "validation": {
+    "normal": 8,
+    "ultimate": 1,
+    "counts": {
+      "연타": 3,
+      "강타": 1,
+      "파멸": 1
+    },
+    "issues": [],
+    "complete": true
+  },
+  "comparison": {
+    "reference": "동일 구성의 기존 사용 순서",
+    "horizonSeconds": 60,
+    "metrics": {
+      "casts": 60,
+      "firstActivationSeconds": 0.7,
+      "additionalCastsFromShinsik": 0,
+      "attacksDuringShinsik": 59,
+      "ultimateDuringShinsik": 2
+    }
+  },
+  "timingReview": {
+    "horizonSeconds": 180,
+    "before": {
+      "order": [
+        "대검 찍기",
+        "날카로운 얼음창",
+        "회전 난격",
+        "쇠뇌 사격",
+        "화염구",
+        "폭주",
+        "주먹 지르기",
+        "휘둘러 내려치기",
+        "강인한 의지"
+      ],
+      "score": 186.42,
+      "baseSlots": [
+        "s015",
+        "s011",
+        "s012",
+        "s021",
+        "s055"
+      ],
+      "validation": {
+        "normal": 8,
+        "ultimate": 1,
+        "counts": {
+          "연타": 3,
+          "강타": 1,
+          "파멸": 1
+        },
+        "issues": [],
+        "complete": true
+      },
+      "rage": {
+        "uptime": 97.888889,
+        "resets": 7,
+        "max": 50,
+        "first50": 15.4,
+        "sensitivity": [
+          {
+            "phase": "early",
+            "resets": 7,
+            "uptime": 98.055556,
+            "max": 50,
+            "first50": 15.4
+          },
+          {
+            "phase": "uniform",
+            "resets": 7,
+            "uptime": 97.888889,
+            "max": 50,
+            "first50": 15.4
+          },
+          {
+            "phase": "late",
+            "resets": 7,
+            "uptime": 97.763889,
+            "max": 50,
+            "first50": 15.4
+          }
+        ]
+      },
+      "heal": {
+        "pass": 43,
+        "total": 126,
+        "percent": 34.12698412698413,
+        "first": "pass"
+      },
+      "burn": {
+        "pass": 41,
+        "total": 44,
+        "percent": 93.18181818181819,
+        "first": "pass"
+      },
+      "cold": {
+        "pass": 11,
+        "total": 41,
+        "percent": 26.829268292682926,
+        "first": "pass"
+      },
+      "amp": null,
+      "casts": {
+        "대검 찍기": 13,
+        "날카로운 얼음창": 10,
+        "회전 난격": 18,
+        "쇠뇌 사격": 41,
+        "화염구": 18,
+        "폭주": 4,
+        "주먹 지르기": 23,
+        "휘둘러 내려치기": 26,
+        "강인한 의지": 14
+      }
+    },
+    "after": {
+      "order": [
+        "대검 찍기",
+        "날카로운 얼음창",
+        "회전 난격",
+        "강인한 의지",
+        "쇠뇌 사격",
+        "주먹 지르기",
+        "휘둘러 내려치기",
+        "화염구",
+        "폭주"
+      ],
+      "score": 207.32,
+      "baseSlots": [
+        "s015",
+        "s011",
+        "s012",
+        "s021",
+        "s055"
+      ],
+      "validation": {
+        "normal": 8,
+        "ultimate": 1,
+        "counts": {
+          "연타": 3,
+          "강타": 1,
+          "파멸": 1
+        },
+        "issues": [],
+        "complete": true
+      },
+      "rage": {
+        "uptime": 99.5,
+        "resets": 1,
+        "max": 50,
+        "first50": 12.6,
+        "sensitivity": [
+          {
+            "phase": "early",
+            "resets": 1,
+            "uptime": 99.5,
+            "max": 50,
+            "first50": 12.6
+          },
+          {
+            "phase": "uniform",
+            "resets": 1,
+            "uptime": 99.5,
+            "max": 50,
+            "first50": 12.6
+          },
+          {
+            "phase": "late",
+            "resets": 1,
+            "uptime": 99.5,
+            "max": 50,
+            "first50": 12.6
+          }
+        ]
+      },
+      "heal": {
+        "pass": 46,
+        "total": 126,
+        "percent": 36.507936507936506,
+        "first": "pass"
+      },
+      "burn": {
+        "pass": 43,
+        "total": 44,
+        "percent": 97.72727272727273,
+        "first": "pass"
+      },
+      "cold": {
+        "pass": 13,
+        "total": 41,
+        "percent": 31.70731707317073,
+        "first": "pass"
+      },
+      "amp": null,
+      "casts": {
+        "대검 찍기": 13,
+        "날카로운 얼음창": 10,
+        "회전 난격": 18,
+        "강인한 의지": 15,
+        "쇠뇌 사격": 41,
+        "주먹 지르기": 25,
+        "휘둘러 내려치기": 28,
+        "화염구": 17,
+        "폭주": 4
+      }
+    },
+    "note": "대상 1명, 모든 모델 타격 적중, 돌파 없음. 모션 내 타격 배분은 추정. 평타·지속피해·미확인 장판·적 이동·처치량·DPS 제외. 점수는 탐색용이며 전투력 점수가 아님."
+  }
+}

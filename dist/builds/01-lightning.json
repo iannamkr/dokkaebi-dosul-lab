@@ -1,0 +1,127 @@
+{
+  "schema": "dosul-build-v3",
+  "name": "추천 1 · 검기 폭발 대신 낙뢰",
+  "baseline": "2026-09-29",
+  "skills": [
+    "s060",
+    "s054",
+    "s064",
+    "s063",
+    "s059",
+    "s045",
+    "s041",
+    "s037",
+    "s066"
+  ],
+  "skillNames": [
+    "연쇄 번개",
+    "낙뢰",
+    "요기 폭발",
+    "화염구",
+    "얼음화살",
+    "폭발하는 화살",
+    "쐐기 화살",
+    "밀쳐내는 화살",
+    "대폭발"
+  ],
+  "baseSlots": [
+    "s054",
+    "s059",
+    "s063",
+    "s045",
+    "s064"
+  ],
+  "baseSlotNames": [
+    "낙뢰",
+    "얼음화살",
+    "화염구",
+    "폭발하는 화살",
+    "요기 폭발"
+  ],
+  "validation": {
+    "normal": 8,
+    "ultimate": 1,
+    "counts": {
+      "파멸": 4,
+      "저격": 1
+    },
+    "issues": [],
+    "complete": true
+  },
+  "comparison": {
+    "reference": "깨비지지 #214 쌀먹왕 파멸저격 ver2 *궁 순서 중요 *",
+    "source": "https://kkaebigg.com/deck/",
+    "horizonSeconds": 60,
+    "metrics": {
+      "firstActivationSeconds": 4.45,
+      "casts": 54,
+      "additionalCastsFromShinsik": 9,
+      "attacksDuringShinsik": 31,
+      "ultimateDuringShinsik": 1,
+      "ultimateCasts": 1,
+      "resetTimes": [
+        4.45,
+        34.45
+      ],
+      "perSkill": {
+        "연쇄 번개": 5,
+        "낙뢰": 5,
+        "요기 폭발": 5,
+        "화염구": 10,
+        "얼음화살": 8,
+        "폭발하는 화살": 7,
+        "쐐기 화살": 7,
+        "밀쳐내는 화살": 6,
+        "대폭발": 1
+      },
+      "unusedSkills": []
+    },
+    "relativeIndices": {
+      "activation": 129.2,
+      "repeat": 100,
+      "window": 103.3,
+      "mean": 110.8
+    },
+    "formula": "원본=100. 발동속도=원본 첫 발동/후보 첫 발동×100; 반복사용=후보 시전횟수/원본 시전횟수×100; 강화구간=후보 신식 유지 중 공격횟수/원본 횟수×100. 종합은 세 지수의 동일 가중 평균. DPS·생존력 점수 아님.",
+    "reason": "1.8초 최대 차지 동작을 0.5초 즉시 동작으로 바꿔 파멸 신식 첫 발동을 앞당기는 대안. 원소 부여와 범위 공격을 유지.",
+    "tradeoff": "검기 폭발의 받는 피해 감소와 최대 차지 방어력 증가를 잃음. 낙뢰의 관통 조건 효과는 이 조합에서 자동 성립한다고 보지 않음.",
+    "assumptions": [
+      "파멸 신식만 개방",
+      "기본 장착 5칸과 사용 순서 분리",
+      "시작 시 모든 저장 횟수 가득, 자원 0",
+      "사용 가능한 앞순위 도술부터 재검사",
+      "저장 횟수 순차 충전, 초기화 시 전체 회복",
+      "파멸 상세값 사용당 25/최대200; 상단15와 불일치",
+      "최대 차지, 모션 종료 적중 가정",
+      "모든 도술의 사용 조건 충족 가정; 체력 조건·이동·피격·장비·돌파·실측 피해 미반영"
+    ],
+    "longWindow180": {
+      "firstActivationSeconds": 4.45,
+      "casts": 147,
+      "additionalCastsFromShinsik": 17,
+      "attacksDuringShinsik": 92,
+      "ultimateDuringShinsik": 2,
+      "ultimateCasts": 2,
+      "resetTimes": [
+        4.45,
+        34.45,
+        64.45,
+        94.45,
+        124.45,
+        154.45
+      ],
+      "perSkill": {
+        "연쇄 번개": 13,
+        "낙뢰": 13,
+        "요기 폭발": 13,
+        "화염구": 26,
+        "얼음화살": 24,
+        "폭발하는 화살": 19,
+        "쐐기 화살": 19,
+        "밀쳐내는 화살": 18,
+        "대폭발": 2
+      },
+      "unusedSkills": []
+    }
+  }
+}

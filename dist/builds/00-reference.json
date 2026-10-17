@@ -1,0 +1,130 @@
+{
+  "schema": "dosul-build-v3",
+  "name": "비교 원본 · 쌀먹왕 파멸저격 ver2",
+  "baseline": "2026-09-29",
+  "skills": [
+    "s060",
+    "s026",
+    "s064",
+    "s063",
+    "s059",
+    "s045",
+    "s041",
+    "s037",
+    "s066"
+  ],
+  "skillNames": [
+    "연쇄 번개",
+    "검기 폭발",
+    "요기 폭발",
+    "화염구",
+    "얼음화살",
+    "폭발하는 화살",
+    "쐐기 화살",
+    "밀쳐내는 화살",
+    "대폭발"
+  ],
+  "baseSlots": [
+    "s026",
+    "s059",
+    "s063",
+    "s045",
+    "s064"
+  ],
+  "baseSlotNames": [
+    "검기 폭발",
+    "얼음화살",
+    "화염구",
+    "폭발하는 화살",
+    "요기 폭발"
+  ],
+  "validation": {
+    "normal": 8,
+    "ultimate": 1,
+    "counts": {
+      "강타": 1,
+      "파멸": 3,
+      "저격": 1
+    },
+    "issues": [],
+    "complete": true
+  },
+  "comparison": {
+    "reference": "깨비지지 #214 쌀먹왕 파멸저격 ver2 *궁 순서 중요 *",
+    "source": "https://kkaebigg.com/deck/",
+    "horizonSeconds": 60,
+    "metrics": {
+      "firstActivationSeconds": 5.75,
+      "casts": 54,
+      "additionalCastsFromShinsik": 10,
+      "attacksDuringShinsik": 30,
+      "ultimateDuringShinsik": 1,
+      "ultimateCasts": 1,
+      "resetTimes": [
+        5.75,
+        32.2,
+        58.65
+      ],
+      "perSkill": {
+        "연쇄 번개": 6,
+        "검기 폭발": 5,
+        "요기 폭발": 5,
+        "화염구": 10,
+        "얼음화살": 7,
+        "폭발하는 화살": 7,
+        "쐐기 화살": 7,
+        "밀쳐내는 화살": 6,
+        "대폭발": 1
+      },
+      "unusedSkills": []
+    },
+    "relativeIndices": {
+      "activation": 100,
+      "repeat": 100,
+      "window": 100,
+      "mean": 100
+    },
+    "formula": "원본=100. 발동속도=원본 첫 발동/후보 첫 발동×100; 반복사용=후보 시전횟수/원본 시전횟수×100; 강화구간=후보 신식 유지 중 공격횟수/원본 횟수×100. 종합은 세 지수의 동일 가중 평균. DPS·생존력 점수 아님.",
+    "reason": "깨비지지 #214의 사용 순서와 기본 장착 5칸을 그대로 옮긴 비교 원본.",
+    "tradeoff": "",
+    "assumptions": [
+      "파멸 신식만 개방",
+      "기본 장착 5칸과 사용 순서 분리",
+      "시작 시 모든 저장 횟수 가득, 자원 0",
+      "사용 가능한 앞순위 도술부터 재검사",
+      "저장 횟수 순차 충전, 초기화 시 전체 회복",
+      "파멸 상세값 사용당 25/최대200; 상단15와 불일치",
+      "최대 차지, 모션 종료 적중 가정",
+      "모든 도술의 사용 조건 충족 가정; 체력 조건·이동·피격·장비·돌파·실측 피해 미반영"
+    ],
+    "longWindow180": {
+      "firstActivationSeconds": 5.75,
+      "casts": 156,
+      "additionalCastsFromShinsik": 34,
+      "attacksDuringShinsik": 100,
+      "ultimateDuringShinsik": 2,
+      "ultimateCasts": 2,
+      "resetTimes": [
+        5.75,
+        32.2,
+        58.65,
+        85.1,
+        111.55,
+        138,
+        164.45
+      ],
+      "perSkill": {
+        "연쇄 번개": 14,
+        "검기 폭발": 14,
+        "요기 폭발": 14,
+        "화염구": 29,
+        "얼음화살": 21,
+        "폭발하는 화살": 21,
+        "쐐기 화살": 21,
+        "밀쳐내는 화살": 20,
+        "대폭발": 2
+      },
+      "unusedSkills": []
+    }
+  }
+}

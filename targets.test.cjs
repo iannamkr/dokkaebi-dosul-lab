@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),T=require('./dist/targets.js'),D=require('./dist/data.json');
+const s=name=>D.skills.find(s=>s.name===name);
+assert.equal(T.get(s('크게 베기')).kind,'area');
+assert.equal(T.get(s('크게 베기')).count,null,'unknown count must not erase known area type');
+assert.equal(T.get(s('천벌')).count,10);
+assert.equal(T.get(s('찌르기')).kind,'single');
+assert.equal(T.get(s('내려찍기')).reference,true,'secondary classification remains identified');
+assert.equal(T.get({basic:{target:null}}).kind,'unknown');
+assert(!T.matches({basic:{target:null}},'single'),'unknown cannot enter a single-target filter');
+assert(!T.matches({basic:{target:null}},'area'));
+for(const kind of ['area','single','unknown'])assert(D.skills.filter(s=>T.matches(s,kind)).every(s=>T.get(s).kind===kind));
+const sums=T.summary(D.skills);assert.equal(Object.values(sums).reduce((a,b)=>a+b,0),105);
+assert.equal(T.summary([s('크게 베기'),s('찌르기')]).area,1);
+assert.equal(D.skills.filter(s=>s.family==='강타'&&T.get(s).kind==='unknown').length,0);
+console.log('Passed: target type/count separation, provenance, filtering, totals and all smash types.',sums);

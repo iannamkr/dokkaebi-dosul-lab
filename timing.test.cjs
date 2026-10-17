@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict'),T=require('./dist/timing.js');
+global.window={};require('./dist/data.js');const data=window.DOSUL_DATA,by=n=>data.skills.find(s=>s.name===n),a=by('회전 난격'),b=by('연쇄 번개'),edge={effect:'파쇄'};
+let r=T.assess(a,b,edge);assert.equal(r.duration,5);assert.equal(r.first,'unknown');assert.equal(r.sourceCooldown,10);assert.equal(r.targetCooldown,22);assert.equal(r.period,22);assert.equal(r.sourceWait,12);assert.equal(r.targetWait,0);assert.equal(r.cycles.length,0);
+r=T.assess(a,b,edge,{delay:1});assert.equal(r.first,'pass');assert.equal(r.margin,4);assert.deepEqual(r.cycles.map(x=>x.hit),[1,23,45,67,89]);assert.deepEqual(r.cycles.map(x=>x.status),['pass','pass','boundary','fail','fail']);
+assert.equal(T.assess(a,b,edge,{delay:6}).first,'fail');assert.equal(T.assess(a,b,edge,{delay:5}).first,'boundary');assert.equal(T.assess(a,b,edge,{delay:0}).first,'boundary');
+r=T.assess(a,b,edge,{delay:1,targetCooldown:10});assert.equal(r.passes,5);assert.equal(r.period,10);
+r=T.assess(a,b,{effect:'기세'},{delay:1});assert.equal(r.duration,null);assert.equal(r.first,'unknown');assert.equal(r.cycles.length,0);
+assert.equal(T.duration(by('주먹 지르기'),'정밀').value,null,'conditional damage reduction duration must not become prerequisite duration');
+r=T.assess(a,b,edge,{duration:3,delay:4,sourceCooldown:12,targetCooldown:8});assert.equal(r.first,'fail');assert.equal(r.sourceWait,0);assert.equal(r.targetWait,4);
+for(const bad of ['',null,undefined,NaN,Infinity,-1,3601])assert.equal(T.number(bad),null);
+assert.equal(T.number(0),0);assert.equal(T.number(0,true),null);
+console.log('Timing passed: observed duration, unknown hit delay, window boundaries, 5 cooldown cycles, synchronized waits, user overrides, invalid values.');

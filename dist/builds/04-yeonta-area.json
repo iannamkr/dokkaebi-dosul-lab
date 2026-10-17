@@ -1,0 +1,232 @@
+{
+  "schema": "dosul-build-v3",
+  "name": "연타 개선 1 · 반복 광역",
+  "baseline": "2026-09-29",
+  "skills": [
+    "s051",
+    "s012",
+    "s021",
+    "s083",
+    "s063",
+    "s015",
+    "s067",
+    "s011",
+    "s018"
+  ],
+  "skillNames": [
+    "영혼 소용돌이",
+    "휘둘러 내려치기",
+    "대검 찍기",
+    "산들 바람",
+    "화염구",
+    "회전 난격",
+    "강인한 의지",
+    "주먹 지르기",
+    "폭주"
+  ],
+  "baseSlots": [
+    "s012",
+    "s015",
+    "s011",
+    "s051",
+    "s021"
+  ],
+  "validation": {
+    "normal": 8,
+    "ultimate": 1,
+    "counts": {
+      "연타": 3,
+      "주술": 1,
+      "강타": 1
+    },
+    "issues": [],
+    "complete": true
+  },
+  "comparison": {
+    "reference": "동일 구성의 기존 사용 순서",
+    "horizonSeconds": 60,
+    "metrics": {
+      "casts": 54,
+      "firstActivationSeconds": 0.6,
+      "additionalCastsFromShinsik": 0,
+      "attacksDuringShinsik": 50,
+      "ultimateDuringShinsik": 1
+    }
+  },
+  "timingReview": {
+    "horizonSeconds": 180,
+    "before": {
+      "order": [
+        "영혼 소용돌이",
+        "대검 찍기",
+        "회전 난격",
+        "화염구",
+        "폭주",
+        "주먹 지르기",
+        "산들 바람",
+        "휘둘러 내려치기",
+        "강인한 의지"
+      ],
+      "score": 162.78,
+      "baseSlots": [
+        "s015",
+        "s011",
+        "s012",
+        "s051",
+        "s021"
+      ],
+      "validation": {
+        "normal": 8,
+        "ultimate": 1,
+        "counts": {
+          "연타": 3,
+          "주술": 1,
+          "강타": 1
+        },
+        "issues": [],
+        "complete": true
+      },
+      "rage": {
+        "uptime": 94.288889,
+        "resets": 9,
+        "max": 50,
+        "first50": 14.4,
+        "sensitivity": [
+          {
+            "phase": "early",
+            "resets": 9,
+            "uptime": 94.611111,
+            "max": 50,
+            "first50": 14.366667
+          },
+          {
+            "phase": "uniform",
+            "resets": 9,
+            "uptime": 94.288889,
+            "max": 50,
+            "first50": 14.4
+          },
+          {
+            "phase": "late",
+            "resets": 10,
+            "uptime": 93.925,
+            "max": 50,
+            "first50": 14.425
+          }
+        ]
+      },
+      "heal": {
+        "pass": 44,
+        "total": 126,
+        "percent": 34.92063492063492,
+        "first": "pass"
+      },
+      "burn": {
+        "pass": 39,
+        "total": 44,
+        "percent": 88.63636363636364,
+        "first": "pass"
+      },
+      "cold": null,
+      "amp": null,
+      "casts": {
+        "영혼 소용돌이": 19,
+        "대검 찍기": 13,
+        "회전 난격": 18,
+        "화염구": 18,
+        "폭주": 4,
+        "주먹 지르기": 23,
+        "산들 바람": 16,
+        "휘둘러 내려치기": 26,
+        "강인한 의지": 14
+      }
+    },
+    "after": {
+      "order": [
+        "영혼 소용돌이",
+        "휘둘러 내려치기",
+        "대검 찍기",
+        "산들 바람",
+        "화염구",
+        "회전 난격",
+        "강인한 의지",
+        "주먹 지르기",
+        "폭주"
+      ],
+      "score": 183,
+      "baseSlots": [
+        "s012",
+        "s015",
+        "s011",
+        "s051",
+        "s021"
+      ],
+      "validation": {
+        "normal": 8,
+        "ultimate": 1,
+        "counts": {
+          "연타": 3,
+          "주술": 1,
+          "강타": 1
+        },
+        "issues": [],
+        "complete": true
+      },
+      "rage": {
+        "uptime": 98,
+        "resets": 5,
+        "max": 50,
+        "first50": 14.06,
+        "sensitivity": [
+          {
+            "phase": "early",
+            "resets": 5,
+            "uptime": 98.166667,
+            "max": 50,
+            "first50": 14.025
+          },
+          {
+            "phase": "uniform",
+            "resets": 5,
+            "uptime": 98,
+            "max": 50,
+            "first50": 14.06
+          },
+          {
+            "phase": "late",
+            "resets": 6,
+            "uptime": 97.902778,
+            "max": 50,
+            "first50": 14.095
+          }
+        ]
+      },
+      "heal": {
+        "pass": 45,
+        "total": 126,
+        "percent": 35.714285714285715,
+        "first": "pass"
+      },
+      "burn": {
+        "pass": 44,
+        "total": 44,
+        "percent": 100,
+        "first": "pass"
+      },
+      "cold": null,
+      "amp": null,
+      "casts": {
+        "영혼 소용돌이": 19,
+        "휘둘러 내려치기": 28,
+        "대검 찍기": 13,
+        "산들 바람": 16,
+        "화염구": 17,
+        "회전 난격": 18,
+        "강인한 의지": 15,
+        "주먹 지르기": 23,
+        "폭주": 4
+      }
+    },
+    "note": "대상 1명, 모든 모델 타격 적중, 돌파 없음. 모션 내 타격 배분은 추정. 평타·지속피해·미확인 장판·적 이동·처치량·DPS 제외. 점수는 탐색용이며 전투력 점수가 아님."
+  }
+}
