@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "description": "도깨비의 세계 도술 연계·빌드·영상 기반 전투 비교 도구",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "node scripts/serve.cjs",
     "start": "node scripts/serve.cjs",
-    "test": "node scripts/test.cjs"
+    "test": "node scripts/test.cjs",
+    "compare": "node scripts/compare-builds.cjs"
   }
 }
