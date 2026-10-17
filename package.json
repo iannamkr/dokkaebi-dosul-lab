@@ -10,6 +10,7 @@
     "dev": "node scripts/serve.cjs",
     "start": "node scripts/serve.cjs",
     "test": "node scripts/test.cjs",
-    "compare": "node scripts/compare-builds.cjs"
+    "compare": "node scripts/compare-builds.cjs",
+    "sync": "node scripts/kkaebigg-sync.cjs"
   }
 }

@@ -1,0 +1,53 @@
+{
+ "schema": "kkaebigg-snapshot-v1",
+ "fetchedAt": "2026-10-17T17:39:18.078Z",
+ "base": "https://kkaebigg.com",
+ "sources": {
+  "skills": {
+   "url": "https://kkaebigg.com/data/skills.json",
+   "version": "kkaebigg.com/2026-10-05/c4708e277477",
+   "bytes": 347996,
+   "sha256": "92d1f8a98f7607cab346009fcde99b3a15cf0bb7d15dd6a5eac929b1d95eab7a"
+  },
+  "buffs": {
+   "url": "https://kkaebigg.com/buffs/",
+   "version": "kkaebigg.com/2026-10-05/88ba5f3cd9d5",
+   "bytes": 250350,
+   "sha256": "364e06e2352882b45031a2488faf6557c62c7171cb0f4710b2541f456f49e8ba"
+  },
+  "maps": {
+   "url": "https://kkaebigg.com/maps/",
+   "version": "kkaebigg.com/2026-10-05/ca33dc91d2fa",
+   "bytes": 248895,
+   "sha256": "9bd547125ff81736ddfeb6e1b6a1a67b601fd105b73b512ef077b5d2d4338b16"
+  },
+  "monsters": {
+   "url": "https://kkaebigg.com/monsters/",
+   "version": "kkaebigg.com/2026-10-05/15384888c33d",
+   "bytes": 372936,
+   "sha256": "74261e7c473a603d306e8becd39b11b4dd101e82af70471c71c15749e8eac5f1"
+  }
+ },
+ "counts": {
+  "skills": 105,
+  "buffGroups": 392,
+  "mapZones": 30,
+  "monsters": 825
+ },
+ "changes": {
+  "skills": [],
+  "buffGroups": {
+   "before": 392,
+   "after": 392,
+   "changed": false
+  },
+  "mapZones": {
+   "before": 30,
+   "after": 30
+  },
+  "monsters": {
+   "before": 825,
+   "after": 825
+  }
+ }
+}

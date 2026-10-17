@@ -1,0 +1,29 @@
+.opt-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;border-top:1px solid #d5dfcd;border-bottom:1px solid #d5dfcd;padding:16px 0;margin:8px 0 4px}
+.opt-panel{display:flex;flex-direction:column;gap:8px;min-width:0;font-size:13px}
+.opt-panel+.opt-panel{border-left:1px solid #d5dfcd;padding-left:20px}
+.opt-panel h2{font-size:14px!important;margin:0 0 4px!important;color:#31563f}
+.opt-panel label{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.opt-panel input[type=number],.opt-panel select{width:130px;min-height:32px;padding:4px 8px;font-variant-numeric:tabular-nums}
+.opt-modes{display:flex;flex-direction:column;gap:6px}
+.opt-modes label,.opt-check{justify-content:flex-start!important;align-items:flex-start!important;gap:8px!important;line-height:1.5}
+.opt-modes small,.opt-check small{display:block;font-size:11px;color:#67785f}
+.opt-inline{display:flex;flex-direction:column;gap:6px}
+.opt-inline[hidden]{display:none}
+.opt-need{margin:4px 0 0;font-size:12px;line-height:1.6;color:#31563f;font-weight:600}
+.opt-families{display:flex;flex-wrap:wrap;gap:6px 10px}
+.opt-families label{gap:4px!important;justify-content:flex-start!important}
+.opt-sources input{width:100px;min-height:30px;padding:3px 6px}
+.opt-unquantified{font-size:12px;color:#67785f;margin:8px 0 0;padding-left:18px;line-height:1.7}
+.opt-run{display:flex;align-items:center;gap:12px;margin:18px 0 6px;flex-wrap:wrap}
+.opt-run progress{flex:1;min-width:120px;max-width:320px;accent-color:#21795a}
+.opt-run span{font-size:12px;color:#64765c;font-variant-numeric:tabular-nums}
+.opt-order{display:flex;flex-wrap:wrap;gap:2px 10px;max-width:520px}
+.opt-order span{white-space:nowrap}
+.opt-order .opt-new{color:#21795a;font-weight:600}
+.opt-results td small{display:block}
+.opt-results td:last-child{white-space:nowrap}
+.opt-results button+button{margin-left:6px}
+@media (max-width:900px){.opt-grid{grid-template-columns:1fr}.opt-panel+.opt-panel{border-left:0;padding-left:0;border-top:1px solid #d5dfcd;padding-top:14px}}
+.opt-data{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:#64765c;margin:10px 0 0}
+.opt-data button{min-height:30px!important;padding:3px 10px!important}
+#opt-sync-status button{margin-left:6px}
