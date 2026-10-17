@@ -11,6 +11,8 @@
     "start": "node scripts/serve.cjs",
     "test": "node scripts/test.cjs",
     "compare": "node scripts/compare-builds.cjs",
-    "sync": "node scripts/kkaebigg-sync.cjs"
+    "sync": "node scripts/kkaebigg-sync.cjs",
+    "aim": "node scripts/apply-kkaebi-gg.cjs",
+    "hunting": "node scripts/build-hunting.cjs"
   }
 }

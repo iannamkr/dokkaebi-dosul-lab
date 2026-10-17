@@ -110,6 +110,15 @@ function calibrate({sustainPerMin,sustainAt,stats,hpStart,hpEnd,seconds}){
  let x=sustainAt(null)+base;for(let i=0;i<30;i++){const next=sustainAt(Math.max(1,x))+base;if(Math.abs(next-x)<0.5){x=next;break;}x=next;}
  return round(x);
 }
+// Hunting zones: spawn-weighted monster stats. Incoming damage moves between zones by the attack ratio,
+// an estimate because the defence formula is not public.
+function zoneSummary(zone){
+ if(!zone?.monsters?.length)return null;const ms=zone.monsters,w=m=>Math.max(1,m.spawns??m.spawn?.count??1),total=ms.reduce((a,m)=>a+w(m),0);
+ const avg=k=>ms.reduce((a,m)=>a+m[k]*w(m),0)/total;
+ return {id:zone.id,name:zone.name,recommendedPower:zone.recommendedPower,levels:zone.levels,coins:zone.coins,monsters:ms.length,spawns:total,
+  attack:round(avg('attack')),maxAttack:Math.max(...ms.map(m=>m.attack)),hp:round(avg('hp')),maxHp:Math.max(...ms.map(m=>m.hp))};
+}
+function zoneScale(from,to){const a=zoneSummary(from),b=zoneSummary(to);return a&&b&&a.attack>0?b.attack/a.attack:1;}
 function evaluate(data,ids,baseSlots,ctx){
  const v=Q.validate({...data,baseSlots},ids);if(v.issues.length)return {valid:false,issue:v.issues.join(' / ')};
  const run=Sim.run({...data,baseSlots},ids,ctx.profile||PROFILES[0],ctx.horizon||180);
@@ -210,6 +219,6 @@ function createSearch(data,current,opts){
  }
  return {step,results,pool:candidates,ultimate:ult,slots:normals.length,start:startEval};
 }
-const api={parseAmount,parseReduction,timeline,sources,amount,needsStats,sustain,regenPerMin,calibrate,evaluate,verify,pool,createSearch,profiles:PROFILES,horizons:HORIZONS};
+const api={zoneSummary,zoneScale,parseAmount,parseReduction,timeline,sources,amount,needsStats,sustain,regenPerMin,calibrate,evaluate,verify,pool,createSearch,profiles:PROFILES,horizons:HORIZONS};
 if(typeof module!=='undefined')module.exports=api;else root.DosulOptimizer=api;
 })(typeof window!=='undefined'?window:globalThis);

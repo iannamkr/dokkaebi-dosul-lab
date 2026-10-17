@@ -28,5 +28,12 @@ function setup(seed={},deny=false){
  el('#saved').value='0';el('#delete').onclick();assert.equal(value('saved').length,0);
  const corrupt=setup({'dosul-current-v2':'not JSON'});assert.deepEqual(corrupt.value('build'),[]);assert.match(corrupt.el('#detail').innerHTML,/도술을 선택하세요/);
  const denied=setup({},true);denied.run("pick('s011')");assert.equal(denied.value('build').length,1);assert.match(denied.el('#toast').textContent,/JSON/);
+ // Base slots always satisfy the ultimate: a stored broken base is repaired on load, and unequipping a required family skill is refused.
+ const y3=['s071','s003','s012','s069','s010','s085','s007','s001','s075'];
+ const fixed=setup({'dosul-current-v2':JSON.stringify(y3),'dosul-base-v3':JSON.stringify(['s071','s069','s075','s012','s085'])});
+ assert.deepEqual(fixed.value('D.baseSlots'),['s071','s069','s003','s007','s001']);assert.deepEqual(fixed.value('Q.validate(D,build).issues'),[]);
+ fixed.events.change.forEach(fn=>fn({target:{dataset:{baseSlot:'s003'},checked:false}}));
+ assert.deepEqual(fixed.value('D.baseSlots'),['s071','s069','s003','s007','s001'],'Required family slot stays');assert.match(fixed.el('#toast').textContent,/암습.*절명 도술 3개/);
+ fixed.events.change.forEach(fn=>fn({target:{dataset:{baseSlot:'s071'},checked:false}}));assert.deepEqual(fixed.value('D.baseSlots'),['s069','s003','s007','s001'],'Other slots stay editable');
  console.log('Planner workflows: insert/move/remove/undo, save/load/reload/delete, all export formats, search/filters, popover/Escape, invalid import atomicity and storage failure passed');
 })().catch(e=>{console.error(e);process.exitCode=1;});

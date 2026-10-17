@@ -922,6 +922,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1010011",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.6,
+        "kind": "single"
       }
     },
     {
@@ -1288,6 +1297,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1010020",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.6,
+        "kind": "single"
       }
     },
     {
@@ -1653,6 +1671,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1010030",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.6,
+        "kind": "single"
       }
     },
     {
@@ -1978,6 +2005,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1010040",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 7,
+        "kind": "single"
       }
     },
     {
@@ -2313,6 +2349,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1010050",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.6,
+        "kind": "single"
       }
     },
     {
@@ -2659,6 +2704,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1010060",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.6,
+        "kind": "single"
       }
     },
     {
@@ -3020,6 +3074,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1010010",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.6,
+        "kind": "single"
       }
     },
     {
@@ -3386,6 +3449,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1010012",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.6,
+        "kind": "single"
       }
     },
     {
@@ -3730,6 +3802,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1010080",
+        "mode": "자신 중심",
+        "scope": "자신",
+        "range": 1,
+        "kind": null
       }
     },
     {
@@ -4060,6 +4141,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1010070",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.8,
+        "kind": "single"
       }
     },
     {
@@ -4440,6 +4530,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1030010",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.6,
+        "kind": "single"
       }
     },
     {
@@ -4807,6 +4906,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1030020",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.8,
+        "kind": "single"
       }
     },
     {
@@ -5147,6 +5255,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1030030",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 2,
+        "kind": "single"
       }
     },
     {
@@ -5483,6 +5600,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1030040",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 2,
+        "kind": "cone",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -5868,6 +5997,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1030060",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 2,
+        "kind": "circle",
+        "radius": 2,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -6198,6 +6339,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1030050",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.8,
+        "kind": "single"
       }
     },
     {
@@ -6533,6 +6683,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1030070",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 3,
+        "kind": "cone",
+        "radius": 3,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -6888,6 +7050,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1030080",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 2,
+        "kind": "cone",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -7254,6 +7428,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1040010",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 2.2,
+        "kind": "cone",
+        "radius": 2.2,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -7620,6 +7806,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1040011",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 2.2,
+        "kind": "cone",
+        "radius": 2.2,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -7993,6 +8191,18 @@
         "basis": "전방 1회 타격 설명 · 부채꼴 형태/120°/반경 2m는 비교 가정",
         "source": "https://kkaebigg.com/skills/",
         "checkedAt": "2026-10-17"
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1040012",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 2.2,
+        "kind": "cone",
+        "radius": 2.2,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -8364,6 +8574,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1040013",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 2.2,
+        "kind": "cone",
+        "radius": 2.2,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -8738,6 +8960,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1040020",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 2,
+        "kind": "cone",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -9104,6 +9338,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1040030",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 5,
+        "kind": "cone",
+        "radius": 5,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -9483,6 +9729,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1040040",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 4,
+        "kind": "line",
+        "radius": 4,
+        "radiusAssumed": false,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 설명상 경로/직선"
       }
     },
     {
@@ -9847,6 +10105,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1040060",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 3,
+        "kind": "circle",
+        "radius": 3,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -10207,6 +10477,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1040050",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 4,
+        "kind": "cone",
+        "radius": 4,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -10537,6 +10819,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1040070",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 3,
+        "kind": "line",
+        "radius": 3,
+        "radiusAssumed": false,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 설명상 경로/직선"
       }
     },
     {
@@ -10907,6 +11201,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1040080",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 5,
+        "kind": "cone",
+        "radius": 5,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -11258,6 +11564,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1110010",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 2,
+        "kind": "single"
       }
     },
     {
@@ -11604,6 +11919,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1110020",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 2,
+        "kind": "single"
       }
     },
     {
@@ -11950,6 +12274,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1110030",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 2,
+        "kind": "single"
       }
     },
     {
@@ -12296,6 +12629,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1110040",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 2,
+        "kind": "single"
       }
     },
     {
@@ -12647,6 +12989,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1110050",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 2,
+        "kind": "single"
       }
     },
     {
@@ -12993,6 +13344,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1110060",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 3,
+        "kind": "single"
       }
     },
     {
@@ -13348,6 +13708,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1110070",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 2.5,
+        "kind": "single"
       }
     },
     {
@@ -13713,6 +14082,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1020013",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 8,
+        "kind": "single"
       }
     },
     {
@@ -14079,6 +14457,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1020012",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 8,
+        "kind": "single"
       }
     },
     {
@@ -14446,6 +14833,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1020010",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 8,
+        "kind": "single"
       }
     },
     {
@@ -14811,6 +15207,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1020020",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 8,
+        "kind": "single"
       }
     },
     {
@@ -15147,6 +15552,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1020040",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 8,
+        "kind": "single"
       }
     },
     {
@@ -15512,6 +15926,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1020011",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 8,
+        "kind": "single"
       }
     },
     {
@@ -15866,6 +16289,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1020050",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 8,
+        "kind": "single"
       }
     },
     {
@@ -16200,6 +16632,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1020030",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 8,
+        "kind": "single"
       }
     },
     {
@@ -16555,6 +16996,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1020060",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 8,
+        "kind": "single"
       }
     },
     {
@@ -16889,6 +17339,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1020070",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 8,
+        "kind": "single"
       }
     },
     {
@@ -17275,6 +17734,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1020080",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 8,
+        "kind": "single"
       }
     },
     {
@@ -17607,6 +18075,19 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1050010",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "cap": 2,
+        "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정 · 설명상 주위 1명 추가"
       }
     },
     {
@@ -17941,6 +18422,19 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1050020",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "cap": 2,
+        "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정 · 설명상 주위 1명 추가"
       }
     },
     {
@@ -18282,6 +18776,19 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1050040",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "cap": null,
+        "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
       }
     },
     {
@@ -18648,6 +19155,18 @@
       "hitTiming": {
         "kind": "persistent",
         "note": "장판 타격 간격 미확인 · 모션 시간에 전체 타격을 압축하지 않음"
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1050050",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -18987,6 +19506,19 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1050030",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "cap": null,
+        "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
       }
     },
     {
@@ -19019,14 +19551,15 @@
       "basic": {
         "target": "범위 (5인)",
         "cast": "즉시 시전",
-        "cooldown": 78.2,
+        "cooldown": 76.4,
         "range": 6,
         "source": "slots",
         "castInferred": false,
         "note": "2026-10-10 공식 궁극기 안내 표기값. 강화·돌파 상태에 따라 실제 값은 달라질 수 있습니다.",
         "referenceFields": [],
         "fieldNotes": {
-          "target": "공식 표기. 대상 인원 5인."
+          "target": "공식 표기. 대상 인원 5인.",
+          "cooldown": "kkaebi.gg·kkaebigg.com 게임 자료 76.4초 (2026-10-18). 이전 값은 공식 궁극기 안내 표기였습니다."
         },
         "targetSource": "slots",
         "targetEvidence": "범위 (5인)"
@@ -19351,6 +19884,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1050060",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -19714,6 +20259,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070012",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -20077,6 +20634,19 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070020",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "cap": null,
+        "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
       }
     },
     {
@@ -20416,6 +20986,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070040",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -20779,6 +21361,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070030",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -21105,6 +21699,19 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070042",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 8,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "cap": null,
+        "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
       }
     },
     {
@@ -21468,6 +22075,19 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070013",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "cap": null,
+        "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
       }
     },
     {
@@ -21833,6 +22453,19 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070010",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "cap": null,
+        "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
       }
     },
     {
@@ -22174,6 +22807,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070041",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "single"
       }
     },
     {
@@ -22539,6 +23181,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070014",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -22882,6 +23536,19 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070011",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "cap": null,
+        "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
       }
     },
     {
@@ -23213,6 +23880,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070051",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -23547,6 +24226,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070050",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -23576,14 +24267,15 @@
       "basic": {
         "target": "범위 (30인)",
         "cast": "시전 1.5초",
-        "cooldown": 159.1,
+        "cooldown": 138,
         "range": 6,
         "source": "slots",
         "castInferred": false,
         "note": "2026-10-10 공식 궁극기 안내 표기값. 강화·돌파 상태에 따라 실제 값은 달라질 수 있습니다.",
         "referenceFields": [],
         "fieldNotes": {
-          "target": "공식 표기. 대상 인원 30인."
+          "target": "공식 표기. 대상 인원 30인.",
+          "cooldown": "kkaebi.gg·kkaebigg.com 게임 자료 138초 (2026-10-18). 이전 값은 공식 궁극기 안내 표기였습니다."
         },
         "targetSource": "slots",
         "targetEvidence": "범위 (30인)"
@@ -23892,6 +24584,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1070060",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -24246,6 +24950,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1080050",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 1.5,
+        "kind": "circle",
+        "radius": 1.5,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -24618,6 +25334,18 @@
         "basis": "지면 충격파 1회 설명 · 원형 해석/반경 2m는 비교 가정",
         "source": "https://kkaebigg.com/skills/",
         "checkedAt": "2026-10-17"
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1080040",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 2,
+        "kind": "circle",
+        "radius": 2,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -24958,6 +25686,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1080020",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.6,
+        "kind": "single"
       }
     },
     {
@@ -25300,6 +26037,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1080030",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 2,
+        "kind": "circle",
+        "radius": 2,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -25664,6 +26413,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1080010",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 1.6,
+        "kind": "single"
       }
     },
     {
@@ -26004,6 +26762,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1080060",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 2.4,
+        "kind": "circle",
+        "radius": 2.4,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -26036,14 +26806,15 @@
       "basic": {
         "target": "범위 (10인)",
         "cast": "즉시 시전",
-        "cooldown": 55,
+        "cooldown": 50,
         "range": 7,
         "source": "slots",
         "castInferred": false,
         "note": "2026-10-10 공식 궁극기 안내 표기값. 강화·돌파 상태에 따라 실제 값은 달라질 수 있습니다.",
         "referenceFields": [],
         "fieldNotes": {
-          "target": "공식 표기. 대상 인원 10인."
+          "target": "공식 표기. 대상 인원 10인.",
+          "cooldown": "kkaebi.gg·kkaebigg.com 게임 자료 50초 (2026-10-18). 이전 값은 공식 궁극기 안내 표기였습니다."
         },
         "targetSource": "slots",
         "targetEvidence": "기존 공식 궁극기 툴팁 유지. 시뮬레이션 T=3은 이 값과 불일치하므로 실제 상한으로 쓰지 않음."
@@ -26382,6 +27153,19 @@
         "confidence": "estimated",
         "source": "https://kkaebigg.com/skills/",
         "note": "설명에서 1회 타격 확인 · 정확한 타격 시점은 모션 종료로 추정. 피해 계수는 미확인."
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1080080",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 7,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "cap": null,
+        "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
       }
     },
     {
@@ -26722,6 +27506,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1090040",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 7,
+        "kind": "single"
       }
     },
     {
@@ -27069,6 +27862,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1090010",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 5,
+        "kind": "single"
       }
     },
     {
@@ -27419,6 +28221,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1090030",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 4.5,
+        "kind": "line",
+        "radius": 4.5,
+        "radiusAssumed": false,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 설명상 경로/직선"
       }
     },
     {
@@ -27759,6 +28573,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1090021",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 4,
+        "kind": "cone",
+        "radius": 4,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -28114,6 +28940,19 @@
         "basis": "대상 돌진 후 주변 2회 타격 설명 · 반경 3m/첫 추정 타격까지 직선 돌진은 비교 가정",
         "source": "https://kkaebigg.com/skills/",
         "checkedAt": "2026-10-17"
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1090020",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 5,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "cap": null,
+        "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
       }
     },
     {
@@ -28444,6 +29283,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1090060",
+        "mode": "지면 이동",
+        "scope": "적",
+        "range": 6.5,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 이동 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -28784,6 +29635,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1090050",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 7.5,
+        "kind": "line",
+        "radius": 7.5,
+        "radiusAssumed": false,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 설명상 경로/직선"
       }
     },
     {
@@ -29122,6 +29985,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1090070",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 4,
+        "kind": "cone",
+        "radius": 4,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -29464,6 +30339,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1120040",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 5,
+        "kind": "circle",
+        "radius": 5,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -29806,6 +30693,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1120020",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 4,
+        "kind": "circle",
+        "radius": 4,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -30143,6 +31042,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1120030",
+        "mode": "자신 중심",
+        "scope": "아군·자신",
+        "range": 5,
+        "kind": null
       }
     },
     {
@@ -30479,6 +31387,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1120010",
+        "mode": "자신 중심",
+        "scope": "아군·자신",
+        "range": 5,
+        "kind": null
       }
     },
     {
@@ -30852,6 +31769,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1120050",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 3,
+        "kind": "circle",
+        "radius": 3,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -31206,6 +32135,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1120060",
+        "mode": "자신 중심",
+        "scope": "모두",
+        "range": 5,
+        "kind": "circle",
+        "radius": 5,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -31239,14 +32180,15 @@
       "basic": {
         "target": "범위 (5인)",
         "cast": "즉시 시전",
-        "cooldown": 60,
+        "cooldown": 85,
         "range": 2.5,
         "source": "slots",
         "castInferred": false,
         "note": "2026-10-10 공식 궁극기 안내 표기값. 강화·돌파 상태에 따라 실제 값은 달라질 수 있습니다.",
         "referenceFields": [],
         "fieldNotes": {
-          "target": "공식 표기. 대상 인원 5인."
+          "target": "공식 표기. 대상 인원 5인.",
+          "cooldown": "kkaebi.gg·kkaebigg.com 게임 자료 85초 (2026-10-18). 이전 값은 공식 궁극기 안내 표기였습니다."
         },
         "targetSource": "slots",
         "targetEvidence": "기존 공식 궁극기 툴팁 유지. 시뮬레이션 T=3은 이 값과 불일치하므로 실제 상한으로 쓰지 않음."
@@ -31598,6 +32540,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1120070",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 2.5,
+        "kind": "circle",
+        "radius": 2.5,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -31939,6 +32893,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1100050",
+        "mode": "자신 중심",
+        "scope": "아군·자신",
+        "range": 5.5,
+        "kind": null
       }
     },
     {
@@ -32294,6 +33257,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1100051",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 5.5,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -32634,6 +33609,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1100030",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 5.5,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -32974,6 +33961,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1100040",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 5.5,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -33314,6 +34313,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1100010",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 5.5,
+        "kind": "single"
       }
     },
     {
@@ -33654,6 +34662,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1100020",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 5.5,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -34001,6 +35021,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1100060",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 5.5,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -34030,14 +35062,15 @@
       "basic": {
         "target": "범위 (5인)",
         "cast": "즉시 시전",
-        "cooldown": 40,
+        "cooldown": 61,
         "range": 2.5,
         "source": "slots",
         "castInferred": false,
         "note": "2026-10-10 공식 궁극기 안내 표기값. 강화·돌파 상태에 따라 실제 값은 달라질 수 있습니다.",
         "referenceFields": [],
         "fieldNotes": {
-          "target": "공식 표기. 대상 인원 5인."
+          "target": "공식 표기. 대상 인원 5인.",
+          "cooldown": "kkaebi.gg·kkaebigg.com 게임 자료 61초 (2026-10-18). 이전 값은 공식 궁극기 안내 표기였습니다."
         },
         "targetSource": "slots",
         "targetEvidence": "기존 공식 궁극기 툴팁 유지. 시뮬레이션 T=3은 이 값과 불일치하므로 실제 상한으로 쓰지 않음."
@@ -34339,6 +35372,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1100070",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 2.5,
+        "kind": "circle",
+        "radius": 2.5,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -34679,6 +35724,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1130060",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 5,
+        "kind": "single"
       }
     },
     {
@@ -35019,6 +36073,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1130010",
+        "mode": "방향 지정",
+        "scope": "적",
+        "range": 5.5,
+        "kind": "cone",
+        "radius": 5.5,
+        "radiusAssumed": true,
+        "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
       }
     },
     {
@@ -35359,6 +36425,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1130030",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 4,
+        "kind": "single"
       }
     },
     {
@@ -35711,6 +36786,15 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1130020",
+        "mode": "대상 지정",
+        "scope": "적",
+        "range": 5,
+        "kind": "single"
       }
     },
     {
@@ -36051,6 +37135,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1130050",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 4,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -36393,6 +37489,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1130070",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 2.8,
+        "kind": "circle",
+        "radius": 2.8,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -36733,6 +37841,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1130040",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 2.4,
+        "kind": "circle",
+        "radius": 2.4,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     },
     {
@@ -37080,6 +38200,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1130080",
+        "mode": "지면 지정",
+        "scope": "적",
+        "range": 6,
+        "kind": "target",
+        "radius": 2,
+        "radiusAssumed": true,
+        "basis": "지면 지정 · 지점 주변 반경 2m 가정"
       }
     },
     {
@@ -37413,6 +38545,18 @@
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
         "reference": true
+      },
+      "aim": {
+        "source": "kkaebi.gg",
+        "checkedAt": "2026-10-18",
+        "gameId": "1130090",
+        "mode": "자신 중심",
+        "scope": "적",
+        "range": 5,
+        "kind": "circle",
+        "radius": 5,
+        "radiusAssumed": false,
+        "basis": "자신 중심 · 사거리를 반경으로 사용"
       }
     }
   ],

@@ -8,6 +8,12 @@ assert.equal(Q.validate(D,ultimateFirst).complete,true,'unlock must depend on eq
 assert.equal(Q.validate(D,sample.filter((_,i)=>i!==1)).complete,false);
 assert.match(Q.validate(D,sample.filter((_,i)=>i!==1)).issues[0],/연타 도술 1개/);
 assert(Q.place(D,sample,7,id('암습')).error,'full invalid replacement cannot satisfy family quota');
+// fit: keep the player's base choices, swap in ultimate-family skills only when the ultimate would be blocked.
+{const ids=['s071','s003','s012','s069','s010','s085','s007','s001','s075'],f=Q.fit(D,ids,['s071','s069','s075','s012','s085']);
+ assert.deepEqual(f,['s071','s069','s003','s007','s001']);assert.deepEqual(Q.validate({...D,baseSlots:f},ids).issues,[]);
+ assert.deepEqual(Q.fit(D,ids,['s003','s007','s001','s071','s012']),['s003','s007','s001','s071','s012'],'Valid choices are untouched');
+ assert.deepEqual(Q.fit(D,['s071','s069','s010'],['s071','s069']),['s071','s069'],'Cannot fit with fewer than 3 family skills');
+ assert.deepEqual(Q.fit(D,['s071','s069','s003'],['s071']),['s071'],'No ultimate, no change');}
 assert(Q.place(D,sample,0,id('폭주')).error,'second ultimate must be rejected');
 assert(Q.place(D,sample,7,id('환영 참격')).error,'ninth normal skill must be rejected');
 assert(Q.place(D,sample,0,id('난타')).error,'duplicates must be rejected');

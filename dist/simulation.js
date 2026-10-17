@@ -4,8 +4,8 @@ const C=typeof module!=='undefined'?require('./combat.js'):root.DosulCombat;
 const H=typeof module!=='undefined'?require('./hit-timing.js'):root.DosulHits;
 const A=typeof module!=='undefined'?require('./timing-auto.js'):root.DosulAuto;
 const Q=typeof module!=='undefined'?require('./sequence.js'):root.DosulSequence;
-const MODEL='spatial-no-hp-v3';
-const round=n=>Math.round(n*100)/100,dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const MODEL='spatial-no-hp-v4';
+const round=n=>Math.round(n*100)/100,exact=n=>Math.round(n*1e6)/1e6,dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 // These are scenario assumptions, not coordinates, radii or AI extracted from the recordings.
 const PROFILES=[
  {id:'183432',title:'벽가 · 체력 하락',length:63.47,review:2,layout:'wall',engaged:3,hpMax:99003,hp:[[0,96384],[30,75351],[60,69808]],observation:'벽 쪽 무리와 떨어진 외곽 몹이 함께 보입니다. 표본 체력은 60초 동안 하락합니다.',focus:'원거리 유인 없이 가까운 무리만 반복 타격하는지 확인',samples:[0,30,60]},
@@ -17,9 +17,11 @@ const PROFILES=[
 const SHAPES={s015:['circle',2,'주변 원형 · 사용자 툴팁'],s017:['cone',3,'전방 · 개별 설명'],s018:['cone',3,'전방 · 개별 설명'],s022:['cone',3,'전방 · 공식 설명'],s025:['line',4,'검기 경로 · 모델 가정'],s026:['circle',3,'주변 폭발 · 영상 관찰'],s027:['line',4,'직선 · 사용자 관찰'],s028:['line',3,'전진 공격 · 설명; 이동 미반영'],s029:['circle',3,'주변 타격 · 영상 관찰'],s035:['circle',2,'회전 · 설명'],s054:['target',2,'대상 및 주변 · 설명'],s059:['target',2,'대상 및 주변 · 설명'],s060:['chain',3,'여러 대상 전이 · 설명'],s063:['target',2,'대상 및 주변 · 설명'],s067:['circle',2,'주변 공격 · 설명'],s070:['circle',2,'주변 공격 · 설명'],s083:['circle',3,'주변 적 공격 · 설명'],s096:['circle',3,'주변 적 공격 · 설명'],s103:['circle',3,'주변 공격 · 설명']};
 const LABELS={circle:'주변 원형',cone:'전방 부채꼴',line:'직선',target:'대상 중심',chain:'전이',single:'단일',support:'지원',unknown:'형상 미확인'};
 function geometry(s,scale=1){
- const spec=s.simulationGeometry,item=spec?[spec.kind,spec.radius,spec.basis]:SHAPES[s.id],kind=s.damage===false||s.referenceNumbers?.nd?'support':item?.[0]||(s.targeting?.kind==='single'?'single':'unknown');
- const cap=s.targeting?.count||(kind==='single'?1:5);
- return {kind,label:LABELS[kind],radius:(item?.[1]||0)*scale,width:1.3*scale,angle:Math.PI*2/3,cap,capAssumed:kind!=='single'&&!s.targeting?.count,range:Number.isFinite(s.basic?.range)?s.basic.range:null,basis:item?.[2]||(kind==='single'?'도감 단일 분류':'공간 계산 제외'),sizeAssumed:!!item,kindAssumed:!!spec?.kindAssumed,dash:!!spec?.dash,source:spec?.source||null};
+ // Audited shapes first; otherwise the aiming mode from kkaebi.gg (self-centred, forward, ground or target point).
+ const aim=s.aim?.kind&&s.aim.kind!=='single'&&s.targeting?.kind!=='single'?s.aim:null;
+ const spec=s.simulationGeometry,item=spec?[spec.kind,spec.radius,spec.basis]:SHAPES[s.id]||(aim?[aim.kind,aim.radius,aim.basis]:null),kind=s.damage===false||s.referenceNumbers?.nd?'support':item?.[0]||(s.targeting?.kind==='single'?'single':'unknown');
+ const fromAim=!spec&&!SHAPES[s.id]&&!!aim,cap=s.targeting?.count||(fromAim&&aim.cap)||(kind==='single'?1:5);
+ return {kind,label:LABELS[kind],radius:(item?.[1]||0)*scale,width:1.3*scale,angle:Math.PI*2/3,cap,capAssumed:kind!=='single'&&!s.targeting?.count&&!(fromAim&&aim.cap),range:Number.isFinite(s.basic?.range)?s.basic.range:null,basis:item?.[2]||(kind==='single'?'도감 단일 분류':'공간 계산 제외'),sizeAssumed:fromAim?!!aim.radiusAssumed:!!item,kindAssumed:!!spec?.kindAssumed,dash:!!spec?.dash,source:spec?.source||(fromAim?'kkaebi.gg':null)};
 }
 function effectState(bag,effect,time){
  const entries=(bag[effect]||[]).filter(e=>e.appliedAt<=time+1e-7),live=entries.filter(e=>e.duration===null||e.expiresAt>time+1e-6),known=live.filter(e=>e.confirmed&&e.duration!==null).at(-1),uncertain=live.at(-1);
@@ -69,9 +71,11 @@ function run(data,ids,profileId='185547',horizon=60,scale=1){
   actions.push({time:ev.end,type:'end',ev,key});
   if(!row.unknown.includes('공격 형상')&&!row.unknown.includes('사거리'))for(const hit of hitPlan.hits)actions.push({time:hit.time,type:'hit',ev,key,hit});
  }
- const priority={start:0,hit:1,end:2};actions.sort((a,b)=>a.time-b.time||priority[a.type]-priority[b.type]);
+ // At the same instant an earlier cast finishes (last hit, end) before the next cast starts.
+ const priority={start:0,hit:1,end:2};actions.sort((a,b)=>a.time-b.time||a.key-b.key||priority[a.type]-priority[b.type]);
  const self={};
- function apply(bag,s,ef,t,confirmed=true,target=null){const d=A.duration(s,ef),entry={source:s.id,effect:ef,appliedAt:round(t),duration:d.value,expiresAt:d.value===null?null:round(t+d.value),confirmed,target,wave};(bag[ef]??=[]).push(entry);result.effectApplications.push(entry);}
+ // Effect times keep engine precision so a hit at the same instant is judged against the true value.
+ function apply(bag,s,ef,t,confirmed=true,target=null){const d=A.duration(s,ef),entry={source:s.id,effect:ef,appliedAt:exact(t),duration:d.value,expiresAt:d.value===null?null:exact(t+d.value),confirmed,target,wave:wave+1};(bag[ef]??=[]).push(entry);result.effectApplications.push(entry);}
  function applySelf(s,t,application){for(const ef of s.buffs||[]){const scope=s.effectScopes?.find(x=>x.effect===ef)?.scope;if(scope&&scope!=='self'&&scope!=='self-and-allies')continue;if(A.duration(s,ef).application===application)apply(self,s,ef,t);}}
  let mobs=initial(profile),player={x:0,y:0},dash=null,time=0,ai=0,wave=0,exposure=0,nearSeconds=0,peak=0,frameTime=0;
  function move(dt,next){if(dash){const p=Math.min(1,(next-dash.start)/(dash.end-dash.start));player={x:dash.from.x+(dash.to.x-dash.from.x)*p,y:dash.from.y+(dash.to.y-dash.from.y)*p};if(p>=1)dash=null;}for(const m of mobs){const d=dist(m,player),stop=.8+(m.id%3)*.18;if(d<=1.8)m.active=true;if(m.active&&d>stop){const step=Math.min(d-stop,.9*dt);m.x+=(player.x-m.x)*step/d;m.y+=(player.y-m.y)*step/d;}}
@@ -82,15 +86,18 @@ function run(data,ids,profileId='185547',horizon=60,scale=1){
   if(time>0&&time>=((wave+1)*20)-1e-7&&time<schedule.horizon-1e-7){wave++;mobs=initial(profile);player={x:0,y:0};dash=null;}
   while(ai<actions.length&&actions[ai].time<=time+1e-7){const a=actions[ai++],s=byId[a.ev.id],row=rowById[s.id],g=row.geometry;
    if(a.type==='start'){const target=[...mobs].sort((a,b)=>dist(a,player)-dist(b,player)||a.id-b.id)[0];casts.set(a.key,{targetId:target?.id,angle:Math.atan2((target?.y||0)-player.y,(target?.x||0)-player.x),targets:new Set(),wave});applySelf(s,time,'start');if(g.dash&&target&&dist(target,player)<=g.range){const first=H.schedule(s,a.ev,schedule.horizon).hits[0];if(first&&first.time>time)dash={start:time,end:first.time,from:{...player},to:{x:target.x,y:target.y}};}}
-   if(a.type==='hit'){const cast=casts.get(a.key),target=cast.wave===wave?mobs.find(m=>m.id===cast.targetId):null,hitTargets=pickTargets(g,mobs,target,cast.angle,player);row.hitChecks++;row.targetHits+=hitTargets.length;if(!hitTargets.length)row.whiffs++;
+   if(a.type==='hit'){const cast=casts.get(a.key);
+    // Test waves reset every 20 s; a cast that straddles the reset aims at the new wave instead of hitting nothing.
+    if(cast.wave!==wave){const t=[...mobs].sort((a,b)=>dist(a,player)-dist(b,player)||a.id-b.id)[0];Object.assign(cast,{wave,targetId:t?.id,angle:Math.atan2((t?.y||0)-player.y,(t?.x||0)-player.x)});}
+    const target=mobs.find(m=>m.id===cast.targetId),hitTargets=pickTargets(g,mobs,target,cast.angle,player);row.hitChecks++;row.targetHits+=hitTargets.length;if(!hitTargets.length)row.whiffs++;
     if(hitTargets.length)landed.push(a.hit);const coeff=coefficient(s,a.hit.hitIndex);
-    for(const m of hitTargets){
-     // Check conditions against the same enemy BEFORE applying this skill's output.
-     for(const condition of s.conditions||[]){const state=conditionState(s,a.ev,condition,condition.scope==='self'?self:m.effects,time);if(state.reason==='not-applied'&&condition.scope==='enemy'&&result.effectApplications.some(e=>e.wave===wave&&e.effect===condition.effect&&e.target!==null&&e.target!==m.id+1))state.reason='other-target';result.conditions.push({time:round(time),id:s.id,target:m.id+1,wave:wave+1,scope:condition.scope,effect:condition.effect,result:condition.result,...state});}
+    for(const [n,m] of hitTargets.entries()){
+     // Check conditions against the same enemy BEFORE applying this skill's output. Self conditions count once per hit.
+     for(const condition of s.conditions||[]){if(condition.scope==='self'&&n>0)continue;const state=conditionState(s,a.ev,condition,condition.scope==='self'?self:m.effects,time);if(state.reason==='not-applied'&&condition.scope==='enemy'&&result.effectApplications.some(e=>e.wave===wave+1&&e.effect===condition.effect&&e.target!==null&&e.target!==m.id+1))state.reason='other-target';result.conditions.push({time:exact(time),id:s.id,target:m.id+1,wave:wave+1,scope:condition.scope,effect:condition.effect,result:condition.result,...state});}
      m.active=true;m.touched=true;m.hitAt=time;cast.targets.add(wave+':'+m.id);unique.add(wave+':'+m.id);if(coeff!==null)row.coefficient+=coeff;
      // End-applied enemy effects are written below; earlier hits do not get a free debuff window.
     }
-    result.impacts.push({time:round(time),id:s.id,wave:wave+1,kind:g.kind,geometry:g,angle:cast.angle,origin:{...player},center:g.kind==='target'&&target?{x:target.x,y:target.y}:{...player},targets:hitTargets.map(m=>m.id),positions:hitTargets.map(m=>({x:m.x,y:m.y}))});
+    result.impacts.push({time:exact(time),id:s.id,wave:wave+1,kind:g.kind,geometry:g,angle:cast.angle,origin:{...player},center:g.kind==='target'&&target?{x:target.x,y:target.y}:{...player},targets:hitTargets.map(m=>m.id),positions:hitTargets.map(m=>({x:m.x,y:m.y}))});
    }
    if(a.type==='end'){const cast=casts.get(a.key);if(!cast)continue;row.targets+=cast.targets.size;if(cast.targets.size)row.hitCasts++;applySelf(s,time,'end');for(const ef of s.debuffs||[]){for(const m of mobs){if(cast.targets.has(wave+':'+m.id))apply(m.effects,s,ef,time,true,m.id+1);else if(cast.wave===wave&&row.unknown.some(x=>['공격 형상','사거리','지속 타격 시점'].includes(x)))apply(m.effects,s,ef,time,false,m.id+1);}}}
   }

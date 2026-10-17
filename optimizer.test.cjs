@@ -25,10 +25,10 @@ assert.equal(O.sources(skill('s087'),null).sources[0].reducePct,9.7,'Damage redu
 const stats={attack:20497,maxHp:100029,regen:2744,regenPeriod:5},overrides={'s085:0':542};
 const ids=['s071','s069','s003','s008','s075','s007','s012','s085','s010'],base=['s003','s007','s008','s071','s069'];
 const measured=O.evaluate(D,ids,base,{stats,overrides,singleOnly:true,profile:'185547',horizon:180});
-assert(measured.valid);assert.equal(Math.round(measured.perMin),58018);
+assert(measured.valid);assert.equal(Math.round(measured.perMin),57532);
 assert.equal(measured.rows.find(r=>r.skillId==='s007').triggers,48);assert.equal(measured.rows.find(r=>r.skillId==='s085').each,2710);
 assert.equal(O.regenPerMin(stats),32928);
-assert.equal(Math.round(O.calibrate({sustainPerMin:measured.perMin,stats,hpStart:66606,hpEnd:89632,seconds:265})),85733);
+assert.equal(Math.round(O.calibrate({sustainPerMin:measured.perMin,stats,hpStart:66606,hpEnd:89632,seconds:265})),85246);
 assert.equal(O.calibrate({sustainPerMin:1,stats,hpStart:1,hpEnd:2,seconds:0}),null);
 const noStats=O.evaluate(D,ids,base,{stats:{},overrides:{},singleOnly:true});
 assert.equal(noStats.rows.find(r=>r.skillId==='s075').each,1460,'Flat amounts need no stats');
@@ -78,7 +78,7 @@ const cut=O.timeline(10,100,[],[{t:0,key:'r',pct:0.1,life:5}]);assert(Math.abs(c
 // Real build: the three-hit Swing shield overwrites itself, so far less than the full value is absorbed.
 const fullRun=O.evaluate(D,ids,base,{stats,overrides,singleOnly:true,profile:'185547',horizon:180,snapshot,keepRun:true});
 const incoming=O.calibrate({sustainAt:fullRun.sustainAt,stats,hpStart:66606,hpEnd:89632,seconds:265});
-assert(incoming>70000&&incoming<85733,'Calibration converges below the full-shield estimate');
+assert(incoming>70000&&incoming<85246,'Calibration converges below the full-shield estimate');
 const modeled=O.evaluate(D,ids,base,{stats,overrides,singleOnly:true,profile:'185547',horizon:180,snapshot,incoming});
 const swing=modeled.rows.find(r=>r.skillId==='s012');assert(swing.perMin<swing.full*0.6,'Replace wastes most of the per-hit Swing shield');
 assert.equal(modeled.rows.find(r=>r.skillId==='s007').perMin,modeled.rows.find(r=>r.skillId==='s007').full,'Heals are not reduced');
@@ -89,4 +89,9 @@ assert.equal(same.changes.filter(c=>c.field.startsWith('referenceNumbers')).leng
 const patched=structuredClone(snapshot);patched.skills.skills.find(s=>s.n==='방패 밀기').num.cd=6;
 const copy2=structuredClone(D),rep=K.apply(copy2,patched);
 assert.equal(copy2.skills.find(s=>s.id==='s069').basic.cooldown,6);assert(rep.changes.some(c=>c.field==='basic.cooldown'&&c.name==='방패 밀기'));
+// Hunting zones: spawn-weighted averages and the attack ratio between zones.
+{const vm=require('node:vm'),ctx={window:{}};vm.runInNewContext(require('node:fs').readFileSync('dist/kkaebi-gg/hunting.js','utf8'),ctx);const Z=ctx.window.DOSUL_HUNTING.zones,z=n=>Z.find(x=>x.name===n);
+ assert.equal(Z.length,21);const toxic=O.zoneSummary(z('독기 지대'));assert.equal(toxic.attack,8320.84);assert.equal(toxic.maxAttack,8555);assert.equal(toxic.spawns,188);
+ assert.equal(O.zoneSummary(z('마을 폐허')).attack,13763);assert.equal(O.zoneScale(z('독기 지대'),z('마을 폐허')).toFixed(3),'1.654');assert.equal(O.zoneScale(null,z('마을 폐허')),1);
+ const B=require('./scripts/build-hunting.cjs');assert.equal(B.script(require('./dist/kkaebi-gg/hunting.json')),require('node:fs').readFileSync('dist/kkaebi-gg/hunting.js','utf8'),'hunting.js is generated from hunting.json');}
 console.log('Kkaebigg buffs: durations, Replace/Stack timeline, reduction uptime, measured fixed point and snapshot overlay passed.');
