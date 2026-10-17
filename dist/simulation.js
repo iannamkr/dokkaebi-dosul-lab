@@ -4,7 +4,7 @@ const C=typeof module!=='undefined'?require('./combat.js'):root.DosulCombat;
 const H=typeof module!=='undefined'?require('./hit-timing.js'):root.DosulHits;
 const A=typeof module!=='undefined'?require('./timing-auto.js'):root.DosulAuto;
 const Q=typeof module!=='undefined'?require('./sequence.js'):root.DosulSequence;
-const MODEL='spatial-no-hp-v2';
+const MODEL='spatial-no-hp-v3';
 const round=n=>Math.round(n*100)/100,dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 // These are scenario assumptions, not coordinates, radii or AI extracted from the recordings.
 const PROFILES=[

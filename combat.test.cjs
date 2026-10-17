@@ -23,3 +23,20 @@ const absentData={skills:[{...skill('a','강타'),timingEffects:{mark:{duration:
 assert.deepEqual(C.active({...D,baseSlots:ids.slice(0,5)},ids),[]);assert.deepEqual(C.active(D,ids),['파멸'],'Explicit base equipment controls activation');
 console.log('Combat: 12 styles, priority, resets, charge, intended hex, activation, partial casts and time conservation passed.');
 
+
+// Healing has no hit even when the reference nd flag is false/missing.
+const healFixture={skills:['a','b','c'].map(id=>skill(id,'절명',{basic:{cooldown:1000}})).concat(
+ skill('heal','헌신',{damage:false,basic:{cooldown:1},referenceNumbers:{m:500,dc:[],nd:false}}),
+ skill('ult','절명',{ultimate:true,basic:{cooldown:1000}})
+),baseSlots:['a','b','c']};
+const healRun=C.run(healFixture,['a','b','c','heal','ult'],20);
+assert.equal(healRun.procs.find(p=>p.name==='검의 형상 소비').description,'3개 소비','Healing must not create a fourth sword form');
+const afterUlt=healRun.events.find(e=>e.id==='ult').end;
+assert(healRun.gauges.filter(g=>g.time>afterUlt).every(g=>g.values.절명===0),'Repeated non-damaging heals must not build sword forms');
+assert(!healRun.procs.some(p=>p.name==='형상 최대치 추가 획득'),'Healing must not reduce Ambush cooldown');
+const realHealIds=['s071','s069','s075','s003','s007','s008','s012','s085','s010'];
+const realHealRun=C.run({...D,baseSlots:['s003','s007','s008','s071','s069']},realHealIds,180);
+const healEnds=new Set(realHealRun.events.filter(e=>e.id==='s085'&&e.completed).map(e=>e.end));
+assert(!realHealRun.procs.some(p=>p.name==='형상 최대치 추가 획득'&&healEnds.has(p.time)),'Life Flow must never trigger the hit-based cooldown reduction');
+assert(realHealRun.warnings.some(w=>w.includes('적중한다고 가정')),'Expose the remaining hit assumption');
+console.log('Non-damaging healing: no sword-form gain or ultimate cooldown reduction passed.');

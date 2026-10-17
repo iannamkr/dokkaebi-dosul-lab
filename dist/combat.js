@@ -16,14 +16,15 @@ const RULES={
  제압:{slug:'jeap',name:'자물쇠',note:'자물쇠 수에 따라 궁극기 쿨타임 3/6/9초 감소'}
 };
 function active(data,ids){const counts=Q.baseCounts(data,ids);return Object.keys(RULES).filter(f=>counts[f]>=3);}
-function hits(s){if(s.referenceNumbers?.nd)return 0;const dc=s.referenceNumbers?.dc||[];if(!dc.length)return 1;return s.referenceNumbers.cm?dc.at(-1).hits||1:dc.reduce((n,d)=>n+(d.hits||0),0)||1;}
+function hits(s){if(s.damage===false||s.referenceNumbers?.nd)return 0;const dc=s.referenceNumbers?.dc||[];if(!dc.length)return 1;return s.referenceNumbers.cm?dc.at(-1).hits||1:dc.reduce((n,d)=>n+(d.hits||0),0)||1;}
 function run(data,ids,horizon=60,enabled=true){
  horizon=Math.max(20,Math.min(180,Number(horizon)||60));const skills=ids.map(id=>data.skills.find(s=>s.id===id)),unlocked=active(data,ids),families=enabled?unlocked:[],has=f=>families.includes(f),events=[],idle=[],procs=[],gauges=[],windows=[],missing=[],warnings=[];
  for(const s of skills){if(!s){missing.push('알 수 없는 도술');continue;}if(!A.motion(s))missing.push(s.name+' 모션 시간');if(!(typeof s.basic?.cooldown==='number'&&s.basic.cooldown>=0))missing.push(s.name+' 재사용 대기시간');}
  if(new Set(ids).size!==ids.length)missing.push('중복 도술');
  const result={ids,horizon,total:horizon,events,idle,procs,gauges,windows,missing,warnings,active:families,unlocked,enabled,busy:0,wait:0,casts:0,cycles:[]};
  if(missing.length||!ids.length){result.total=null;return result;}
- if(has('파멸'))warnings.push('파멸 영력은 상세 자료의 사용당 25를 적용합니다. 요약의 15와 상충하며 발동 시간은 참고값입니다.');
+ if(has('절명'))warnings.push('절명 신식은 공격 도술이 적중한다고 가정하여 계산합니다. 비공격 도술은 형상을 얻지 않으며, 빗나감·실제 적중 시각에 따른 차이는 미반영입니다.');
+  if(has('파멸'))warnings.push('파멸 영력은 상세 자료의 사용당 25를 적용합니다. 요약의 15와 상충하며 발동 시간은 참고값입니다.');
  if(has('기동'))warnings.push('기동 연쇄의 시전 가속 수치는 자료가 없어 제외했습니다. 궁극기 초기화는 반영합니다.');
  if(has('주술'))warnings.push('주술은 버그를 무시하고 모든 일반 도술의 대기시간을 줄이는 의도된 효과로 계산합니다.');
  if(has('강타'))warnings.push('강타 영력은 상세 설명의 사용당 10을 적용합니다. 같은 자료의 요약에는 5로 적혀 있어 강압 발동 시점은 참고값입니다. 차지 생략 후에도 준비·공격 모션은 남습니다.');
