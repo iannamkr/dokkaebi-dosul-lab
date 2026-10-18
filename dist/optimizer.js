@@ -295,10 +295,10 @@ function createSearch(data,current,opts){
  const ult=current.ids.find(isUlt)||null,normals=current.ids.filter(id=>id!==ult);
  const ctx={executionPolicy:opts.executionPolicy,stats:opts.stats,overrides:opts.overrides||{},singleOnly:!!opts.singleOnly,profile:opts.profile||'185547',horizon:180,need:opts.need,incoming:opts.incoming,snapshot:opts.snapshot,
   encounter:opts.encounter===true,scenario:opts.scenario,damageRate:opts.damageRate,zone:opts.zone||null,perMob:opts.perMob,regenPerMin:opts.regenPerMin,margin:opts.margin};
- const spatialSelection=opts.spatialSelection??ctx.encounter;
+ const spatialSelection=opts.boundedSelection===true||(opts.spatialSelection??ctx.encounter);
  const screenLimit=opts.screenLimit??12,finalistLimit=opts.finalistLimit??3;
  for(const n of [screenLimit,finalistLimit])if(!Number.isSafeInteger(n)||n<1)throw Error('selection limits must be positive integers');
- const verificationRuns=HORIZONS.length*PROFILES.length+(ctx.sensitivity===false?0:Encounter.sensitivity.length*PROFILES.length);
+ const verificationRuns=HORIZONS.length*PROFILES.length+((opts.boundedSelection&&!ctx.encounter)||ctx.sensitivity===false?0:Encounter.sensitivity.length*PROFILES.length);
  const reserve=spatialSelection?screenLimit+finalistLimit*verificationRuns:0;
  const totalBudget=opts.totalEvaluationBudget??Infinity;
  if(totalBudget!==Infinity&&(!Number.isSafeInteger(totalBudget)||totalBudget<=reserve))throw Error('totalEvaluationBudget must leave room for search and spatial validation');
@@ -419,7 +419,7 @@ function createSearch(data,current,opts){
   // Alternate objective leaders with behavior elites. Only executed candidates are eligible.
   const queues=[ranked,opts.diverseSelection===false?[]:elites];let turn=0;
   while(shortlist.length<screenLimit&&queues.some(q=>q.length)){const queue=queues[turn++%2];if(!queue.length)continue;const c=queue.shift(),k=key({ids:c.ids,base:c.baseSlots});if(seen.has(k))continue;seen.add(k);shortlist.push(c);}
-  const spatialCtx={...ctx,encounter:true,onEvaluate:()=>{finalEvaluations++;}},screened=[];
+  const spatialCtx={...ctx,encounter:opts.boundedSelection?ctx.encounter:true,onEvaluate:()=>{finalEvaluations++;}},screened=[];
   for(const c of shortlist){const r=evaluate(data,c.ids,c.baseSlots,spatialCtx);if(r.valid)screened.push({...c,power:r.power,perMin:r.perMin,coefficient:r.coefficient,room:r.perMin-(needOf(r)||0)});}
   screened.sort((a,b)=>(b.room>=0)-(a.room>=0)||(a.room<0&&b.room<0?b.room-a.room:b.power-a.power)||b.room-a.room);
   const verified=[],closest=[];
@@ -467,7 +467,9 @@ function createSearch(data,current,opts){
   const exact=key({ids,base:baseSlots}),set=[...ids].sort().join(),entries=[...cache].filter(([k])=>k.split('|')[0].split(',').sort().join()===set),r=evaluate(data,ids,baseSlots,ctx);
   const off=evaluate({...data,shinsikEffects:false,shinsikTiming:false},ids,baseSlots,ctx);const mechanism={active:r.active||[],on:{power:r.power,casts:r.casts,idle:r.idle,perMin:r.perMin},off:{power:off.power,casts:off.casts,idle:off.idle,perMin:off.perMin},powerDelta:r.valid&&off.valid?r.power-off.power:null,castDelta:r.valid&&off.valid?r.casts-off.casts:null,limitations:(r.shinsik?.rules||[]).flatMap(rule=>rule.limitations||[])};return {mechanism,injected:false,exactEvaluated:cache.has(exact),sameOrderEvaluated:entries.some(([k])=>k.split('|')[0]===ids.join()),sameSetEvaluated:entries.length,valid:r.valid,issue:r.issue||null,feasible:feasible(r),power:r.power,need:r.need,perMin:r.perMin,higherScoringArchivedLayouts:r.valid?[...archive.values()].filter(c=>c.power>r.power).length:null,reason:!r.valid?'invalid':!feasible(r)?'sustain-failed':!entries.length?'not-generated':'generated-check-final-ranking',diagnostics:{...JSON.parse(JSON.stringify(diagnostics)),diversity:diversity.report()}};
  }
- return {step,results,grouped,audit,pool:candidates,ultimate:ult,ultimates,slots:normals.length,start:startEval};
+ // Cached, single-scenario leaders only; no extra simulation or final-verification claim.
+ function preview(limit=3){return distinct().sort((a,b)=>b.power-a.power||b.room-a.room).slice(0,limit).map(c=>({ids:[...c.ids],baseSlots:[...c.baseSlots],power:c.power,perMin:c.perMin}));}
+ return {step,results,grouped,audit,preview,pool:candidates,ultimate:ult,ultimates,slots:normals.length,start:startEval};
 }
 const api={conditionSeed,createBehaviorArchive,improvements,castCoefficient,hunt,pull,density,reach,spawnPoints,mPerPx:M_PER_PX,damageRate:DAMAGE_RATE,zoneSummary,zoneScale,parseAmount,parseReduction,timeline,sources,amount,needsStats,sustain,regenPerMin,calibrate,evaluate,verify,pool,createSearch,profiles:PROFILES,horizons:HORIZONS};
 if(typeof module!=='undefined')module.exports=api;else root.DosulOptimizer=api;

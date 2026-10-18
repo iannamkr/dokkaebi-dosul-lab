@@ -112,3 +112,83 @@
 .opt-closest-title{font-size:13px;margin:6px 0 0;color:#94601c}
 .opt-improve{margin:4px 0 6px;padding-left:18px;font-size:13px;line-height:1.7}
 .opt-improve li::marker{color:#94601c}
+
+/* Optional required-skill selection follows the selected families. */
+#optimizer .opt-picker-heading{display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:12px}
+#optimizer .opt-picker-heading small{font-weight:400;color:#627260}
+#optimizer .opt-skill-family{margin:12px 0 16px}
+#optimizer .opt-skill-family h3{font-size:14px;margin:0 0 8px}
+#optimizer .opt-skill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:8px}
+#optimizer .opt-skill-choice{display:flex;align-items:center;gap:9px;text-align:left;padding:10px;min-height:68px;position:relative}
+#optimizer .opt-skill-choice[aria-pressed="true"]{border:2px solid #16715a;background:#e3f1e8;padding:9px}
+#optimizer .opt-skill-choice b{display:block;font-size:14px;line-height:1.35}
+#optimizer .opt-skill-choice small{display:block;color:#627260;font-size:12px;margin-top:4px}
+#optimizer .opt-choice-mark{margin-left:auto;font-weight:700;color:#16715a}
+#optimizer .opt-skill-choice .skill-icon-frame{flex-shrink:0}
+
+/* Workflow: build constraints, evaluation, search, then application. */
+#optimizer .opt-heading{margin-bottom:24px;align-items:baseline}
+#optimizer .opt-start{padding-bottom:18px;border-bottom:1px solid #d5dfcd}
+#optimizer .opt-start>label{justify-content:flex-start;gap:24px}
+#optimizer #opt-start-mode{width:auto;min-width:240px}
+#optimizer .opt-step-title{margin:24px 0 12px;font-size:18px}
+#optimizer .opt-current-scope{padding:16px 0;border:0}
+#optimizer .opt-preview{margin:14px 0;padding:12px 0;border-bottom:1px solid #d5dfcd}
+#optimizer .opt-preview summary{cursor:pointer;font-size:14px;font-weight:600}
+#optimizer .opt-grid{grid-template-columns:minmax(230px,1fr) minmax(360px,2fr);gap:32px;margin:0;border-top:0;padding-top:0}
+#optimizer .opt-grid .opt-panel{gap:12px}
+#optimizer .opt-grid label{max-width:620px;min-height:36px}
+#optimizer .opt-families{gap:8px;margin:10px 0}
+#optimizer .opt-families label{border:1px solid #bacaaf;border-radius:5px;padding:8px 12px;cursor:pointer;background:#fff}
+#optimizer .opt-families label:has(input:checked){background:#deeee5;border-color:#24775c;color:#165640;font-weight:600}
+#optimizer .opt-run{position:sticky;bottom:0;z-index:5;display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:#f8faf6f5;padding:14px 0;border-top:1px solid #bacaaf;margin:16px 0}
+#optimizer #opt-run{background:#176b52;color:#fff;border-color:#176b52;min-height:42px;padding:10px 24px;font-weight:700}
+#optimizer .opt-model-details{font-size:13px;max-width:720px}
+#optimizer .opt-need{font-size:13px;line-height:1.6}
+#optimizer .opt-export{margin:18px 0}
+#optimizer .opt-verdict{background:#edf2e7}
+@media(max-width:800px){#optimizer .opt-grid{grid-template-columns:1fr;gap:20px}#optimizer .opt-heading{display:block}#optimizer .opt-start>label{align-items:flex-start;flex-direction:column;gap:8px}#optimizer .opt-skill-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#optimizer .opt-run strong{flex-basis:100%}}
+
+#optimizer p{margin:6px 0}#optimizer .opt-current-scope{gap:4px;padding:12px 0}#optimizer .opt-heading{margin-bottom:18px}#optimizer .opt-preview{margin:8px 0}#optimizer .opt-panel h2{font-size:16px!important}
+
+/* Keep skill names intact; wrap complete cards and controls instead of words. */
+#optimizer .opt-skill-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr))}
+#optimizer .opt-skill-choice{min-width:0;min-height:72px;align-items:center;gap:10px}
+#optimizer .opt-skill-choice>.skill-icon-frame{align-self:center;flex:0 0 auto}
+#optimizer .opt-skill-choice>span:not(.skill-icon-frame):not(.opt-choice-mark){min-width:0;flex:1}
+#optimizer .opt-skill-choice b{white-space:nowrap;word-break:normal;overflow-wrap:normal}
+#optimizer .opt-choice-mark{flex:0 0 16px;text-align:center;margin-left:0}
+#optimizer .opt-build{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px}
+#optimizer .opt-build>span{grid-template-columns:22px 36px minmax(0,1fr);padding:8px;align-items:center}
+#optimizer .opt-build>span>.skill-icon-frame{grid-column:2;grid-row:1/3;align-self:center}
+#optimizer .opt-build b{white-space:nowrap;overflow-wrap:normal;font-size:13px}
+#optimizer .opt-build .style-badge{grid-column:3;grid-row:2}
+#optimizer button:not(.opt-skill-choice),#optimizer select{white-space:nowrap;flex-shrink:0}
+#optimizer .opt-alt-head>span,#optimizer .opt-card-actions{min-width:0}
+#optimizer .opt-metrics span{overflow-wrap:break-word}
+/* Shared UI: preserve labels, allow groups to reflow at their boundaries. */
+button,summary,.target-badge,.style-badge{word-break:keep-all}
+.skill-title,.game-title h2,.table-skill button,.candidate-title>span:first-child{white-space:nowrap;overflow-wrap:normal;word-break:normal}
+.skill-list .list-heading{grid-template-columns:34px minmax(0,1fr);position:relative}
+.skill-list .list-heading .in-build{position:absolute;right:0;bottom:0}
+.skill-list .list-heading .skill-title{font-size:14px;line-height:22px}
+.skill-list .list-heading .skill-icon{width:34px;height:34px}
+.game-title h2{font-size:17px}
+.candidate-title{flex-wrap:wrap;overflow:visible;row-gap:5px}
+.candidate-title>span:first-child{flex:0 0 100%;overflow:visible}
+.candidate-title .skill-tags{flex:0 0 auto}
+.predecessor-card>button{white-space:nowrap;width:auto;max-width:none;position:static;justify-self:end}
+.predecessor-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;padding:10px}
+.predecessor-card>p{grid-column:1/-1;margin:0}
+.predecessor-card>.predecessor-name{grid-column:1/-1}
+.predecessor-card>button{grid-column:2;grid-row:3}
+.table-skill{min-width:220px;flex-wrap:wrap}
+.graph-options,.mechanic-tools,.sequence-toolbar,.button-row{flex-wrap:wrap}
+.graph-options label,.mechanic-tools label,.sequence-actions button,.button-row button{white-space:nowrap}
+.effect-title{flex-wrap:wrap;gap:4px 8px}.effect-title>span{white-space:nowrap}
+.source-card{min-width:0;overflow-wrap:anywhere}
+@media(min-width:901px){.workspace{grid-template-columns:250px 310px minmax(0,1fr)}}
+@media(max-width:600px){#optimizer .opt-skill-grid{grid-template-columns:1fr}.sequence-actions{flex-wrap:wrap;white-space:normal}.game-title h2{font-size:16px}}
+
+header nav .tab{white-space:nowrap;flex-shrink:0}
+@media(max-width:600px){header{flex-wrap:wrap;height:auto}header nav{flex-wrap:wrap;gap:4px}.predecessor-cards{grid-template-columns:1fr}.game-title{min-width:0}}

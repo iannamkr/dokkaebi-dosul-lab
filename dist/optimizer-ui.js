@@ -4,32 +4,35 @@ const O=window.DosulOptimizer,KK=window.DosulKkaebigg,ZONES=window.DOSUL_HUNTING
 const FAMILIES=['절명','연타','강타','척살','저격','주술','파멸','강인','기동','헌신','기만','제압'];
 // One fixed search depth and safety margin: the screen only asks for what the player can measure.
 const ITERATIONS=4000,GROUP_SIZE=10,MARGIN=1000,REGEN_PERIOD=5,SEARCH_PROFILE='185547',STORE='dosul-optimizer-v1';
-const q=sel=>host.querySelector(sel),f=n=>n===null||n===undefined||!Number.isFinite(n)?'—':Math.round(n).toLocaleString('ko-KR'),signed=n=>(n>=0?'+':'')+f(n);
+const q=sel=>host.querySelector(sel),f=n=>n===null||n===undefined||!Number.isFinite(n)?'—':Math.round(n).toLocaleString('ko-KR'),signed=n=>n==null?'—':(n>=0?'+':'')+f(n);
 let settings={startMode:'current',requiredSkills:[],requiredFamilies:[],requiredShinsik:[],stats:{attack:'',maxHp:'',regen:''},mode:'measure',incoming:'',measure:{hpStart:'',hpEnd:'',seconds:''},overrides:{},families:null,encounter:true,zoneFrom:'',zoneTo:'',power:''};
 try{const v=JSON.parse(localStorage.getItem(STORE)||'null');if(v&&typeof v==='object')settings={...settings,...v,stats:{...settings.stats,...v.stats},measure:{...settings.measure,...v.measure},overrides:{...v.overrides}};}catch{}
 // Older saves: the "keep current sustain" mode, margin, depth and regen period are gone.
-if(settings.mode!=='incoming')settings.mode='measure';delete settings.margin;delete settings.depth;delete settings.single;delete settings.stats.regenPeriod;
-let context='',current=null,search=null,timer=0,lastResults=null,resultContext='';
+if(settings.startMode==='conditions')settings.mode='incoming';else if(settings.mode!=='incoming')settings.mode='measure';delete settings.margin;delete settings.depth;delete settings.single;delete settings.stats.regenPeriod;
+let context='',current=null,search=null,timer=0,lastResults=null,resultContext='',searchWorker=null;
 const save=()=>{try{localStorage.setItem(STORE,JSON.stringify(settings));}catch{}};
 const num=v=>v===''||v===null||v===undefined?NaN:Number(v);
 const stats=()=>({attack:num(settings.stats.attack),maxHp:num(settings.stats.maxHp),regen:num(settings.stats.regen)||0,regenPeriod:REGEN_PERIOD});
 const familiesOf=ids=>[...new Set(ids.map(id=>byId(id)?.family).filter(Boolean))];
 const ruleText={Replace:'교체',Stack:'중첩',Impossible:'중복 불가',StackLifeReset:'중첩·시간 초기화',StackLifeExtension:'중첩·시간 연장'};
 
-host.innerHTML=`<div class="opt-heading"><div><h1>빌드 최적화</h1><p>평균 회복·피격 수지를 충족하는 범위에서 예상 처치량이 가장 큰 사용 순서·도술 구성·기본 장착을 찾습니다. 순서 구성의 현재 빌드가 출발점입니다.</p></div><div class="opt-actions"><button data-tab="explore">← 순서 수정</button></div></div>
-<section class="opt-panel" aria-label="추천 시작 조건"><h2>시작 조건</h2><label>추천 방식<select id="opt-start-mode"><option value="current">현재 빌드 개선</option><option value="conditions">선택 조건으로 새 빌드 만들기</option></select></label><div id="opt-conditions" hidden><p>활용할 계열</p><div id="opt-required-families" class="opt-families"></div><label>필수 도술 추가<select id="opt-required-skill"><option value="">도술 선택</option></select></label><div id="opt-required-chips" class="opt-families"></div><details><summary>신식 개방 조건</summary><label>필수 신식<select id="opt-required-shinsik"><option value="">엔진이 결정</option></select></label><p class="opt-caption">계열 포함과 신식 개방은 다릅니다. 기본 장착 5칸에서 두 계열 신식 동시 개방은 불가능합니다.</p></details><p class="opt-caption">새 구성의 회복량으로 기존 사냥 실측을 역산하지 않습니다. 받는 피해 직접 입력을 사용하세요. 생성된 시작 구성은 비교용이며, 적용 전까지 사용 순서는 바뀌지 않습니다.</p></div></section>
-<div id="opt-build" class="opt-build"></div><div id="opt-equipment" class="opt-caption"></div><div id="opt-validation" class="opt-validation" role="alert" hidden></div>
-<div id="opt-empty" hidden><b>먼저 사용할 도술을 배치하세요.</b><p>순서 구성에서 만든 빌드를 출발점으로 사용합니다.</p><button data-tab="explore">도술 배치하기 →</button></div>
+host.innerHTML=`<div class="opt-heading"><h1>빌드 최적화</h1><span class="opt-caption">조건 선택 → 평가 설정 → 추천 비교</span></div>
+<section class="opt-panel opt-start" aria-label="추천 시작 조건"><h2>01 · 빌드 구성</h2><label>추천 방식<select id="opt-start-mode"><option value="current">현재 빌드 개선</option><option value="conditions">선택 조건으로 새 빌드 만들기</option></select></label><div id="opt-conditions" hidden><p>활용할 계열</p><div id="opt-required-families" class="opt-families"></div><div class="opt-picker-heading"><b>꼭 포함할 도술 <small>선택 사항</small></b><span id="opt-required-count" role="status"></span></div><div id="opt-skill-picker"></div><div id="opt-required-chips" class="opt-families"></div><details><summary>신식 개방 조건</summary><label>필수 신식<select id="opt-required-shinsik"><option value="">엔진이 결정</option></select></label></details></div></section>
+<section id="opt-current-scope" class="opt-panel opt-current-scope" aria-labelledby="opt-scope-title"><h2 id="opt-scope-title">탐색 계열</h2>
+<div id="opt-families" class="opt-families"></div>
+
+<p id="opt-ultimate" class="opt-caption"></p></section><details id="opt-preview" class="opt-preview"><summary id="opt-preview-title">현재 빌드</summary><div id="opt-build" class="opt-build"></div><div id="opt-equipment" class="opt-caption"></div><button data-opt-edit data-tab="explore">이 구성 편집</button></details><div id="opt-validation" class="opt-validation" role="alert" hidden></div>
+<div id="opt-empty" hidden><b>먼저 사용할 도술을 배치하세요.</b><button data-tab="explore">도술 배치하기 →</button></div>
 <div id="opt-work">
-<div class="opt-grid">
-<section class="opt-panel" aria-labelledby="opt-stats-title"><h2 id="opt-stats-title">1 · 내 캐릭터</h2>
+<h2 class="opt-step-title">02 · 평가 설정</h2><div class="opt-grid">
+<section class="opt-panel" aria-labelledby="opt-stats-title"><h2 id="opt-stats-title">캐릭터 능력치</h2>
 <label>최대 체력<input id="opt-maxhp" type="number" min="0" inputmode="numeric"></label><label>공격력<input id="opt-attack" type="number" min="0" inputmode="numeric"></label>
 <label>체력 자연 회복<input id="opt-regen" type="number" min="0" inputmode="numeric" placeholder="0"></label>
 <p id="opt-stats-note" class="opt-caption"></p></section>
-<section class="opt-panel" aria-labelledby="opt-need-title"><h2 id="opt-need-title">2 · 사냥 기준</h2>
-<div class="opt-modes" role="radiogroup" aria-label="받는 피해를 정하는 방법">
-<label><input type="radio" name="opt-mode" value="measure"> 사냥 실측 <small>현재 빌드로 몇 분 사냥한 HP 변화로 계산</small></label>
-<label><input type="radio" name="opt-mode" value="incoming"> 몹 1마리에게 받는 분당 피해 직접 입력</label></div>
+<section class="opt-panel" aria-labelledby="opt-need-title"><h2 id="opt-need-title">사냥 환경</h2>
+<div id="opt-damage-modes" class="opt-modes" role="radiogroup" aria-label="받는 피해를 정하는 방법">
+<label><input type="radio" name="opt-mode" value="measure"> 사냥 실측 </label>
+<label><input type="radio" name="opt-mode" value="incoming"> 받는 피해 입력</label></div>
 <div id="opt-measure-row" class="opt-inline">
 <label>측정 사냥터<select id="opt-zone-from" aria-label="실측한 사냥터"></select></label>
 <label>시작 HP<input id="opt-hp-start" type="number" min="0" inputmode="numeric"></label><label>끝 HP<input id="opt-hp-end" type="number" min="0" inputmode="numeric"></label><label>측정 시간 (초)<input id="opt-seconds" type="number" min="1" inputmode="numeric"></label>
@@ -38,25 +41,22 @@ host.innerHTML=`<div class="opt-heading"><div><h1>빌드 최적화</h1><p>평균
 <li>HP 50~70%에서 시작하고, 측정 중 최대치나 0에 닿지 않게 합니다. 최대치에 닿으면 넘친 회복을 알 수 없습니다.</li>
 <li>측정 내내 전투를 이어 갑니다. 전투가 끊기면 자연 회복이 1초마다 들어와 결과가 달라집니다.</li>
 <li>측정 중에는 빌드·장비를 바꾸지 않습니다. 3~5분이면 충분합니다.</li></ul></details></div>
-<div id="opt-incoming-row" class="opt-inline"><label>분당 받는 피해 (1마리)<input id="opt-incoming" type="number" min="0" inputmode="numeric"></label></div>
+<div id="opt-incoming-row" class="opt-inline"><label>받는 피해 / 분 · 1마리<input id="opt-incoming" type="number" min="0" inputmode="numeric"></label></div>
 <div class="opt-zone"><label>목표 사냥터<select id="opt-zone-to" aria-label="사냥할 사냥터"></select></label><label>내 전투력 <small>(선택)</small><input id="opt-power" type="number" min="0" inputmode="numeric"></label><p id="opt-zone" class="opt-caption"></p></div>
-<label>사냥 모델<select id="opt-model" aria-label="사냥 평가 모델"><option value="spatial">이동·처치·리젠 실험</option><option value="legacy">기존 밀도 평균</option></select></label><p class="opt-caption">실험 모델은 몹 추적·개별 체력·리젠·사냥 반경 복귀를 계산합니다. 실전 검증 전이며 생존을 보장하지 않습니다.</p><p id="opt-world" class="opt-caption"></p><p id="opt-need" class="opt-need" role="status"></p></section>
-<section class="opt-panel" aria-labelledby="opt-scope-title"><h2 id="opt-scope-title">3 · 쓸 수 있는 도술</h2>
-<p class="opt-caption">사용 가능한 도술 계열</p><div id="opt-families" class="opt-families"></div>
-<p class="opt-caption">범위 공격 도술은 맞힌 몹이 모두 덤벼 받는 피해가 늘어납니다. 사냥터 몹 밀도로 동시에 붙는 몹 수를 계산해 반영합니다.</p>
-<p id="opt-ultimate" class="opt-caption"></p></section>
+<label>사냥 모델<select id="opt-model" aria-label="사냥 평가 모델"><option value="spatial">이동·처치·리젠 실험</option><option value="legacy">기존 밀도 평균</option></select></label><details class="opt-model-details"><summary>모델 상세</summary><p id="opt-world" class="opt-caption"></p></details><p id="opt-need" class="opt-need" role="status"></p></section>
+
 </div>
-<div class="opt-run"><button id="opt-run" class="primary">최적화 실행</button><button id="opt-cancel" hidden>중지</button><progress id="opt-progress" max="1" value="0" hidden></progress><span id="opt-status" role="status" aria-live="polite"></span></div>
-<section id="opt-results" hidden aria-label="최적화 결과"><p id="opt-stale" class="opt-warning" hidden>빌드나 입력이 바뀌었습니다. 아래 결과는 이전 기준입니다.</p>
-<div id="opt-card" class="opt-card"></div>
+<div class="opt-run"><strong>03 · 추천 탐색</strong><button id="opt-run" class="primary">추천 빌드 찾기</button><button id="opt-cancel" hidden>중지</button><progress id="opt-progress" max="1" value="0" hidden></progress><span id="opt-status" role="status" aria-live="polite"></span></div>
+<section id="opt-live" hidden aria-live="polite"><h2>탐색 중 후보 <small>최종 검증 전</small></h2><div id="opt-live-builds"></div></section><section id="opt-results" hidden aria-label="최적화 결과"><p id="opt-stale" class="opt-warning" hidden>빌드나 입력이 바뀌었습니다. 아래 결과는 이전 기준입니다.</p>
+<h2 class="opt-step-title">04 · 비교 및 적용</h2><div id="opt-card" class="opt-card"></div>
 <p id="opt-found" class="opt-caption"></p><details><summary>후보 생성·탈락 진단</summary><div id="opt-diagnostics"></div></details>
-<div class="opt-export"><button id="opt-export-md">분석용 내보내기 (.md)</button><button id="opt-export-copy">분석용 텍스트 복사</button><span id="opt-export-status" role="status" aria-live="polite"></span><small>현재 빌드·추천·비슷한 빌드·다른 도술 조합의 수치와 이유를 프롬프트에 붙여 넣기 좋은 Markdown과 JSON으로 담습니다.</small></div>
+<div class="opt-export"><button id="opt-export-md">분석용 내보내기 (.md)</button><button id="opt-export-copy">분석용 텍스트 복사</button><span id="opt-export-status" role="status" aria-live="polite"></span></div>
 <details id="opt-similar" class="opt-more"><summary>비슷한 빌드 보기 <span id="opt-similar-count"></span></summary><div id="opt-similar-body" class="opt-alts"></div></details>
 <details id="opt-different" class="opt-more"><summary>다른 도술 조합 보기 <span id="opt-different-count"></span></summary><div id="opt-different-body" class="opt-alts"></div></details></section>
 <details id="opt-basis" class="opt-assumptions"><summary>계산 근거 보기</summary>
 <div id="opt-data" class="opt-data"><span id="opt-data-text"></span><button id="opt-sync">깨비지지 동기화</button><span id="opt-sync-status" role="status" aria-live="polite"></span></div>
 <div class="opt-section-title"><h2>현재 빌드의 회복·보호막</h2><span id="opt-current-total"></span></div>
-<p class="opt-caption">도술 설명의 수치와 시뮬레이션 발동 횟수(영상 03 배치 · 180초)로 계산합니다. 게임에서 확인한 1회량이 다르면 실측 칸에 입력하세요. 보호막·피해 감소는 깨비지지 버프 사전의 지속시간·중복 규칙과 받는 피해로 실제 흡수·감소량을 계산합니다.</p>
+
 <div class="opt-table-wrap"><table class="opt-table opt-sources"><thead><tr><th>도술</th><th>효과</th><th>발동</th><th>1회량</th><th>실측 1회량</th><th>지속 · 중복</th><th>180초 발동</th><th>분당 최대</th><th>분당 반영</th></tr></thead><tbody id="opt-sources"></tbody></table></div>
 <div id="opt-shinsik" class="opt-caption" aria-live="polite"></div>
 <ul id="opt-unquantified" class="opt-unquantified"></ul>
@@ -76,25 +76,28 @@ host.innerHTML=`<div class="opt-heading"><div><h1>빌드 최적화</h1><p>평균
 
 // Incoming damage is kept per monster: the measured build's own pull (zone density) is divided out, then the target
 // zone's attack ratio and each candidate's pull scale it back up.
-function searchFamilies(){return settings.families||(settings.startMode==='conditions'?FAMILIES:familiesOf(build));}
+function searchFamilies(){return settings.startMode==='conditions'?(settings.requiredFamilies||[]):settings.families||familiesOf(build);}
 function conditions(){return {requiredSkills:settings.requiredSkills||[],requiredFamilies:settings.requiredFamilies||[],requiredShinsik:settings.requiredShinsik||[]};}
-function startState(){return settings.startMode==='conditions'?O.conditionSeed(D,conditions(),searchFamilies()):{ids:[...build],baseSlots:[...D.baseSlots]};}
+function startState(){if(settings.startMode==='conditions'&&!settings.requiredFamilies?.length)throw Error('활용할 계열을 먼저 선택하세요.');return settings.startMode==='conditions'?O.conditionSeed(D,conditions(),searchFamilies()):{ids:[...build],baseSlots:[...D.baseSlots]};}
 function renderConditions(){
- q('#opt-start-mode').value=settings.startMode;q('#opt-conditions').hidden=settings.startMode!=='conditions';
+ q('#opt-preview-title').textContent=settings.startMode==='conditions'?'자동 생성 시작안 · 최적화 전':'현재 빌드';q('#opt-current-scope').hidden=settings.startMode==='conditions';q('#opt-damage-modes').hidden=settings.startMode==='conditions';q('#opt-start-mode').value=settings.startMode;q('#opt-conditions').hidden=settings.startMode!=='conditions';
  q('#opt-required-families').innerHTML=FAMILIES.map(f=>`<label><input type="checkbox" data-required-family="${f}" ${(settings.requiredFamilies||[]).includes(f)?'checked':''}>${f}</label>`).join('');
- q('#opt-required-skill').innerHTML='<option value="">도술 선택</option>'+D.skills.map(s=>`<option value="${s.id}">${esc(s.name)} · ${esc(s.family)}</option>`).join('');
- q('#opt-required-chips').innerHTML=(settings.requiredSkills||[]).map(id=>`<button data-remove-required="${id}">${esc(byId(id)?.name||id)} ×</button>`).join('');
- q('#opt-required-shinsik').innerHTML='<option value="">엔진이 결정</option>'+FAMILIES.map(f=>`<option>${f}</option>`).join('');q('#opt-required-shinsik').value=settings.requiredShinsik?.[0]||'';
+ const chosen=settings.requiredFamilies||[],fixed=settings.requiredSkills||[];
+ q('#opt-required-count').textContent=`${fixed.length}개 필수 포함`;
+ q('#opt-skill-picker').innerHTML=chosen.length?chosen.map(f=>`<section class="opt-skill-family"><h3>${esc(f)}</h3><div class="opt-skill-grid">${D.skills.filter(s=>s.family===f).map(s=>`<button type="button" class="opt-skill-choice" data-toggle-required="${s.id}" aria-pressed="${fixed.includes(s.id)}" title="${esc(s.name)} 필수 포함 전환">${icon(s)}<span><b>${esc(s.name)}</b><small>${s.ultimate?'궁극기':esc(s.targeting?.kind==='single'?'단일':s.targeting?.kind==='self'?'자신':'범위·기타')}</small></span><span class="opt-choice-mark" aria-hidden="true">${fixed.includes(s.id)?'✓':'+'}</span></button>`).join('')}</div></section>`).join(''):'<p class="opt-caption">계열을 먼저 선택하세요.</p>';
+ q('#opt-required-chips').innerHTML='';
+ q('#opt-required-shinsik').innerHTML='<option value="">엔진이 결정</option>'+chosen.map(f=>`<option>${f}</option>`).join('');q('#opt-required-shinsik').value=settings.requiredShinsik?.[0]||'';
 }
 function evalCurrent(){
  let initial;try{initial=startState();}catch(e){return {valid:false,issue:e.message};}
  const evalIds=initial.ids,evalBase=initial.baseSlots;
- if(settings.startMode==='conditions'&&settings.mode==='measure')return {valid:false,issue:'새 빌드는 받는 피해 직접 입력으로 평가하세요.'};
+
  const ctx={encounter:settings.encounter===true,stats:stats(),overrides:settings.overrides,profile:SEARCH_PROFILE,horizon:180};
- const measuring=settings.mode==='measure',from=measuring?zoneById(settings.zoneFrom):null,to=zoneById(settings.zoneTo)||from;
+ const generating=settings.startMode==='conditions',measuring=!generating&&settings.mode==='measure',from=measuring?zoneById(settings.zoneFrom):null,to=zoneById(settings.zoneTo)||from;
  const base=O.evaluate(D,evalIds,evalBase,{...ctx,zone:from||to,keepRun:true});if(!base.valid)return {valid:false,issue:base.issue};
  let measured=null,perMob=null,how=null,error=null;
- if(!measuring){const v=num(settings.incoming);if(!to)error='목표 사냥터를 고르세요. 몹 밀도와 체력으로 동시에 붙는 몹 수를 계산합니다.';else if(v>0){perMob=v;how='입력';}else error='몹 1마리에게 받는 분당 피해를 입력하세요.';}
+ if(generating&&(settings.mode==='measure'||settings.incoming===''||settings.incoming==null)){how='미평가';}
+ else if(!measuring){const v=num(settings.incoming);if(!to)error='목표 사냥터를 고르세요. 몹 밀도와 체력으로 동시에 붙는 몹 수를 계산합니다.';else if(v>0){perMob=v;how='입력';}else error='몹 1마리에게 받는 분당 피해를 입력하세요.';}
  else{
   const m=settings.measure;how='실측';
   if(!from)error='측정 사냥터를 고르세요. 몹 밀도와 체력으로 측정 중 동시에 붙은 몹 수를 계산합니다.';
@@ -104,11 +107,12 @@ function evalCurrent(){
  }
  const scale=perMob&&from&&to&&from!==to?O.zoneScale(from,to):1,target=perMob?perMob*scale:null;
  const tctx={...ctx,zone:to,perMob:target,regenPerMin:O.regenPerMin(stats()),margin:MARGIN},r=target?O.evaluate(D,evalIds,evalBase,tctx):base;
- return {...r,verification:O.verify(D,evalIds,evalBase,target?tctx:{...ctx,zone:to}),ctx:target?tctx:null,measured,measuredAttackers:base.attackers,perMob:target,scale,how,zone:to,incomingError:error};
+ return {...r,startIds:[...evalIds],startBase:[...evalBase],verification:O.verify(D,evalIds,evalBase,target?tctx:{...ctx,zone:to}),ctx:target?tctx:generating?{...ctx,zone:to}:null,unassessed:generating&&!target&&!error,measured,measuredAttackers:base.attackers,perMob:target,scale,how,zone:to,incomingError:error};
 }
 // value: whether the search can run; each build has its own need because its pull changes the damage it takes.
 function needed(){
  if(!current?.valid)return {value:null,text:'현재 빌드를 계산할 수 없습니다: '+(current?.issue||'원인 미확인')};
+ if(current.unassessed)return {value:null,unassessed:true,text:'생존성 미평가 · 받는 피해 미입력'};
  if(current.incomingError||!current.perMob)return {value:null,text:current.incomingError||'받는 피해를 계산할 수 없습니다.'};
  const v=current.verification,regen=O.regenPerMin(stats()),bare=v.need-MARGIN,have=v.minPerMin,left=have-bare;
  const src=current.how==='실측'?`실측 ${f(current.measured)} ÷ 평균 ${current.measuredAttackers.toFixed(2)}마리`:'입력',moved=current.scale!==1?` × 사냥터 공격력 ${current.scale.toFixed(2)}배 (추정)`:'';
@@ -123,7 +127,7 @@ function renderZone(){
  const measuring=settings.mode==='measure',from=measuring?O.zoneSummary(zoneById(settings.zoneFrom)):null,to=O.zoneSummary(zoneById(settings.zoneTo))||from;
  q('#opt-zone').classList.toggle('opt-warning',false);
  if(!ZONES.length){q('#opt-zone').textContent='사냥터 자료(kkaebi-gg/hunting.js)를 불러오지 못했습니다.';return;}
- if(!to){q('#opt-zone').textContent=measuring?'다른 사냥터에서 사냥할 계획이면 측정 사냥터와 목표 사냥터를 고르세요. 몬스터 공격력 비율로 받는 피해를 환산합니다.':'목표 사냥터를 고르면 몬스터 능력치와 권장 전투력을 보여 줍니다.';return;}
+ if(!to){q('#opt-zone').textContent='';return;}
  const power=num(settings.power),ratio=power>0?power/to.recommendedPower:null;
  const parts=[`${to.name} · 권장 전투력 ${f(to.recommendedPower)}`+(ratio?` (내 전투력 ${Math.round(ratio*100)}%${ratio<1?' · 부족':''})`:''),`몬스터 ${to.monsters}종 Lv ${to.levels} · 평균 체력 ${f(to.hp)} · 평균 공격력 ${f(to.attack)}`];
  if(from&&from.id!==to.id)parts.push(`${from.name} 대비 공격력 ${(to.attack/from.attack).toFixed(2)}배로 받는 피해를 환산 (방어 공식 미공개라 추정)`);
@@ -156,7 +160,7 @@ function sourceRow(r){
 // The planner keeps base slots valid on its own; a build that is still blocked (e.g. fewer than 3 family skills) is fixed in the planner.
 function renderValidation(){
  const box=q('#opt-validation');if(current?.valid!==false){box.hidden=true;box.innerHTML='';return;}
- box.hidden=false;box.innerHTML='<strong>현재 빌드를 계산할 수 없습니다.</strong><p>'+esc(current.issue||'')+'</p><button data-tab="explore">순서 구성에서 고치기</button>';
+ box.hidden=false;box.innerHTML='<strong>입력을 확인해 주세요.</strong><p>'+esc(current.issue||'')+'</p>'+(settings.startMode==='conditions'?'':'<button data-opt-edit data-tab="explore">순서 구성에서 고치기</button>');
 }
 function worldText(r){const x=r?.encounter;if(!x)return '기존 모델: 밀도 평균 · 이동/리젠 없음';return `실험: 분당 처치 ${x.killsPerMin} · 군집 반경 ${x.clusterRadiusMean}m · 2m 내 밀집 ${x.compactPct}% · 최대 추적 간격 ${x.maxTrail}m · 적중당 ${x.targetsPerHit}명 · 빗나감 ${x.whiffPct}% · 과잉 피해 ${x.overkillPct}% · 평균 처치 ${x.meanTimeToKill??'—'}초 · 도보 ${x.walkMetres}m / 도술 이동 ${x.skillMoveMetres}m · 복귀 ${x.returns}회 · 리젠 ${x.respawns}회. 가정: 이동 ${x.assumptions.playerSpeed}m/s, 몹 추적 ${x.assumptions.monsterSpeed}m/s, 리젠 ${x.assumptions.respawn}초, 복귀 반경 ${x.assumptions.homeRadius}m. ${x.limitations.join(' / ')}`;}
 function shinsikText(r){const x=r?.shinsik;if(!x)return '';return `신식 ${x.active.join(' · ')||'미개방'} · ${(x.timeline||[]).map(t=>t.family+' 첫 발동 '+(t.first===null?'없음':t.first+'초')+(t.hasWindow?' / 유지 '+t.uptimePct+'%':' / 지속 구간 없음')).join(' · ')} · 공간 적중 기준 피해 증가 ${x.damageGainPct}% (추가 계수 ${f(x.extraCoefficient)}) · 방어 기여 분당 ${f((r.rows||[]).filter(x=>x.shinsik).reduce((a,x)=>a+(x.perMin||0),0))}`;}
@@ -174,10 +178,10 @@ function renderData(){
 }
 function renderNeed(){
  const st=stats(),miss=missingStats(),n=needed();
- q('#opt-stats-note').textContent=miss.length?`${miss.join('·')}이 필요합니다. 회복·보호막 수치가 이 값에 비례합니다.`:`자연 회복 분당 ${f(O.regenPerMin(st))} (전투 중 ${REGEN_PERIOD}초마다)`;
- q('#opt-need').textContent=n.text+(n.status?' · '+n.status:'');q('#opt-need').classList.toggle('opt-warning',n.value===null||n.have<n.bare);
- const ult=build.map(byId).find(s=>s?.ultimate);q('#opt-ultimate').textContent=ult?`궁극기는 지금의 ${ult.name}과 체크한 계열의 궁극기를 모두 시도합니다. 궁극기를 바꾸면 그 계열 도술 3개를 넣고 기본 장착 조건을 맞춥니다.`:'궁극기가 없으면 일반 도술만 탐색합니다.';
- q('#opt-run').disabled=!!search||!current?.valid||n.value===null||miss.length>0;
+ q('#opt-stats-note').textContent=miss.length?`${miss.join('·')} 입력 필요`:`자연 회복 분당 ${f(O.regenPerMin(st))} (전투 중 ${REGEN_PERIOD}초마다)`;
+ q('#opt-need').textContent=n.text+(n.status?' · '+n.status:'');q('#opt-need').classList.toggle('opt-warning',(n.value===null&&!n.unassessed)||n.have<n.bare);
+ const ult=build.map(byId).find(s=>s?.ultimate);q('#opt-ultimate').textContent=ult?`현재 궁극기 · ${ult.name}`:'궁극기 미배치';
+ q('#opt-run').disabled=!!search||!current?.valid||(n.value===null&&!n.unassessed)||miss.length>0;
  if(lastResults)q('#opt-stale').hidden=resultContext===key();
 }
 function key(){return JSON.stringify([build,D.baseSlots,settings]);}
@@ -190,13 +194,37 @@ function sync(force){
  current=evalCurrent();renderInputs();renderZone();renderCurrent();renderNeed();
 }
 function recalc(){current=evalCurrent();renderCurrent();renderNeed();}
-function stop(message){clearTimeout(timer);search=null;q('#opt-cancel').hidden=true;q('#opt-progress').hidden=true;if(message)q('#opt-status').textContent=message;renderNeed();}
+function stop(message){searchWorker?.terminate();searchWorker=null;clearTimeout(timer);search=null;q('#opt-live').hidden=true;q('#opt-cancel').hidden=true;q('#opt-progress').hidden=true;if(message)q('#opt-status').textContent=message;renderNeed();}
 function run(){
- const n=needed();if(n.value===null)return;const fams=searchFamilies();
+ const n=needed();if(n.value===null&&!n.unassessed)return;const fams=searchFamilies();
+ if(typeof Worker!=='undefined'){
+  let start;try{start=startState();}catch(error){q('#opt-status').textContent=error.message;return;}
+  const snapshotKey=key(),baseline=current,options={...current.ctx,snapshot:KK?.snapshot||current.ctx?.snapshot,families:fams,conditions:settings.startMode==='conditions'?conditions():undefined,iterations:ITERATIONS,totalEvaluationBudget:4000,boundedSelection:true,seed:20261018};
+  try{
+   const worker=new Worker('optimizer-worker.js');searchWorker=worker;search={};resultContext=snapshotKey;
+   q('#opt-live').hidden=true;q('#opt-live-builds').innerHTML='';q('#opt-cancel').hidden=false;q('#opt-progress').hidden=false;q('#opt-run').disabled=true;q('#opt-status').textContent='백그라운드 탐색 중 · 계산 한도 4,000회';
+   if(lastResults)q('#opt-stale').hidden=false;
+   worker.onmessage=({data:m})=>{
+    if(searchWorker!==worker)return;if(snapshotKey!==key()){stop('조건 변경 · 다시 탐색하세요');return;}
+    const elapsed=Math.round(m.elapsedMs/1000);
+    if(m.type==='progress'){
+     q('#opt-progress').value=Math.min(.95,m.progress.evaluated/4000);
+     q('#opt-status').textContent=`탐색 ${f(m.progress.evaluated)}회 / 최대 4,000회 · ${elapsed}초`;
+     if(m.preview?.length){q('#opt-live').hidden=false;q('#opt-live-builds').innerHTML=m.preview.map((c,i)=>`<div><b>후보 ${i+1}</b><div class="opt-build">${strip(c.ids)}</div></div>`).join('');}
+    }else if(m.type==='validating'){q('#opt-status').textContent=`상위 후보 검증 중 · ${elapsed}초`;
+    }else if(m.type==='complete'){
+     lastResults={...m.result,start:baseline};q('#opt-live').hidden=true;stop(`완료 · ${elapsed}초 · ${f(m.result.diagnostics?.selection?.totalEvaluations)}회 계산`);renderResults();
+    }else if(m.type==='error'){stop('탐색 오류: '+m.message);}
+   };
+   worker.onerror=()=>{if(searchWorker===worker)stop('백그라운드 탐색을 실행하지 못했습니다. 새로고침 후 다시 시도하세요.');};
+   worker.postMessage({data:D,start,options,limit:GROUP_SIZE,zones:ZONES,includeImprovements:true});return;
+  }catch(error){stop('탐색 오류: '+error.message);return;}
+ }
+
  try{search=O.createSearch(D,startState(),{...current.ctx,families:fams,conditions:settings.startMode==='conditions'?conditions():undefined,iterations:ITERATIONS,seed:20261018});}catch(e){q('#opt-status').textContent=e.message;return;}
  resultContext=key();q('#opt-cancel').hidden=false;q('#opt-progress').hidden=false;q('#opt-run').disabled=true;q('#opt-status').textContent=`후보 도술 ${search.pool.length}개에서 탐색 중`;
  // A hidden page gets about one timer per second, so it works in longer slices to keep going in the background.
- const tick=()=>{if(!search)return;const p=search.step(document.hidden?800:40);q('#opt-progress').value=p.done/p.total;q('#opt-status').textContent=`${f(p.done)} / ${f(p.total)}회 · 버티는 구성 ${f(p.feasible)}개`;
+ const tick=()=>{if(!search)return;const p=search.step(document.hidden?800:40);q('#opt-progress').value=p.done/p.total;q('#opt-status').textContent=`${f(p.done)} / ${f(p.total)}회 · ${current?.unassessed?'계산 가능한 구성':'버티는 구성'} ${f(p.feasible)}개`;
   if(!p.finished){timer=setTimeout(tick,0);return;}
   q('#opt-status').textContent='상위 후보를 모든 배치·구간에서 다시 계산하는 중';timer=setTimeout(()=>{const s=search;if(!s)return;lastResults={...s.grouped(GROUP_SIZE),start:current};if(!lastResults.similar.length&&!lastResults.different.length&&lastResults.closest?.[0]){const c=lastResults.closest[0];lastResults.improve=O.improvements(D,c.ids,c.baseSlots,current.ctx,{zones:ZONES});}stop(`완료 · ${f(p.evaluated)}개 구성 계산`);renderResults();},0);};
  timer=setTimeout(tick,0);
@@ -204,7 +232,7 @@ function run(){
 const power=c=>{const base=lastResults.start.verification.minPower;return base?(c.verification.minPower/base-1)*100:0;};
 const pct=x=>(x>=0?'+':'')+x.toFixed(1)+'%';
 // Room against the real need (the safety margin is a search requirement, not damage taken).
-const left=c=>c.verification.margin+MARGIN;
+const left=c=>c.verification.margin===null?null:c.verification.margin+MARGIN;
 const kills=n=>n.toFixed(1)+'마리';
 const same=(a,b)=>a.ids.join()===b.ids.join()&&a.baseSlots.join()===b.baseSlots.join();
 // The recommendation is the best of both groups; the rest are listed by group (similar to the current build, or different).
@@ -265,7 +293,7 @@ function summary(c){
  const sustainOf=r=>{const m={};for(const x of r?.rows||[])if(x.perMin>0)m[x.name]=(m[x.name]||0)+x.perMin;return m;},was=sustainOf(cur);
  const lost=removed.filter(s=>was[s.name]);if(lost.length)parts.push(`${names(lost)}의 회복·보호막(분당 ${f(lost.reduce((a,s)=>a+was[s.name],0))})을 대신 채움`);
  if(c.verification.attackers>1.05)parts.push(`범위로 평균 ${c.verification.attackers.toFixed(1)}마리 몰이`);
- const l=left(c);parts.push(l<2000?'여유 빠듯':l>=5000?'여유 넉넉':'여유 보통');
+ const l=left(c);parts.push(l===null?'생존성 미평가':l<2000?'여유 빠듯':l>=5000?'여유 넉넉':'여유 보통');
  return parts.join(' · ');
 }
 const changeText=c=>c.changes?`도술 ${c.changes}개 교체`:'순서·장착만 변경';
@@ -274,16 +302,16 @@ function strip(ids,compare){return ids.map((id,i)=>`<span class="${[compare&&!co
 const tiles=c=>strip(c.ids,build);
 function card(c){
  const start={ids:build,baseSlots:D.baseSlots},unchanged=same(c,start),l=left(c);
- return `<div class="opt-card-head"><h2>추천 빌드</h2><span class="opt-verdict ${l>=0?'ok':'bad'}">${l>=0?'평균 수지 충족 (추정)':'부족'} · 분당 ${signed(l)}</span></div>
-<div class="opt-metrics"><div><small>스킬 파워 · ${esc(lastResults.start.zone.name)} 분당 처치 (현재 대비)</small><b>${pct(power(c))}</b><span>분당 ${kills(lastResults.start.verification.minPower)} → ${kills(c.verification.minPower)}</span></div>
-<div><small>분당 회복·보호막 (가장 나쁜 배치)</small><b>${f(c.verification.minPerMin)}</b><span>동시에 붙는 몹 평균 ${c.verification.attackers.toFixed(2)}마리 · 받는 피해 ${f(c.verification.incoming)} · 필요 ${f(c.verification.need-MARGIN)}</span></div></div>
+ return `<div class="opt-card-head"><h2>추천 빌드</h2><span class="opt-verdict ${l===null?'':l>=0?'ok':'bad'}">${l===null?'생존성 미평가':(l>=0?'평균 수지 충족 (추정)':'부족')+' · 분당 '+signed(l)}</span></div>
+<div class="opt-metrics"><div><small>스킬 파워 · ${esc(lastResults.start.zone?.name||'기본 환경')} 분당 처치 (현재 대비)</small><b>${pct(power(c))}</b><span>분당 ${kills(lastResults.start.verification.minPower)} → ${kills(c.verification.minPower)}</span></div>
+<div><small>분당 회복·보호막 (가장 나쁜 배치)</small><b>${f(c.verification.minPerMin)}</b><span>동시에 붙는 몹 평균 ${c.verification.attackers.toFixed(2)}마리 · 받는 피해 ${f(c.verification.incoming)} · 필요 ${f(c.verification.need===null?null:c.verification.need-MARGIN)}</span></div></div>
 ${unchanged?'<p class="opt-caption">현재 빌드가 이미 이 조건에서 가장 강합니다.</p>':''}
 <p class="opt-summary">${esc(summary(c))}</p><p class="opt-caption">${esc(shinsikText(c.verification.worst))}</p>
-<div class="opt-build opt-card-build">${tiles(c)}</div><p class="opt-caption">${changeText(c)} · 기본 장착: ${c.baseSlots.map(id=>esc(byId(id).name)).join(' · ')} · <span class="opt-new">초록 테두리</span>는 새로 들어온 도술, <span class="opt-ult-key">보라 칸</span>은 궁극기</p>
+<div class="opt-build opt-card-build">${tiles(c)}</div><p class="opt-caption">${changeText(c)} · 기본 장착: ${c.baseSlots.map(id=>esc(byId(id).name)).join(' · ')} · <span class="opt-new">초록 테두리</span> · 새 도술, <span class="opt-ult-key">보라</span> · 궁극기</p>
 <div class="opt-card-actions"><button class="primary" data-opt-apply="0"${unchanged?' disabled':''}>이 빌드 적용</button><button data-opt-json="0">JSON 저장</button></div>`;
 }
 function row(label,c,i){
- return `<article class="opt-alt"><div class="opt-alt-head"><b>${label}</b><small>${changeText(c)}</small><span>스킬 파워 <strong>${pct(power(c))}</strong> <small>(분당 ${kills(c.verification.minPower)})</small></span><span>몹 평균 <strong>${c.verification.attackers.toFixed(2)}</strong>마리</span><span class="${left(c)<MARGIN?'opt-warning':''}">분당 여유 <strong>${signed(left(c))}</strong></span><span class="opt-alt-actions"><button data-opt-apply="${i}">적용</button><button data-opt-json="${i}">JSON</button></span></div>
+ return `<article class="opt-alt"><div class="opt-alt-head"><b>${label}</b><small>${changeText(c)}</small><span>스킬 파워 <strong>${pct(power(c))}</strong> <small>(분당 ${kills(c.verification.minPower)})</small></span><span>몹 평균 <strong>${c.verification.attackers.toFixed(2)}</strong>마리</span><span class="${left(c)!==null&&left(c)<MARGIN?'opt-warning':''}">${left(c)===null?'생존성 미평가':'분당 여유 <strong>'+signed(left(c))+'</strong>'}</span><span class="opt-alt-actions"><button data-opt-apply="${i}">적용</button><button data-opt-json="${i}">JSON</button></span></div>
 <p class="opt-summary">${esc(summary(c))}</p><p class="opt-caption">${esc(shinsikText(c.verification.worst))}</p><div class="opt-build">${tiles(c)}</div><p class="opt-caption">기본 장착: ${c.baseSlots.map(id=>esc(byId(id).name)).join(' · ')}</p></article>`;
 }
 // What to improve so the closest build survives: each lever on its own, as plain sentences shared by the screen and the export.
@@ -300,6 +328,7 @@ function improveLines(im){
 }
 // Nothing survives: say how far the current build and the closest builds fall short, and show the closest one.
 function noneCard(){
+ if(lastResults.start.unassessed)return '<h2>조건에 맞는 추천을 찾지 못했습니다.</h2><p>생존성은 평가하지 않았습니다. 선택 조건이나 사용 가능한 도술을 확인하세요.</p>';
  const r=lastResults,v=r.start.verification,best=(r.closest||[])[0],zone=r.start.zone,power=num(settings.power);
  const ratio=zone?.recommendedPower&&power>0?` ${esc(zone.name)} 권장 전투력 ${f(zone.recommendedPower)} 대비 내 전투력 ${Math.round(power/zone.recommendedPower*100)}%입니다.`:'';
  const head=`<div class="opt-card-head"><h2>물약 없이 버티는 구성을 찾지 못했습니다</h2>${best?`<span class="opt-verdict bad">가장 근접해도 분당 ${f(-left(best))} 부족</span>`:''}</div>`;
@@ -314,30 +343,31 @@ function renderResults(){
  q('#opt-card').innerHTML=list.length?card(list[0].c):noneCard();
  q('#opt-card').classList.toggle('opt-card-empty',!list.length);
  // Similar builds (few skills changed) and different combinations are separate sections, each ranked on its own.
- const r=lastResults;const diag=r.diagnostics;q('#opt-diagnostics').textContent=diag?`계산 ${diag.evaluated} · 유효 ${diag.valid} · 신식 묶음 제안 ${diag.bundleProposals} · 작동 유형 ${diag.diversity?.occupied||0}개 보존 · 적응형 탐색 ${diag.diversity?.selections||0}회${diag.selection?` · 공간 재평가 ${diag.selection.spatialEvaluations}회 · 합계 ${diag.selection.totalEvaluations}회`:""}. 탈락: ${Object.entries(diag.invalidReasons).map(([k,v])=>k+' '+v+'회').join(' / ')||'없음'}. 궁극기별 유효/계산: ${Object.entries(diag.byUltimate).map(([id,x])=>(byId(id)?.name||id)+' '+x.valid+'/'+x.evaluated).join(' · ')}`:'진단 기록 없음';q('#opt-found').textContent=list.length?`버티는 구성 ${f(r.feasible)}개 · 도술 조합 ${f(r.sets)}가지 중 그룹별 상위 ${GROUP_SIZE}개를 보여 줍니다.`:'';
+ const r=lastResults;const diag=r.diagnostics;q('#opt-diagnostics').textContent=diag?`계산 ${diag.evaluated} · 유효 ${diag.valid} · 신식 묶음 제안 ${diag.bundleProposals} · 작동 유형 ${diag.diversity?.occupied||0}개 보존 · 적응형 탐색 ${diag.diversity?.selections||0}회${diag.selection?` · 공간 재평가 ${diag.selection.spatialEvaluations}회 · 합계 ${diag.selection.totalEvaluations}회`:""}. 탈락: ${Object.entries(diag.invalidReasons).map(([k,v])=>k+' '+v+'회').join(' / ')||'없음'}. 궁극기별 유효/계산: ${Object.entries(diag.byUltimate).map(([id,x])=>(byId(id)?.name||id)+' '+x.valid+'/'+x.evaluated).join(' · ')}`:'진단 기록 없음';q('#opt-found').textContent=list.length?`${current?.unassessed?'계산 가능한 구성':'버티는 구성'} ${f(r.feasible)}개 · 도술 조합 ${f(r.sets)}가지 중 그룹별 상위 ${GROUP_SIZE}개를 보여 줍니다.`:'';
  for(const [group,range] of [['similar',`도술 0~${r.maxChanges}개 교체`],['different',`도술 ${r.maxChanges+1}개 이상 교체`]]){
   const items=list.map((x,i)=>({...x,i})).filter(x=>x.i>0&&x.group===group);q('#opt-'+group).hidden=!list.length;
   q(`#opt-${group}-count`).textContent=`· ${range} · ${items.length}개`;
-  q(`#opt-${group}-body`).innerHTML=items.map(x=>row(x.label,x.c,x.i)).join('')||'<p class="opt-caption">이 그룹에서 물약 없이 버티는 구성을 찾지 못했습니다.</p>';
+  q(`#opt-${group}-body`).innerHTML=items.map(x=>row(x.label,x.c,x.i)).join('')||'<p class="opt-caption">이 그룹에서 조건에 맞는 추천을 찾지 못했습니다.</p>';
  }
 }
 // Analysis export: a Markdown report a person can read and paste into a prompt, with the same data as JSON at the end.
 function skillText(id){const s=byId(id);return `${s.name} (${s.family}${s.ultimate?' 궁극기':''} · ${s.targeting?.kind==='single'?'단일':s.damage===false?'보조':'범위'} · 쿨 ${s.basic?.cooldown??'?'}초)`;}
 function sustainRows(r){return (r?.rows||[]).map(x=>({skill:x.name,shinsik:!!x.shinsik,kind:kindName[x.kind],condition:x.condition?`${x.condition.effect} ${x.condition.scope==='enemy'?'대상':'보유'} 시`:'시전마다',each:x.each,triggers180s:x.triggers,perMinFull:x.full,perMinAbsorbed:x.perMin,life:Number.isFinite(x.life)?x.life:null,dup:x.dup||null}));}
 function exportEntry(label,group,c,isCurrent){
- const v=isCurrent?lastResults.start.verification:c.verification,ev=isCurrent?lastResults.start:detail(c),ids=isCurrent?build:c.ids,base=isCurrent?D.baseSlots:c.baseSlots;
+ const v=isCurrent?lastResults.start.verification:c.verification,ev=isCurrent?lastResults.start:detail(c),ids=isCurrent?lastResults.start.startIds:c.ids,base=isCurrent?lastResults.start.startBase:c.baseSlots;
  return {label,group,summary:isCurrent?null:summary(c),changes:isCurrent?0:c.changes,
   order:ids.map(id=>({id,name:byId(id).name,family:byId(id).family,ultimate:!!byId(id).ultimate,targeting:byId(id).targeting?.kind||null,cooldown:byId(id).basic?.cooldown??null})),
   baseSlots:base.map(id=>byId(id).name),killsPerMin:v.minPower,sensitivity:v.sensitivity||null,powerChangePct:isCurrent?0:Math.round(power(c)*10)/10,attackers:v.attackers,incomingPerMin:v.incoming,
-  sustainPerMin:v.minPerMin,needPerMin:v.need-MARGIN,surplusPerMin:v.margin+MARGIN,cooldownIdle180s:ev?.idle??null,casts180s:ev?.casts??null,sustain:sustainRows(ev),encounter:ev?.encounter||null,shinsik:ev?.shinsik||null};
+  sustainPerMin:v.minPerMin,needPerMin:v.need===null?null:v.need-MARGIN,surplusPerMin:v.margin===null?null:v.margin+MARGIN,cooldownIdle180s:ev?.idle??null,casts180s:ev?.casts??null,sustain:sustainRows(ev),encounter:ev?.encounter||null,shinsik:ev?.shinsik||null};
 }
 function exportData(){
  const r=lastResults,list=picks(),meta=KK?.snapshot?.meta;
  return {schema:'dosul-optimizer-analysis-v1',generatedAt:new Date().toISOString(),engine:DosulSimulation.model,shinsikModel:'shinsik-pve-v1',kkaebigg:meta?{version:meta.sources?.skills?.version||null,fetchedAt:meta.fetchedAt}:null,
-  goal:'물약 없이 버티는 범위(스킬 회복·보호막 ≥ 받는 피해 − 자연 회복 + 안전 여유)에서 목표 사냥터 분당 처치 수가 가장 큰 9칸 구성',
+  survivalAssessed:!r.start.unassessed,
+  goal:r.start.unassessed?'선택 조건에 맞는 구성의 공격 성능과 회복·보호막 생성량 비교 (생존성 미평가)':'물약 없이 버티는 범위(스킬 회복·보호막 ≥ 받는 피해 − 자연 회복 + 안전 여유)에서 목표 사냥터 분당 처치 수가 가장 큰 9칸 구성',
   model:{encounter:settings.encounter===true,diagnostics:r.diagnostics||null,incoming:'1마리당 받는 피해 × 동시에 붙는 몹 평균(범위 공격은 사냥터 밀도 × 범위 면적만큼 몹을 끌어옴, 선공 없음)',mPerPx:O.mPerPx,damageRate:O.damageRate,safetyMargin:MARGIN,regenPeriodSeconds:REGEN_PERIOD,search:{iterations:ITERATIONS,feasible:r.feasible,skillSets:r.sets,groupSize:GROUP_SIZE,similarMaxChanges:r.maxChanges}},
-  inputs:{stats:stats(),regenPerMin:O.regenPerMin(stats()),mode:settings.mode==='measure'?'사냥 실측':'직접 입력',measure:settings.mode==='measure'?{...settings.measure,zone:zoneById(settings.zoneFrom)?.name||null,measuredIncomingPerMin:r.start.measured,measuredAttackers:r.start.measuredAttackers}:null,
-   incomingPerMonster:r.start.perMob,targetZone:r.start.zone?.name||null,attackScale:r.start.scale,families:settings.families||familiesOf(build),overrides:settings.overrides},
+  inputs:{stats:stats(),regenPerMin:O.regenPerMin(stats()),mode:r.start.unassessed?'생존성 미평가':settings.mode==='measure'?'사냥 실측':'직접 입력',measure:!r.start.unassessed&&settings.mode==='measure'?{...settings.measure,zone:zoneById(settings.zoneFrom)?.name||null,measuredIncomingPerMin:r.start.measured,measuredAttackers:r.start.measuredAttackers}:null,
+   incomingPerMonster:r.start.perMob,targetZone:r.start.zone?.name||null,attackScale:r.start.scale,families:searchFamilies(),overrides:settings.overrides},
   current:exportEntry('현재 빌드','current',null,true),
   builds:list.map(x=>exportEntry(x.label,x.label==='추천'?'recommended':x.group,x.c,false)),
   closest:list.length?[]:(r.closest||[]).map((c,i)=>exportEntry(`근접 ${i+1}`,'closest',c,false)),improve:list.length?null:r.improve||null};
@@ -346,11 +376,12 @@ function exportMarkdown(){
  const d=exportData(),n=v=>v===null||v===undefined?'—':typeof v==='number'?f(v):v,lines=[];
  const block=e=>{
   lines.push(`### ${e.group==='current'?e.label:e.group==='recommended'?'추천 빌드':e.label}${e.group==='current'?'':` · 도술 ${e.changes}개 교체`}`);
+  if(!d.survivalAssessed)lines.push('- 생존성 미평가');
   if(e.summary)lines.push(`- 요약: ${e.summary}`);
   if(e.encounter)lines.push(`- 이동·리젠 실험: 적중당 ${e.encounter.targetsPerHit}명 · 과잉 피해 ${e.encounter.overkillPct}% · 도보 ${e.encounter.walkMetres}m · 도술 이동 ${e.encounter.skillMoveMetres}m · 복귀 ${e.encounter.returns}회`, `- 실험 가정: ${JSON.stringify(e.encounter.assumptions)}`, `- 한계: ${e.encounter.limitations.join(' / ')}`);
   if(e.shinsik){lines.push(`- 신식: ${e.shinsik.active.join(" · ")} · 공간 적중 기준 추가 피해계수 ${e.shinsik.extraCoefficient} (+${e.shinsik.damageGainPct}%)`);for(const r of e.shinsik.rules)lines.push(`- ${r.family} 미반영/가정: ${r.limitations.join(" / ")} · 출처 ${r.source}`);}
   lines.push(`- 분당 처치 ${e.killsPerMin.toFixed(2)}마리${e.group==='current'?'':` (현재 대비 ${e.powerChangePct>=0?'+':''}${e.powerChangePct}%)`} · 동시에 붙는 몹 평균 ${e.attackers.toFixed(2)}마리`);
-  lines.push(`- 받는 피해 분당 ${n(e.incomingPerMin)} · 회복·보호막 분당 ${n(e.sustainPerMin)} (필요 ${n(e.needPerMin)}, 여유 ${e.surplusPerMin>=0?'+':''}${n(e.surplusPerMin)}) · 쿨타임 대기 ${e.cooldownIdle180s??'—'}초/180초 · 시전 ${e.casts180s??'—'}회`);
+  lines.push(`- 받는 피해 분당 ${n(e.incomingPerMin)} · 회복·보호막 분당 ${n(e.sustainPerMin)} (필요 ${n(e.needPerMin)}, 여유 ${e.surplusPerMin!==null&&e.surplusPerMin>=0?'+':''}${n(e.surplusPerMin)}) · 쿨타임 대기 ${e.cooldownIdle180s??'—'}초/180초 · 시전 ${e.casts180s??'—'}회`);
   lines.push(`- 사용 순서: ${e.order.map((o,i)=>`${i+1}. ${skillText(o.id)}`).join(' → ')}`);
   lines.push(`- 기본 장착: ${e.baseSlots.join(' · ')}`);
   if(e.sustain.length){lines.push('','| 도술 | 효과 | 발동 조건 | 1회량 | 180초 발동 | 분당 최대 | 분당 흡수 |','|---|---|---|---:|---:|---:|---:|');for(const x of e.sustain)lines.push(`| ${x.skill} | ${x.kind} | ${x.condition} | ${n(x.each)} | ${x.triggers180s} | ${n(x.perMinFull)} | ${n(x.perMinAbsorbed)} |`);}
@@ -360,7 +391,7 @@ function exportMarkdown(){
  lines.push('# 도술 빌드 최적화 결과 (분석용)','',`생성 ${new Date(d.generatedAt).toLocaleString('ko-KR')} · 엔진 ${d.engine}${d.kkaebigg?` · 깨비지지 ${d.kkaebigg.version||''}`:''}`,'',
   '## 목표와 계산 방식','',`- 목표: ${d.goal}`,`- 받는 피해: ${d.model.incoming}`,
   `- 보정값: 지도 1px ≈ ${d.model.mPerPx}m, 실제 피해 ≈ 계수 × 공격력 × ${d.model.damageRate}, 안전 여유 분당 ${f(d.model.safetyMargin)}, 자연 회복 ${d.model.regenPeriodSeconds}초 주기`,
-  `- 탐색: ${f(d.model.search.iterations)}회 기준, 버티는 구성 ${f(d.model.search.feasible)}개 · 도술 조합 ${f(d.model.search.skillSets)}가지 중 그룹별 상위 ${d.model.search.groupSize}개 (비슷한 빌드 = 도술 0~${d.model.search.similarMaxChanges}개 교체)`,
+  `- 탐색: ${f(d.model.search.iterations)}회 기준, ${current?.unassessed?'계산 가능한 구성':'버티는 구성'} ${f(d.model.search.feasible)}개 · 도술 조합 ${f(d.model.search.skillSets)}가지 중 그룹별 상위 ${d.model.search.groupSize}개 (비슷한 빌드 = 도술 0~${d.model.search.similarMaxChanges}개 교체)`,
   '- 한계: 출혈·일반 도술의 조건부 피해·방어력 감소, 몹이 다가오는 시간과 재출현은 빠져 있고, 보호막 흡수량은 게임에서 검증 전입니다.','',
   '## 내 캐릭터와 사냥 기준','',`- 공격력 ${n(i.stats.attack)} · 최대 체력 ${n(i.stats.maxHp)} · 체력 자연 회복 ${n(i.stats.regen)} (분당 ${n(i.regenPerMin)})`,
   i.measure?`- 사냥 실측: ${i.measure.zone||'—'}에서 HP ${n(Number(i.measure.hpStart))} → ${n(Number(i.measure.hpEnd))}, ${i.measure.seconds}초 → 받는 피해 분당 ${n(i.measure.measuredIncomingPerMin)} (평균 ${Number(i.measure.measuredAttackers).toFixed(2)}마리)`:`- 받는 피해 직접 입력`,
@@ -409,7 +440,7 @@ host.addEventListener('change',e=>{
  if(t.id==='opt-start-mode'||t.dataset.requiredFamily||t.id==='opt-required-skill'||t.id==='opt-required-shinsik'){
   if(search)stop('조건이 바뀌어 탐색을 중지했습니다.');
   if(t.id==='opt-start-mode'){settings.startMode=t.value;if(t.value==='conditions')settings.mode='incoming';}
-  if(t.dataset.requiredFamily)settings.requiredFamilies=[...host.querySelectorAll('[data-required-family]:checked')].map(x=>x.dataset.requiredFamily);
+  if(t.dataset.requiredFamily){settings.requiredFamilies=[...host.querySelectorAll('[data-required-family]:checked')].map(x=>x.dataset.requiredFamily);settings.requiredSkills=(settings.requiredSkills||[]).filter(id=>settings.requiredFamilies.includes(byId(id)?.family));settings.requiredShinsik=(settings.requiredShinsik||[]).filter(f=>settings.requiredFamilies.includes(f));}
   if(t.id==='opt-required-skill'&&t.value)settings.requiredSkills=[...new Set([...(settings.requiredSkills||[]),t.value])];
   if(t.id==='opt-required-shinsik')settings.requiredShinsik=t.value?[t.value]:[];
   save();sync(true);return;
@@ -424,6 +455,9 @@ host.addEventListener('change',e=>{
  save();if(settings.startMode==='conditions')recalc();else renderNeed();
 });
 host.addEventListener('click',e=>{
+ const toggle=e.target.closest('[data-toggle-required]');if(toggle){if(search)stop('조건 변경');const id=toggle.dataset.toggleRequired,old=settings.requiredSkills||[];settings.requiredSkills=old.includes(id)?old.filter(x=>x!==id):[...old,id];save();sync(true);return;}
+ if(e.target.closest('[data-opt-edit]')){try{const initial=startState();if(search)stop('순서 편집');if(settings.startMode==='conditions'){remember();commit([...initial.ids],0,[...initial.baseSlots]);settings.startMode='current';save();context='';toast('표시된 구성을 순서 구성에 적용했습니다. 되돌릴 수 있습니다.');}}catch(error){e.stopPropagation?.();toast(error.message);}return;}
+
  const remove=e.target.closest('[data-remove-required]');if(remove){if(search)stop('조건 변경');settings.requiredSkills=settings.requiredSkills.filter(id=>id!==remove.dataset.removeRequired);save();sync(true);return;}
  if(e.target.closest('#opt-sync'))syncKkaebigg();
  if(e.target.closest('#opt-reload'))location.reload();

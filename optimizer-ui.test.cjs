@@ -90,7 +90,59 @@ console.log('Optimizer UI: stats gate, measured need, persistence, run, JSON exp
 
 const modelInput=el('#opt-model');modelInput.value='spatial';hostListeners.change({target:modelInput});assert.match(el('#opt-world').textContent,/실험: 분당 처치/);assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).encounter,true);
 
-ctx.build=[];ctx.syncBuildOptimizer();const mode=el('#opt-start-mode');mode.value='conditions';hostListeners.change({target:mode});assert.equal(el('#opt-work').hidden,false);assert.equal(el('#opt-conditions').hidden,false);assert.match(el('#opt-equipment').textContent,/비교용/);
-const fixed=el('#opt-required-skill');fixed.value=D.skills.find(s=>s.name==='회전 난격').id;hostListeners.change({target:fixed});assert.match(el('#opt-required-chips').innerHTML,/회전 난격/);assert.equal(ctx.build.length,0,'Preview must not modify equipped build');
-const forced=el('#opt-required-shinsik');forced.value='강타';hostListeners.change({target:forced});assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).requiredShinsik[0],'강타');
-console.log('Condition UI: empty-build mode, persisted mandatory conditions and non-mutating preview passed.');
+ctx.build=[];ctx.syncBuildOptimizer();const mode=el('#opt-start-mode');mode.value='conditions';hostListeners.change({target:mode});assert.equal(el('#opt-work').hidden,false);assert.match(el('#opt-skill-picker').innerHTML,/계열을 먼저/);assert.equal(ctx.build.length,0);
+let selectedFamilies=['강타','연타'];host.querySelectorAll=sel=>sel==='[data-required-family]:checked'?selectedFamilies.map(f=>({dataset:{requiredFamily:f}})):[];
+hostListeners.change({target:{dataset:{requiredFamily:'강타'}}});assert.match(el('#opt-equipment').textContent,/비교용/);assert.match(el('#opt-skill-picker').innerHTML,/회전 난격/);assert(!el('#opt-skill-picker').innerHTML.includes('도약 찌르기'),'Unselected families are excluded from picker');
+const requiredId=D.skills.find(s=>s.name==='회전 난격').id;click('[data-toggle-required]',{toggleRequired:requiredId});assert.match(el('#opt-skill-picker').innerHTML,/aria-pressed="true"/);assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).requiredSkills[0],requiredId);assert.equal(ctx.build.length,0);
+click('[data-toggle-required]',{toggleRequired:requiredId});assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).requiredSkills.length,0,'Second click deselects');click('[data-toggle-required]',{toggleRequired:requiredId});
+const expected=O.conditionSeed(D,{requiredFamilies:selectedFamilies,requiredSkills:[requiredId]},selectedFamilies);click('[data-opt-edit]');assert.deepEqual([...applied.next],expected.ids,'Editing transfers exactly the preview order');assert.deepEqual([...applied.base],expected.baseSlots);assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).startMode,'current');
+mode.value='conditions';hostListeners.change({target:mode});selectedFamilies=['강타'];hostListeners.change({target:{dataset:{requiredFamily:'연타'}}});assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).requiredSkills.length,0,'Removing a family removes its hidden required skills');
+console.log('Condition UI: family-filtered cards, optional toggles, deselection cleanup and exact preview-to-planner transfer passed.');
+
+// New-build recommendations must work without guessed incoming damage or a target zone.
+input('opt-incoming','');pick('opt-zone-to','');
+assert.equal(el('#opt-run').disabled,false);
+assert.match(el('#opt-need').textContent,/생존성 미평가/);
+click('#opt-run');
+assert.match(el('#opt-card').innerHTML,/추천 빌드/);
+assert.match(el('#opt-card').innerHTML,/생존성 미평가/);
+assert.doesNotMatch(el('#opt-card').innerHTML,/평균 수지 충족/);
+assert.equal(searches.at(-1).perMob,undefined);
+click('[data-opt-json]',{optJson:'0'});
+assert.equal(downloaded.optimizer.need,null);
+assert.equal(downloaded.optimizer.margin,null);
+assert.equal(downloaded.optimizer.surplusPerMin,null);
+click('#opt-export-md');
+const unassessed=JSON.parse(downloaded.text.split('```json\n')[1].split('\n```')[0]);
+assert.equal(unassessed.survivalAssessed,false);
+assert.equal(unassessed.current.order.length,9);
+assert(unassessed.builds.every(b=>b.needPerMin===null&&b.surplusPerMin===null));
+assert.match(downloaded.text,/생존성 미평가/);
+hostListeners.change({target:{name:'opt-mode',value:'incoming',dataset:{}}});
+pick('opt-zone-to','101011');input('opt-incoming',50000);
+assert.doesNotMatch(el('#opt-need').textContent,/生存性|생존성 미평가/);
+assert.equal(el('#opt-run').disabled,false);
+input('opt-incoming',0);assert.equal(el('#opt-run').disabled,true,'Explicit invalid damage is not treated as missing');
+console.log('Optional incoming damage: recommendations, honest survival labels, JSON/Markdown export and explicit-input validation passed.');
+
+assert.match(el('#opt-preview-title').textContent,/자동 생성 시작안 · 최적화 전/);
+assert.equal(el('#opt-current-scope').hidden,true);
+assert.equal(el('#opt-damage-modes').hidden,true);
+mode.value='current';hostListeners.change({target:mode});
+assert.equal(el('#opt-preview-title').textContent,'현재 빌드');
+assert.equal(el('#opt-current-scope').hidden,false);
+assert.equal(el('#opt-damage-modes').hidden,false);
+console.log('Workflow layout: explicit preview labels and mode-specific controls passed.');
+
+// Browser worker lifecycle: no main-thread search, cancellation, stale messages and errors.
+const workers=[];ctx.Worker=class{constructor(url){this.url=url;workers.push(this);}postMessage(message){this.message=message;}terminate(){this.terminated=true;}};
+mode.value='conditions';hostListeners.change({target:mode});input('opt-incoming','');
+const beforeWorkers=searches.length;click('#opt-run');const firstWorker=workers.at(-1);
+assert.equal(searches.length,beforeWorkers,'No main-thread engine search');assert.equal(firstWorker.message.options.totalEvaluationBudget,4000);assert.equal(firstWorker.message.options.boundedSelection,true);
+firstWorker.onmessage({data:{type:'progress',progress:{evaluated:12},elapsedMs:1000,preview:[{ids:expected.ids}]}});
+assert.equal(el('#opt-live').hidden,false);assert.match(el('#opt-live-builds').innerHTML,/후보 1/);
+click('#opt-cancel');assert(firstWorker.terminated);const stopped=el('#opt-status').textContent;
+firstWorker.onmessage({data:{type:'validating',elapsedMs:2000}});assert.equal(el('#opt-status').textContent,stopped);
+click('#opt-run');const secondWorker=workers.at(-1);assert.notEqual(secondWorker,firstWorker);
+secondWorker.onmessage({data:{type:'error',message:'test failure'}});assert(secondWorker.terminated);assert.match(el('#opt-status').textContent,/test failure/);assert.equal(el('#opt-run').disabled,false);
+console.log('Worker UI: background dispatch, interim display, stop, stale-message rejection and restart passed.');
