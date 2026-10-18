@@ -3,7 +3,7 @@ const els=new Map();
 function el(k){if(!els.has(k))els.set(k,{innerHTML:'',textContent:'',value:k==='#candidate-mode'?'all':'',checked:true,clientHeight:500,classList:{add(){},remove(){},toggle(){}},addEventListener(){},getBoundingClientRect(){return{};}});return els.get(k);}
 const c={console,window:{},document:{querySelector:el,querySelectorAll(){return[];},addEventListener(){}},localStorage:{getItem(){return null;},setItem(){}},requestAnimationFrame(){},setTimeout(){},clearTimeout(){},ResizeObserver:class{observe(){}}};
 c.window=c;vm.createContext(c);
-for(const f of ['data','graph','sequence','targets','timing','hit-timing','timing-auto','combat','link-timing','hangul','planner','game-ui'])vm.runInContext(fs.readFileSync('dist/'+f+'.js','utf8'),c,{filename:f});
+for(const f of ['numbers','data','graph','sequence','targets','timing','hit-timing','timing-auto','combat','link-timing','hangul','planner','game-ui'])vm.runInContext(fs.readFileSync('dist/'+f+'.js','utf8'),c,{filename:f});
 const run=s=>vm.runInContext(s,c);
 assert.equal(run('selected'),null);
 assert.equal(el('#candidate-nodes').innerHTML,'');

@@ -25,9 +25,10 @@ function audit(ids,base,profile,H){
  if(Math.abs(busy+idle-H)>0.05&&ev.at(-1)?.completed!==false)fail('time-conservation',tag+` ${r2(busy)}+${r2(idle)}`);
  // independent charge model rebuilt from casts + logged cooldown changes
  const state=new Map(ids.map(id=>[id,{ch:cap(id),next:null}]));
- const changesAt=S.procs.flatMap(p=>p.changes.map(c=>({...c,time:p.time,reset:RESETS.includes(p.name)}))).sort((a,b)=>a.time-b.time);let ci=0;
+ const started=new Set();
+ const changesAt=S.procs.flatMap(p=>p.changes.map(c=>({...c,trigger:p.trigger,time:p.time,reset:RESETS.includes(p.name)}))).sort((a,b)=>a.time-b.time);let ci=0;
  const settle=t=>{for(const [id,s] of state)while(s.next!==null&&s.next<=t+1e-6){s.ch++;s.next=s.ch<cap(id)?r2(s.next+cd(id)):null;}};
- const applyChanges=t=>{while(ci<changesAt.length&&changesAt[ci].time<=t+EPS){const c=changesAt[ci++],s=state.get(c.id);settle(c.time);
+ const applyChanges=t=>{while(ci<changesAt.length&&changesAt[ci].time<=t+EPS){if(changesAt[ci].trigger&&!started.has(changesAt[ci].trigger.id+':'+changesAt[ci].trigger.cycle))break;const c=changesAt[ci++],s=state.get(c.id);settle(c.time);
    if(c.after<=c.time+1e-6){s.ch=c.reset?cap(c.id):Math.min(cap(c.id),s.ch+1);s.next=s.ch>=cap(c.id)?null:r2(c.time+cd(c.id));}else s.next=c.after;}};
  const readyAt=(id,t)=>{const s=state.get(id);return s.ch>0?-1:s.next;};
  let gi=0;
@@ -35,15 +36,16 @@ function audit(ids,base,profile,H){
   // idle intervals before this cast: nothing may be available
   while(gi<S.idle.length&&S.idle[gi].end<=e.start+EPS){const g=S.idle[gi++];applyChanges(g.start);settle(g.start);for(const id of ids){const r=readyAt(id);if(r!==null&&r<g.end-1e-6&&g.end<H-EPS)fail('idle-while-ready',tag+` ${g.start}-${g.end} ${byId.get(id).name} ${r}`);}}
   applyChanges(e.start);settle(e.start);
-  const st=state.get(e.id);if(st.ch<1)fail('cast-without-charge',tag+` ${byId.get(e.id).name}@${e.start}`);
+  const st=state.get(e.id);if(st.ch<1&&!(e.recastStage>1))fail('cast-without-charge',tag+` ${byId.get(e.id).name}@${e.start}`);
   const slot=ids.indexOf(e.id);for(const id of ids.slice(0,slot))if(state.get(id).ch>0)fail('priority',tag+` ${e.start}s ${byId.get(e.id).name} over ${byId.get(id).name}`);
-  st.ch--;if(st.next===null){let c=cd(e.id);const lock=e.modifiers.find(m=>m.startsWith('자물쇠'));if(lock)c=Math.max(0,c-Number(lock.match(/(\d+)초/)[1]));st.next=r2(e.start+c);}
+  if(!e.recastStage||e.recastStage===1)st.ch--;if(st.next===null){let c=cd(e.id);const lock=e.modifiers.find(m=>m.startsWith('자물쇠'));if(lock)c=Math.max(0,c-Number(lock.match(/(\d+)초/)[1]));st.next=r2(e.start+c);}
+  started.add(e.id+':'+e.cycle);applyChanges(e.start);
   if(e.completed)applyChanges(e.end);
  }
  // B. hits
  const hitsPer=s=>{const n=s.referenceNumbers||{};if(s.damage===false||n.nd)return 0;const dc=n.dc||[];if(!dc.length)return 1;return n.cm?dc.at(-1).hits||1:dc.reduce((a,d)=>a+(d.hits||0),0)||1;};
  const unknownTiming=new Set(S.unknownHits.map(x=>x.split(' · ')[0]));
- for(const e of ev.filter(e=>e.completed)){const s=byId.get(e.id);if(unknownTiming.has(s.name)||s.hitTiming?.offsets)continue;const n=S.hits.filter(h=>h.id===e.id&&h.index===e.cycle).length;const want=Number.isInteger(s.hitTiming?.count)?s.hitTiming.count:hitsPer(s);if(n!==want)fail('hit-count',tag+` ${s.name}@${e.start} ${n}/${want}`);}
+ for(const e of ev.filter(e=>e.completed)){const s=byId.get(e.id);if(unknownTiming.has(s.name)||s.hitTiming?.offsets)continue;const n=S.hits.filter(h=>h.id===e.id&&h.index===e.cycle).length;const want=s.usage?.recasts?1:Number.isInteger(s.hitTiming?.count)?s.hitTiming.count:hitsPer(s);if(n!==want)fail('hit-count',tag+` ${s.name}@${e.start} ${n}/${want}`);}
  for(const h of S.hits){const e=ev.find(x=>x.id===h.id&&x.cycle===h.index);if(!e||h.time<e.start-EPS||h.time>e.end+EPS)fail('hit-outside-cast',tag+` ${h.id}#${h.index}@${h.time}`);}
  for(const i of imp){if(i.targets.length>i.geometry.cap)fail('over-cap',tag+` ${i.id}`);for(const p of i.positions){const d=Math.hypot(p.x-i.origin.x,p.y-i.origin.y),g=i.geometry,lim=g.kind==='single'?g.range:g.kind==='target'||g.kind==='chain'?Infinity:Math.max(g.radius,g.range||0)+g.width;if(d>lim+0.02)fail('out-of-range',tag+` ${i.id} ${g.kind} d=${r2(d)} lim=${r2(lim)}`);}
   if(!i.targets.length){const e=ev.find(x=>x.id===i.id&&i.time>=x.start-EPS&&i.time<=x.end+EPS);const e2=ev.find(x=>x.id===i.id&&i.time>=x.start-0.01&&i.time<=x.end+0.01),crossed=e2&&Math.floor(e2.start/20+1e-9)!==Math.floor(i.time/20+1e-9);fail(crossed?'whiff-wave-reset':'whiff-other',tag+' '+byId.get(i.id).name+'@'+i.time);}}

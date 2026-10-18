@@ -1,0 +1,490 @@
+{
+  "schema": "dosul-community-benchmark-v1",
+  "capturedAt": "2026-10-18T07:11:02.744Z",
+  "settings": {
+    "stats": {
+      "attack": 20532,
+      "maxHp": 101115,
+      "regen": 2751,
+      "regenPeriod": 5
+    },
+    "horizon": 180,
+    "controls": 60,
+    "iterations": 300,
+    "seeds": [
+      20261018,
+      20261019
+    ]
+  },
+  "limitations": [
+    "Authors stats, level and breakthrough unknown; this is model diagnostic, not real-world performance ranking.",
+    "Single scenario uses one respawning target; area uses four synthetic profile layouts. No PvP/loot competition model.",
+    "Base equipment fitted to engine rule, not verified from author equipment.",
+    "OFF, HP conditions and manual opener are recorded but not simulated.",
+    "Random controls test baseline discrimination, not global optimality.",
+    "Search audit uses existing area objective for all probes; single build search rankings are not comparable.",
+    "No training or parameter tuning on the reference corpus; held-out tuning has not begun."
+  ],
+  "rows": [
+    {
+      "id": "145",
+      "title": "[유튜브 맛나는꼬꼬] 패치후 더 떡상한 광역 기동덱",
+      "votes": 867,
+      "group": "area",
+      "flags": [],
+      "power": 7.67,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 44,
+        "ties": 2,
+        "midrankPercentile": 80.35714285714286
+      },
+      "orderRange": {
+        "min": 7.33,
+        "max": 8
+      }
+    },
+    {
+      "id": "146",
+      "title": "뜨뜨뜨뜨 광역사냥덱",
+      "votes": 329,
+      "group": "area",
+      "flags": [
+        "ultimate-disabled-not-represented"
+      ],
+      "power": 4.33,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 0,
+        "ties": 0,
+        "midrankPercentile": 0
+      },
+      "orderRange": {
+        "min": 4,
+        "max": 5.67
+      }
+    },
+    {
+      "id": "149",
+      "title": "뜨뜨뜨뜨 단일 극딜 (절명+저격)",
+      "votes": 298,
+      "group": "single",
+      "flags": [],
+      "power": 5,
+      "controlComparison": {
+        "count": 37,
+        "strictlyBeaten": 7,
+        "ties": 11,
+        "midrankPercentile": 33.78378378378378
+      },
+      "orderRange": {
+        "min": 4.33,
+        "max": 5
+      }
+    },
+    {
+      "id": "169",
+      "title": "135k 150k 연타 광역 사냥 무적덱 물약x",
+      "votes": 235,
+      "group": "area",
+      "flags": [
+        "hp-policy-not-represented"
+      ],
+      "power": 3.33,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 0,
+        "ties": 0,
+        "midrankPercentile": 0
+      },
+      "orderRange": {
+        "min": 3.33,
+        "max": 4
+      }
+    },
+    {
+      "id": "214",
+      "title": "쌀먹왕 파멸저격 ver2 *궁 순서 중요 *",
+      "votes": 222,
+      "group": "area",
+      "flags": [],
+      "power": 8.67,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 51,
+        "ties": 3,
+        "midrankPercentile": 93.75
+      },
+      "orderRange": {
+        "min": 8.67,
+        "max": 9
+      }
+    },
+    {
+      "id": "147",
+      "title": "뜨뜨뜨뜨 단일 1힐 (절명+저격)",
+      "votes": 136,
+      "group": "single",
+      "flags": [],
+      "power": 4.67,
+      "controlComparison": {
+        "count": 37,
+        "strictlyBeaten": 1,
+        "ties": 6,
+        "midrankPercentile": 10.81081081081081
+      },
+      "orderRange": {
+        "min": 4.33,
+        "max": 5
+      }
+    },
+    {
+      "id": "159",
+      "title": "저격+절명 닥사빌드 (최소쿨+힐2 / DPS최적화)",
+      "votes": 127,
+      "group": "single",
+      "flags": [
+        "hp-policy-not-represented",
+        "description-order-overrides-card"
+      ],
+      "power": 4.33,
+      "controlComparison": {
+        "count": 37,
+        "strictlyBeaten": 0,
+        "ties": 1,
+        "midrankPercentile": 1.3513513513513513
+      },
+      "orderRange": {
+        "min": 4,
+        "max": 4.67
+      }
+    },
+    {
+      "id": "165",
+      "title": "[해월2 환기]파멸+저격 하이브리드 저과금빌드 겹사방지",
+      "votes": 124,
+      "group": "area",
+      "flags": [],
+      "power": 7.67,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 44,
+        "ties": 2,
+        "midrankPercentile": 80.35714285714286
+      },
+      "orderRange": {
+        "min": 7.67,
+        "max": 9
+      }
+    },
+    {
+      "id": "197",
+      "title": "기만염구",
+      "votes": 106,
+      "group": "area",
+      "flags": [
+        "author-unverified"
+      ],
+      "power": 6.67,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 25,
+        "ties": 7,
+        "midrankPercentile": 50.892857142857146
+      },
+      "orderRange": {
+        "min": 6.33,
+        "max": 7
+      }
+    },
+    {
+      "id": "213",
+      "title": "쌀먹왕 파멸저격 ver2 힐+",
+      "votes": 85,
+      "group": "area",
+      "flags": [
+        "hp-policy-not-represented"
+      ],
+      "power": 8,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 46,
+        "ties": 3,
+        "midrankPercentile": 84.82142857142857
+      },
+      "orderRange": {
+        "min": 7,
+        "max": 8.33
+      }
+    },
+    {
+      "id": "148",
+      "title": "뜨뜨뜨뜨 2힐 광역",
+      "votes": 74,
+      "group": "area",
+      "flags": [],
+      "power": 3.67,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 0,
+        "ties": 0,
+        "midrankPercentile": 0
+      },
+      "orderRange": {
+        "min": 3.67,
+        "max": 4.67
+      }
+    },
+    {
+      "id": "190",
+      "title": "[잼댕/자객왕] 이모 기동덱",
+      "votes": 60,
+      "group": "area",
+      "flags": [],
+      "power": 7,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 32,
+        "ties": 8,
+        "midrankPercentile": 64.28571428571429
+      },
+      "orderRange": {
+        "min": 5.67,
+        "max": 7
+      }
+    },
+    {
+      "id": "155",
+      "title": "[김호러]파멸 광역 세팅 설명 참고",
+      "votes": 59,
+      "group": "area",
+      "flags": [
+        "hp-policy-not-represented"
+      ],
+      "power": 4.67,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 0,
+        "ties": 4,
+        "midrankPercentile": 3.5714285714285716
+      },
+      "orderRange": {
+        "min": 4.67,
+        "max": 5.33
+      }
+    },
+    {
+      "id": "144",
+      "title": "저주받은 주술 빌드 (버그 개선전 최최최최종v.4)",
+      "votes": 47,
+      "group": "area",
+      "flags": [
+        "manual-opener-not-represented",
+        "bug-mentioned"
+      ],
+      "power": 4.67,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 0,
+        "ties": 4,
+        "midrankPercentile": 3.5714285714285716
+      },
+      "orderRange": {
+        "min": 4.67,
+        "max": 5.33
+      }
+    },
+    {
+      "id": "151",
+      "title": "패치후 겁나 떡상한 광역 기동덱",
+      "votes": 46,
+      "group": "area",
+      "flags": [],
+      "power": 5.33,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 7,
+        "ties": 4,
+        "midrankPercentile": 16.071428571428573
+      },
+      "orderRange": {
+        "min": 4.67,
+        "max": 5.33
+      }
+    },
+    {
+      "id": "186",
+      "title": "[해월2 환기]파멸+고효율범위 빌드 연구 엽전58만/h",
+      "votes": 38,
+      "group": "area",
+      "flags": [],
+      "power": 6,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 14,
+        "ties": 6,
+        "midrankPercentile": 30.357142857142858
+      },
+      "orderRange": {
+        "min": 5.33,
+        "max": 6.33
+      }
+    },
+    {
+      "id": "238",
+      "title": "[유튜브 미남용사] 1힐 기동덱 비경3단 궁맨뒤",
+      "votes": 36,
+      "group": "area",
+      "flags": [],
+      "power": 8,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 46,
+        "ties": 3,
+        "midrankPercentile": 84.82142857142857
+      },
+      "orderRange": {
+        "min": 7,
+        "max": 8
+      }
+    },
+    {
+      "id": "168",
+      "title": "뜨뜨뜨뜨 광역덱 (헌신+연타)",
+      "votes": 30,
+      "group": "area",
+      "flags": [],
+      "power": 5.33,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 7,
+        "ties": 4,
+        "midrankPercentile": 16.071428571428573
+      },
+      "orderRange": {
+        "min": 4.67,
+        "max": 6.67
+      }
+    },
+    {
+      "id": "157",
+      "title": "[김호러] 절명 저격 단일 세팅",
+      "votes": 30,
+      "group": "single",
+      "flags": [],
+      "power": 4.67,
+      "controlComparison": {
+        "count": 37,
+        "strictlyBeaten": 1,
+        "ties": 6,
+        "midrankPercentile": 10.81081081081081
+      },
+      "orderRange": {
+        "min": 4.33,
+        "max": 5
+      }
+    },
+    {
+      "id": "205",
+      "title": "저스펙)쌀먹왕 파멸저격 쿨초광역빌드",
+      "votes": 29,
+      "group": "area",
+      "flags": [
+        "hp-policy-not-represented"
+      ],
+      "power": 8,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 46,
+        "ties": 3,
+        "midrankPercentile": 84.82142857142857
+      },
+      "orderRange": {
+        "min": 7.33,
+        "max": 8.33
+      }
+    },
+    {
+      "id": "154",
+      "title": "[김호러] 연타 광역 세팅 설명 참고",
+      "votes": 27,
+      "group": "area",
+      "flags": [
+        "hp-policy-not-represented"
+      ],
+      "power": 5,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 4,
+        "ties": 3,
+        "midrankPercentile": 9.821428571428571
+      },
+      "orderRange": {
+        "min": 4.67,
+        "max": 5.67
+      }
+    },
+    {
+      "id": "189",
+      "title": "파멸 광역덱 공유 안할려했는데 쩝 설명 있음",
+      "votes": 26,
+      "group": "area",
+      "flags": [],
+      "power": 6,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 14,
+        "ties": 6,
+        "midrankPercentile": 30.357142857142858
+      },
+      "orderRange": {
+        "min": 4.67,
+        "max": 6
+      }
+    },
+    {
+      "id": "166",
+      "title": "[해월2 환기]연타+강타 2단계 엽전비경 한시간 54만",
+      "votes": 22,
+      "group": "area",
+      "flags": [],
+      "power": 5,
+      "controlComparison": {
+        "count": 56,
+        "strictlyBeaten": 4,
+        "ties": 3,
+        "midrankPercentile": 9.821428571428571
+      },
+      "orderRange": {
+        "min": 3.33,
+        "max": 5
+      }
+    }
+  ],
+  "searches": [
+    {
+      "seed": 20261018,
+      "progress": {
+        "done": 800,
+        "total": 800,
+        "finished": true,
+        "evaluated": 775,
+        "feasible": 429
+      },
+      "matchedSets": 0,
+      "maxOverlap": 4
+    },
+    {
+      "seed": 20261019,
+      "progress": {
+        "done": 800,
+        "total": 800,
+        "finished": true,
+        "evaluated": 768,
+        "feasible": 528
+      },
+      "matchedSets": 0,
+      "maxOverlap": 4
+    }
+  ]
+}

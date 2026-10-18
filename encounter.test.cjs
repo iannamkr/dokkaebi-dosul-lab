@@ -1,0 +1,21 @@
+const assert=require('node:assert/strict'),D=require('./dist/data.json'),E=require('./dist/encounter.js'),O=require('./dist/optimizer.js'),Q=require('./dist/sequence.js');
+const id=n=>D.skills.find(s=>s.name===n).id;
+const data=structuredClone(D),s=data.skills.find(x=>x.id===id('방패 치기'));s.basic.cooldown=2;s.referenceNumbers={...s.referenceNumbers,cd:2,m:400,dm:400,cm:null,pm:null,dc:[{basic_coefficient:100,hits:1}],nd:false};
+const ids=[s.id],opts={attack:10000,hp:100,damageRate:1,points:[{x:1,y:0}],scenario:{respawn:8}};
+const a=E.run(data,ids,'185547',20,opts),b=E.run(data,ids,'185547',20,opts);
+assert.deepEqual(a.encounter,b.encounter,'Deterministic world');assert(a.encounter.kills>=2&&a.encounter.kills<=3,'Respawn delay limits kills');assert(a.encounter.overkill>0);assert(a.encounter.damage<=300,'No damage farming on dead mobs');
+const slow=E.run(data,ids,'185547',20,{...opts,scenario:{respawn:1000}});assert.equal(slow.encounter.kills,1);assert.equal(slow.encounter.respawns,0);
+const dash=[id('도약 찌르기')],move=E.run(D,dash,'185547',20,{attack:100,hp:1e8,points:[{x:4,y:0}],scenario:{playerSpeed:0,monsterSpeed:0}}),fixed=E.run(D,dash,'185547',20,{attack:100,hp:1e8,points:[{x:4,y:0}],scenario:{playerSpeed:0,monsterSpeed:0},movement:false});
+assert(move.encounter.skillMoveMetres>0);assert.equal(fixed.encounter.skillMoveMetres,0);assert(move.encounter.attackers>fixed.encounter.attackers,'Approach changes exposure');
+assert.equal(E.movement({name:'연속 쇄도'}).kind,null,'Names are not movement evidence');assert.throws(()=>E.run(D,dash,'185547',20,{scenario:{step:0}}),/Invalid encounter/);
+const original=['연쇄 번개','방패 치기','휩쓸어 베기','검기 폭발','대검 찍기','회전 난격','방패 내려찍기','방패 낙하','강인한 의지'].map(id),base=Q.fit(D,original);
+const search=O.createSearch(D,{ids:original,baseSlots:base},{stats:{attack:20532,maxHp:101115},families:Object.keys(D.families),iterations:60,polish:64,encounter:true});while(!search.step(1000).finished);
+const audit=search.audit(original,base);assert(audit.exactEvaluated&&audit.valid);assert(audit.diagnostics.bundleProposals>0);for(const u of search.ultimates)assert(audit.diagnostics.byUltimate[u].valid>0,'Every permitted ultimate has a valid seed');
+const before=audit.diagnostics.evaluated;search.audit(['s001']);assert.equal(search.audit(original,base).diagnostics.evaluated,before,'Audit evaluates independently without injecting target into search');
+const result=O.evaluate(D,original,base,{stats:{attack:20532,maxHp:101115},encounter:true,horizon:60});assert(result.encounter);assert.equal(result.power,result.encounter.killsPerMin);
+console.log('Encounter: movement/exposure, finite HP, respawn, overkill, deterministic assumptions, generic bundles and non-injecting discovery audit passed.');
+
+const ground=structuredClone(D),gs=ground.skills.find(s=>s.id==='s051');gs.hitTiming={kind:'persistent',offsets:[.5,2,4]};gs.referenceNumbers.dc=[{basic_coefficient:100,hits:3}];
+const field=E.run(ground,['s051'],'185547',20,{attack:10000,hp:100,damageRate:1,scenario:{respawn:1},points:[{x:1,y:0}]});
+const firstField=field.impacts.filter(x=>x.castCycle===1);assert.equal(firstField.length,3);assert(firstField.every(x=>x.ground.x===1&&x.ground.y===0),'Ground anchor survives target death and player motion');assert(firstField[1].targets.length>0,'Persistent field can hit respawned target without retargeting a dead cast target');
+const sensitive=O.verify(D,original,base,{stats:{attack:20532,maxHp:101115},encounter:true});assert.equal(sensitive.runs.length,28);assert(sensitive.sensitivity.minimum<=sensitive.sensitivity.maximum);

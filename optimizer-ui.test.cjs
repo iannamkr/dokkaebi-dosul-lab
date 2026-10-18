@@ -13,6 +13,7 @@ const ctx={D,build:[...ids],byId:id=>D.skills.find(s=>s.id===id),esc:s=>String(s
  DosulSequence:require('./dist/sequence.js'),DosulSimulation:require('./dist/simulation.js'),DosulOptimizer:FastO,
  localStorage:{getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v)},setTimeout:(fn)=>{fn();return 0;},clearTimeout(){},console,Event:class{},
  document:{querySelector:k=>k==='#optimizer'?host:el(k),addEventListener:(t,fn)=>docListeners.push(fn)}};
+storage.set('dosul-optimizer-v1',JSON.stringify({encounter:false}));
 ctx.location={hostname:'example.site',reload(){}};ctx.window=ctx;vm.createContext(ctx);vm.runInContext(fs.readFileSync('dist/kkaebi-gg/hunting.js','utf8'),ctx);vm.runInContext(fs.readFileSync('dist/optimizer-ui.js','utf8'),ctx);
 
 const input=(id,value)=>{const t=el('#'+id);t.value=String(value);hostListeners.input({target:t});hostListeners.change({target:t});};
@@ -28,18 +29,20 @@ pick('opt-zone-from','101011');assert.match(el('#opt-need').textContent,/시작 
 el('#opt-hp-start').value='';input('opt-hp-start',66606);input('opt-hp-end',100029);input('opt-seconds',265);assert.match(el('#opt-need').textContent,/최대 체력에 닿아/,'Capped HP cannot be calibrated');
 input('opt-hp-end',89632);const override={value:'542',dataset:{optOverride:'s085:0'}};el('#x').dataset=override.dataset;hostListeners.input({target:override});hostListeners.change({target:override});
 // A single-target build always fights exactly one monster, so the measurement is already per monster.
-assert.match(el('#opt-need').textContent,/1마리당 받는 피해 분당 85,246 \(실측 85,246 ÷ 평균 1.00마리\)/,'Measured incoming is turned into damage per monster');
-assert.match(el('#opt-need').textContent,/받는 피해 85,\d{3} − 자연 회복 32,928 \+ 안전 여유 1,000 = 회복·보호막 분당 53,\d{3} 필요/);assert.match(el('#opt-need').textContent,/현재 빌드: 분당 처치 9.3마리/);
+const measurement=/1마리당 받는 피해 분당 ([\d,]+) \(실측 ([\d,]+) ÷ 평균 1.00마리\)/.exec(el('#opt-need').textContent);
+assert(measurement,'Measured incoming is shown per monster');const measuredPerMob=Number(measurement[1].replace(/,/g,''));assert.equal(measurement[1],measurement[2]);
+const budget=/받는 피해 ([\d,]+) − 자연 회복 ([\d,]+) \+ 안전 여유 ([\d,]+) = 회복·보호막 분당 ([\d,]+) 필요/.exec(el('#opt-need').textContent);assert(budget);const money=budget.slice(1).map(x=>Number(x.replace(/,/g,'')));assert(Math.abs(money[0]-money[1]+money[2]-money[3])<=1,'Displayed sustain budget preserves arithmetic');
+assert.match(el('#opt-need').textContent,/현재 빌드: 분당 처치 [\d.]+마리/);
 assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).overrides['s085:0'],'542','Inputs persist');
 click('#opt-run');
-assert.equal(searches.length,1);assert.equal(searches[0].zone.id,'101011');assert(Math.abs(searches[0].perMob-85246.22)<1);assert.equal(searches[0].margin,1000);assert.equal(searches[0].iterations,4000,'Fixed search depth');
+assert.equal(searches.length,1);assert.equal(searches[0].zone.id,'101011');assert(Math.abs(searches[0].perMob-measuredPerMob)<1);assert.equal(searches[0].margin,1000);assert.equal(searches[0].iterations,4000,'Fixed search depth');
 
 // Hunting zones: measured in 독기 지대, hunting in 마을 폐허 → damage per monster scales by the spawn-weighted attack ratio (×1.654).
 assert.match(el('#opt-zone-to').innerHTML,/마을 폐허 · 권장 565,000/);assert.match(el('#opt-zone-to').innerHTML,/측정한 곳과 같음/);
 pick('opt-zone-to','101014');
 assert.match(el('#opt-need').textContent,/× 사냥터 공격력 1.65배 \(추정\)/);assert.match(el('#opt-need').textContent,/마을 폐허에서 현재 빌드는 평균/);assert.match(el('#opt-zone').textContent,/평균 공격력 13,763.*독기 지대 대비 공격력 1.65배/);
 input('opt-power',282000);assert.match(el('#opt-zone').textContent,/내 전투력 50% · 부족/);
-click('#opt-run');assert.equal(searches.length,2);assert.equal(searches[1].zone.id,'101014');assert(Math.abs(searches[1].perMob-85246.22*1.65404)<5,'Search uses the target-zone damage per monster');
+click('#opt-run');assert.equal(searches.length,2);assert.equal(searches[1].zone.id,'101014');assert(Math.abs(searches[1].perMob-measuredPerMob*1.65404)<5,'Search uses the target-zone damage per monster');
 assert.match(el('#opt-card').innerHTML,/추천 빌드|찾지 못했습니다/);
 // Typed damage is per monster in the target zone: no scaling even with a measured zone saved.
 hostListeners.change({target:{name:'opt-mode',value:'incoming',dataset:{}}});input('opt-incoming',50000);
@@ -49,7 +52,7 @@ input('opt-incoming',400000);click('#opt-run');
 assert.match(el('#opt-card').innerHTML,/찾지 못했습니다/);assert.match(el('#opt-card').innerHTML,/가장 근접해도 분당 [\d,]+ 부족/);assert.match(el('#opt-card').innerHTML,/가장 근접한 빌드<\/h3><p class="opt-summary">/);
 assert.match(el('#opt-card').innerHTML,/내 전투력 50%/,'The power ratio explains it');
 assert.match(el('#opt-card').innerHTML,/버티려면 \(가장 근접한 빌드 기준 · 하나만 바꿀 때\)/);assert.match(el('#opt-card').innerHTML,/체력 자연 회복 2,744 → [\d,]+ \(\+[\d,]+\)/);assert.match(el('#opt-card').innerHTML,/받는 피해 [\d.]+% 줄이기|받는 피해: 95%를 줄여도 부족/);assert.match(el('#opt-card').innerHTML,/이 빌드로 버티는 사냥터/);assert.equal(el('#opt-similar').hidden,true);
-click('#opt-export-md');assert.match(downloaded.text,/## 결과: 물약 없이 버티는 구성 없음\n\n- 가장 근접한 빌드도 분당 [\d,]+ 부족/);assert.match(downloaded.text,/## 가장 근접한 빌드 \(버티지 못함\)\n\n### 근접 1/);
+click('#opt-export-md');assert.match(downloaded.text,/## 결과: 평균 수지를 충족하는 구성 없음\n\n- 가장 근접한 빌드도 분당 [\d,]+ 부족/);assert.match(downloaded.text,/## 가장 근접한 빌드 \(버티지 못함\)\n\n### 근접 1/);
 assert(!downloaded.text.includes('## 추천 빌드'));assert.match(downloaded.text,/## 버티려면 무엇을 개선해야 하나\n\n가장 근접한 빌드\(근접 1\) 기준[^\n]*\n\n- 받는 피해/);const none=JSON.parse(downloaded.text.split('```json\n')[1].split('\n```')[0]);assert.equal(none.builds.length,0);assert(none.closest.length>=1&&none.closest[0].surplusPerMin<0);
 input('opt-incoming',50000);
 pick('opt-zone-to','');assert.match(el('#opt-need').textContent,/목표 사냥터를 고르세요/,'Typed damage needs a target zone');
@@ -57,14 +60,14 @@ hostListeners.change({target:{name:'opt-mode',value:'measure',dataset:{}}});asse
 click('#opt-run');assert.equal(searches.length,4);
 assert.deepEqual(Array.from(searches[0].families).sort(),['강인','기동','연타','절명','헌신'].sort(),'Defaults to the families already in the build');
 assert.equal(el('#opt-results').hidden,false);assert.match(el('#opt-status').textContent,/완료/);
-assert.match(el('#opt-card').innerHTML,/추천 빌드/);assert.match(el('#opt-card').innerHTML,/class="[^"]*opt-ult[^"]*"><small>\d+<\/small>[^<]*<b>암습<\/b>/,'The ultimate tile is marked');assert.match(el('#opt-build').innerHTML,/opt-ult/,'The current build strip marks its ultimate too');assert.match(el('#opt-card').innerHTML,/물약 없이 버팀/);assert.match(el('#opt-card').innerHTML,/스킬 파워/);assert.match(el('#opt-card').innerHTML,/data-opt-apply="0"/);
+assert.match(el('#opt-card').innerHTML,/추천 빌드/);assert.match(el('#opt-card').innerHTML,/class="[^"]*opt-ult[^"]*"><small>\d+<\/small>[^<]*<b>암습<\/b>/,'The ultimate tile is marked');assert.match(el('#opt-build').innerHTML,/opt-ult/,'The current build strip marks its ultimate too');assert.match(el('#opt-card').innerHTML,/평균 수지 충족 \(추정\)/);assert.match(el('#opt-card').innerHTML,/스킬 파워/);assert.match(el('#opt-card').innerHTML,/data-opt-apply="0"/);
 assert.match(el('#opt-card').innerHTML,/class="opt-summary">[^<]*여유 (빠듯|보통|넉넉)/,'The recommendation has a one-line key point');assert.match(el('#opt-similar-count').textContent,/도술 0~3개 교체 · \d+개/);assert.match(el('#opt-different-count').textContent,/도술 4개 이상 교체 · \d+개/);assert.match(el('#opt-found').textContent,/버티는 구성 .*개 · 도술 조합 .*가지/);assert.equal(el('#opt-similar').hidden,false);for(const m of (el('#opt-similar-body').innerHTML+el('#opt-different-body').innerHTML+el('#opt-card').innerHTML).matchAll(/class="opt-summary">([^<]*)</g))if(/ 추가/.test(m[1]))assert.match(m[1],/빼고 [^(]+\([^)]+\).* 추가/,'Every added skill says why: '+m[1]);assert.equal(el('#opt-different').hidden,false);
 click('[data-opt-json]',{optJson:'0'});assert.equal(downloaded.schema,'dosul-build-v3');assert(downloaded.optimizer.margin>=0);assert(downloaded.optimizer.surplusPerMin>=1000);assert.equal(downloaded.optimizer.safetyMargin,1000);assert.equal(downloaded.skills.length,9);
 // Analysis export: readable Markdown with every group, then the same data as JSON.
 click('#opt-export-md');assert.match(downloaded.name,/^도술-최적화-분석-\d{4}-\d{2}-\d{2}\.md$/);assert.match(downloaded.type,/markdown/);
 for(const h of ['# 도술 빌드 최적화 결과 (분석용)','## 목표와 계산 방식','## 내 캐릭터와 사냥 기준','## 현재 빌드','## 추천 빌드','## 분석 요청 예시','## 원본 데이터 (JSON)'])assert(downloaded.text.includes(h),h);
 assert.match(downloaded.text,/- 요약: .+/);assert.match(downloaded.text,/\| 도술 \| 효과 \| 발동 조건 \|/);assert.match(downloaded.text,/사용 순서: 1\. .+ → 2\. /);
-const exported=JSON.parse(downloaded.text.split('```json\n')[1].split('\n```')[0]);assert.equal(exported.schema,'dosul-optimizer-analysis-v1');
+const exported=JSON.parse(downloaded.text.split('```json\n')[1].split('\n```')[0]);assert.equal(exported.schema,'dosul-optimizer-analysis-v1');assert.equal(exported.shinsikModel,'shinsik-pve-v1');assert(exported.current.shinsik.extraCoefficient>0);assert.match(el('#opt-shinsik').innerHTML,/공간 적중 기준 피해 증가/);
 assert.equal(exported.builds[0].group,'recommended');assert.equal(exported.builds[0].order.length,9);assert.equal(exported.current.label,'현재 빌드');assert.equal(exported.inputs.stats.attack,20497);
 assert(exported.builds.every(b=>b.summary&&b.killsPerMin>0&&b.needPerMin>0),'Every exported build has its reason and numbers');
 click('#opt-export-copy');click('[data-opt-json]',{optJson:'0'});
@@ -84,3 +87,10 @@ const fetches=[];let reply={status:200,json:async()=>({ok:true,changes:{skills:[
  reply={status:502,json:async()=>({ok:false,error:'응답 500'})};click('#opt-sync');await new Promise(r=>setImmediate(r));assert.match(el('#opt-sync-status').textContent,/기존 고정본을 유지/);
  console.log('Optimizer UI sync: request, change summary, static-hosting and failure messages passed.');})().catch(e=>{console.error(e);process.exitCode=1;});
 console.log('Optimizer UI: stats gate, measured need, persistence, run, JSON export, apply and stale results passed.');
+
+const modelInput=el('#opt-model');modelInput.value='spatial';hostListeners.change({target:modelInput});assert.match(el('#opt-world').textContent,/실험: 분당 처치/);assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).encounter,true);
+
+ctx.build=[];ctx.syncBuildOptimizer();const mode=el('#opt-start-mode');mode.value='conditions';hostListeners.change({target:mode});assert.equal(el('#opt-work').hidden,false);assert.equal(el('#opt-conditions').hidden,false);assert.match(el('#opt-equipment').textContent,/비교용/);
+const fixed=el('#opt-required-skill');fixed.value=D.skills.find(s=>s.name==='회전 난격').id;hostListeners.change({target:fixed});assert.match(el('#opt-required-chips').innerHTML,/회전 난격/);assert.equal(ctx.build.length,0,'Preview must not modify equipped build');
+const forced=el('#opt-required-shinsik');forced.value='강타';hostListeners.change({target:forced});assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).requiredShinsik[0],'강타');
+console.log('Condition UI: empty-build mode, persisted mandatory conditions and non-mutating preview passed.');

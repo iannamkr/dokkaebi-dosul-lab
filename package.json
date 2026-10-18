@@ -13,6 +13,7 @@
     "compare": "node scripts/compare-builds.cjs",
     "sync": "node scripts/kkaebigg-sync.cjs",
     "aim": "node scripts/apply-kkaebi-gg.cjs",
-    "hunting": "node scripts/build-hunting.cjs"
+    "hunting": "node scripts/build-hunting.cjs",
+    "test:numeric": "node scripts/audit-numeric-execution.cjs"
   }
 }

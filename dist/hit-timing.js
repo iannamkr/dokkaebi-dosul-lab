@@ -5,15 +5,15 @@ const round=n=>Math.round(n*1e6)/1e6;
 function schedule(skill,event,horizon=Infinity,phase='uniform'){
  const n=skill.referenceNumbers||{},timing=skill.hitTiming||{};
  if(n.nd||skill.damage===false)return {hits:[],unknown:false};
- let offsets=timing.offsets,confidence=timing.confidence||'estimated';
+ let offsets=event.hitIndices?undefined:timing.offsets,confidence=timing.confidence||'estimated';
  if(!offsets){
-  if(timing.kind==='persistent'||timing.kind==='unknown')return {hits:[],unknown:true,reason:timing.note||'타격 간격 미확인'};
-  const dc=n.dc||[],count=Number.isInteger(timing.count)&&timing.count>0?timing.count:n.cm?(dc.at(-1)?.hits||0):dc.reduce((sum,d)=>sum+(d.hits||0),0);
+  if(!event.hitIndices&&(timing.kind==='persistent'||timing.kind==='unknown'))return {hits:[],unknown:true,reason:timing.note||'타격 간격 미확인'};
+  const dc=n.dc||[],count=event.hitIndices?.length|| (Number.isInteger(timing.count)&&timing.count>0?timing.count:n.cm?(dc.at(-1)?.hits||0):dc.reduce((sum,d)=>sum+(d.hits||0),0));
   if(!count&&skill.damage===true)return {hits:[],unknown:true,reason:'타격 횟수 미확인'};
   const total=count||1,parts=event.parts||{prep:0,charge:0,action:event.end-(event.start??event.end)},begin=parts.prep+parts.charge;
   offsets=Array.from({length:total},(_,i)=>{const ratio=total===1?1:phase==='early'?i/(total-1):phase==='late'?.25+.75*(i+1)/total:(i+1)/total;return begin+parts.action*ratio;});
  }
- return {unknown:false,hits:offsets.map((offset,i)=>({id:event.id,slot:event.slot,index:event.cycle,hitIndex:i+1,time:round((event.start??event.end)+offset),confidence})).filter(h=>h.time<=horizon+1e-7)};
+ return {unknown:false,hits:offsets.map((offset,i)=>({id:event.id,slot:event.slot,index:event.cycle,hitIndex:event.hitIndices?.[i]??i+1,time:round((event.start??event.end)+offset),confidence})).filter(h=>h.time<=horizon+1e-7)};
 }
 function timeline(data,events,horizon=Infinity,phase='uniform'){
  const hits=[],unknown=new Set();for(const ev of events){const s=data.skills.find(s=>s.id===ev.id);if(!s)continue;const result=schedule(s,ev,horizon,phase);hits.push(...result.hits);if(result.unknown)unknown.add(s.name+' · '+result.reason);}

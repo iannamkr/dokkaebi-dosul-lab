@@ -50,8 +50,23 @@
       "firstActivationSeconds": 0.6,
       "additionalCastsFromShinsik": 0,
       "attacksDuringShinsik": 50,
-      "ultimateDuringShinsik": 1
-    }
+      "ultimateDuringShinsik": 1,
+      "ultimateCasts": 1,
+      "resetTimes": [],
+      "perSkill": {
+        "s051": 7,
+        "s012": 9,
+        "s021": 5,
+        "s083": 6,
+        "s063": 7,
+        "s015": 6,
+        "s067": 5,
+        "s011": 8,
+        "s018": 1
+      },
+      "unusedSkills": []
+    },
+    "recalculatedReason": "시전 시 영력 이벤트와 재사용 분리 수정. 영상 적합도 보정 없음."
   },
   "timingReview": {
     "horizonSeconds": 180,

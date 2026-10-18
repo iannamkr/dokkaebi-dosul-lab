@@ -11,3 +11,6 @@ Thumbs.db
 # Reproducible comparison outputs (generated locally)
 reports/
 dist/kkaebigg/.sync-*
+
+# Generated numeric audit output
+/numeric-execution-report.json

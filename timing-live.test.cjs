@@ -1,7 +1,7 @@
 const vm=require('vm'),fs=require('fs'),assert=require('node:assert/strict');
 const els=new Map();function el(k){if(!els.has(k))els.set(k,{innerHTML:'',textContent:'',value:k==='#candidate-mode'?'all':k==='#link-scope'?'previous':'',checked:false,clientHeight:500,classList:{add(){},remove(){},toggle(){}},addEventListener(){},getBoundingClientRect(){return{};}});return els.get(k);}
 const c={console,window:{},document:{querySelector:el,querySelectorAll(){return[];},addEventListener(){}},localStorage:{getItem(){return null;},setItem(){}},requestAnimationFrame(){},setTimeout(){},clearTimeout(){},ResizeObserver:class{observe(){}}};c.window=c;vm.createContext(c);
-for(const f of ['data','graph','sequence','targets','timing','hit-timing','timing-auto','combat','link-timing','mechanics','mechanics-ui','hangul','planner','timing-ui','game-ui'])vm.runInContext(fs.readFileSync('dist/'+f+'.js','utf8'),c,{filename:f});
+for(const f of ['numbers','data','graph','sequence','targets','timing','hit-timing','timing-auto','combat','link-timing','mechanics','mechanics-ui','hangul','planner','timing-ui','game-ui'])vm.runInContext(fs.readFileSync('dist/'+f+'.js','utf8'),c,{filename:f});
 const run=s=>vm.runInContext(s,c);
 run("build=['s015'];step=1;selected='s015';render()");assert.match(el('#timing-inline').innerHTML,/현재 조합/);assert.equal(run('timingHorizon'),60);
 run("select('s060')");assert.equal(run('timingTarget'),'s060');assert.match(el('#timing-inline').innerHTML,/후보 미리보기/);assert.match(el('#timing-inline').innerHTML,/4.5초 여유/);

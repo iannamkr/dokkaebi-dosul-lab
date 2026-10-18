@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const O=require('./dist/optimizer.js'),D=require('./dist/data.json');
+const O=require('./dist/optimizer.js'),D=require('./dist/data.json'),N=require('./dist/numbers.js');
 const skill=id=>D.skills.find(s=>s.id===id);
 
 // Amount text forms used by the data.
@@ -12,7 +12,7 @@ assert.equal(O.parseAmount('받는 피해를 5% 감소시킵니다.'),null);
 
 // Every numeric self heal/shield in the data is parsed; removal and enemy healing reduction are not sustain.
 let parsed=0;
-for(const s of D.skills)for(const b of s.referenceDetail?.buffs||[]){
+for(const s of D.skills)for(const b of N.effectRows(s)?.buffs||[]){
  const text=`${b.name} ${b.description}`;if(!/회복|보호막/.test(text)||/제거|받는 (?:체력 )?(?:치유|회복)/.test(text))continue;
  assert(O.sources(s).sources.some(x=>x.text===b.description),`${s.name}: ${text} must be quantified`);parsed++;
 }
@@ -25,10 +25,16 @@ assert.equal(O.sources(skill('s087'),null).sources[0].reducePct,9.7,'Damage redu
 const stats={attack:20497,maxHp:100029,regen:2744,regenPeriod:5},overrides={'s085:0':542};
 const ids=['s071','s069','s003','s008','s075','s007','s012','s085','s010'],base=['s003','s007','s008','s071','s069'];
 const measured=O.evaluate(D,ids,base,{stats,overrides,singleOnly:true,profile:'185547',horizon:180});
-assert(measured.valid);assert.equal(Math.round(measured.perMin),57532);
+assert(measured.valid);
+// Independent source coefficients: the old tooltip rounded Swing's 0.45% to 0.4%.
+const raw=require('./dist/kkaebigg/skills.json'),swingSource=raw.skills.find(s=>s.n==='휘둘러 내려치기'),swingPct=swingSource.ef.find(e=>e.u==='%')?.v ?? swingSource.ef[0].v;
+const round2=n=>Math.round(n*100)/100;
+const expectedFull=round2(round2((stats.attack*.012+1460)*23/3)+round2(1460*16/3)+round2(stats.maxHp*.007*48/3)+round2(stats.maxHp*swingPct/100*69/3)+542*5*18/3);
+assert.equal(measured.perMin,expectedFull);
 assert.equal(measured.rows.find(r=>r.skillId==='s007').triggers,48);assert.equal(measured.rows.find(r=>r.skillId==='s085').each,2710);
 assert.equal(O.regenPerMin(stats),32928);
-assert.equal(Math.round(O.calibrate({sustainPerMin:measured.perMin,stats,hpStart:66606,hpEnd:89632,seconds:265})),85246);
+const fullCalibration=round2(expectedFull+stats.regen*60/stats.regenPeriod-(89632-66606)*60/265);
+assert.equal(O.calibrate({sustainPerMin:measured.perMin,stats,hpStart:66606,hpEnd:89632,seconds:265}),fullCalibration);
 assert.equal(O.calibrate({sustainPerMin:1,stats,hpStart:1,hpEnd:2,seconds:0}),null);
 const noStats=O.evaluate(D,ids,base,{stats:{},overrides:{},singleOnly:true});
 assert.equal(noStats.rows.find(r=>r.skillId==='s075').each,1460,'Flat amounts need no stats');
@@ -78,7 +84,7 @@ const cut=O.timeline(10,100,[],[{t:0,key:'r',pct:0.1,life:5}]);assert(Math.abs(c
 // Real build: the three-hit Swing shield overwrites itself, so far less than the full value is absorbed.
 const fullRun=O.evaluate(D,ids,base,{stats,overrides,singleOnly:true,profile:'185547',horizon:180,snapshot,keepRun:true});
 const incoming=O.calibrate({sustainAt:fullRun.sustainAt,stats,hpStart:66606,hpEnd:89632,seconds:265});
-assert(incoming>70000&&incoming<85246,'Calibration converges below the full-shield estimate');
+assert(incoming>70000&&incoming<fullCalibration,'Calibration converges below the full-shield estimate');
 const modeled=O.evaluate(D,ids,base,{stats,overrides,singleOnly:true,profile:'185547',horizon:180,snapshot,incoming});
 const swing=modeled.rows.find(r=>r.skillId==='s012');assert(swing.perMin<swing.full*0.6,'Replace wastes most of the per-hit Swing shield');
 assert.equal(modeled.rows.find(r=>r.skillId==='s007').perMin,modeled.rows.find(r=>r.skillId==='s007').full,'Heals are not reduced');

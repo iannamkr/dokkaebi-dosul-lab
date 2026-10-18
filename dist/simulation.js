@@ -1,5 +1,6 @@
 (function(root){
 'use strict';
+const N=typeof module!=='undefined'?require('./numbers.js'):root.DosulNumbers;
 const C=typeof module!=='undefined'?require('./combat.js'):root.DosulCombat;
 const H=typeof module!=='undefined'?require('./hit-timing.js'):root.DosulHits;
 const A=typeof module!=='undefined'?require('./timing-auto.js'):root.DosulAuto;
@@ -54,11 +55,11 @@ function pickTargets(g,mobs,target,angle,player={x:0,y:0}){
  });
  return pool.sort((a,b)=>dist(player,a)-dist(player,b)||a.id-b.id).slice(0,g.cap);
 }
-function coefficient(s,hitIndex){const n=s.referenceNumbers||{},ds=n.cm?[n.dc?.at(-1)].filter(Boolean):n.dc||[];let i=hitIndex;for(const d of ds){if(i<=d.hits)return Number.isFinite(d.basic_coefficient)?d.basic_coefficient:null;i-=d.hits;}return null;}
+function coefficient(s,hitIndex){return N.coefficient(s,hitIndex);}
 function run(data,ids,profileId='185547',horizon=60,scale=1){
  const validation=Q.validate({...data,baseSlots:Array.isArray(data.baseSlots)?data.baseSlots:undefined},ids);
  if(data.baseSlots!==undefined&&(!Array.isArray(data.baseSlots)||data.baseSlots.length>5||new Set(data.baseSlots).size!==data.baseSlots.length||data.baseSlots.some(id=>!ids.includes(id)||data.skills.find(s=>s.id===id)?.ultimate)))validation.issues.push('기본 장착은 사용 중인 일반 도술 중 중복 없이 최대 5개여야 합니다.');
- const profile=PROFILES.find(p=>p.id===profileId)||PROFILES[2],schedule=C.run(data,validation.issues.length?[]:ids,horizon,true),byId=Object.fromEntries(data.skills.map(s=>[s.id,s])),rows=ids.filter(id=>byId[id]).map(id=>({id,name:byId[id].name,geometry:geometry(byId[id],scale),casts:0,hitCasts:0,targets:0,hitChecks:0,targetHits:0,whiffs:0,coefficient:0,conditions:[],unknown:[]}));
+ const profile=PROFILES.find(p=>p.id===profileId)||PROFILES[2],schedule=C.run(data,validation.issues.length?[]:ids,horizon,data.shinsikTiming!==false),byId=Object.fromEntries(data.skills.map(s=>[s.id,s])),rows=ids.filter(id=>byId[id]).map(id=>({id,name:byId[id].name,geometry:geometry(byId[id],scale),casts:0,hitCasts:0,targets:0,hitChecks:0,targetHits:0,whiffs:0,coefficient:0,conditions:[],unknown:[]}));
  schedule.missing.push(...validation.issues);
  const result={model:MODEL,validation,scale,profile:profile.id,horizon:schedule.horizon,schedule,rows,frames:[],impacts:[],conditions:[],effectApplications:[],excluded:[],issues:[],metrics:{},rage:null};
  if(!ids.length||schedule.missing.length){result.issues=schedule.missing;return result;}
@@ -97,7 +98,7 @@ function run(data,ids,profileId='185547',horizon=60,scale=1){
      m.active=true;m.touched=true;m.hitAt=time;cast.targets.add(wave+':'+m.id);unique.add(wave+':'+m.id);if(coeff!==null)row.coefficient+=coeff;
      // End-applied enemy effects are written below; earlier hits do not get a free debuff window.
     }
-    result.impacts.push({time:exact(time),id:s.id,wave:wave+1,kind:g.kind,geometry:g,angle:cast.angle,origin:{...player},center:g.kind==='target'&&target?{x:target.x,y:target.y}:{...player},targets:hitTargets.map(m=>m.id),positions:hitTargets.map(m=>({x:m.x,y:m.y}))});
+    result.impacts.push({time:exact(time),id:s.id,castCycle:a.ev.cycle,hitIndex:a.hit.hitIndex,wave:wave+1,kind:g.kind,geometry:g,angle:cast.angle,origin:{...player},center:g.kind==='target'&&target?{x:target.x,y:target.y}:{...player},targets:hitTargets.map(m=>m.id),positions:hitTargets.map(m=>({x:m.x,y:m.y}))});
    }
    if(a.type==='end'){const cast=casts.get(a.key);if(!cast)continue;row.targets+=cast.targets.size;if(cast.targets.size)row.hitCasts++;applySelf(s,time,'end');for(const ef of s.debuffs||[]){for(const m of mobs){if(cast.targets.has(wave+':'+m.id))apply(m.effects,s,ef,time,true,m.id+1);else if(cast.wave===wave&&row.unknown.some(x=>['공격 형상','사거리','지속 타격 시점'].includes(x)))apply(m.effects,s,ef,time,false,m.id+1);}}}
   }

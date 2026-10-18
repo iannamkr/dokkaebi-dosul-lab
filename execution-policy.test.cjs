@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('node:assert/strict'),C=require('./dist/combat.js'),Q=require('./dist/sequence.js'),O=require('./dist/optimizer.js'),D=require('./dist/data.json');
+const names=['생명의 축복','영혼 소용돌이','얼음화살','회전 난격','연쇄 번개','난타','번개 폭풍','연쇄 타격','폭주'];
+const id=n=>D.skills.find(s=>s.name===n).id,ids=names.map(id),baseSlots=Q.fit(D,ids),data={...D,baseSlots},ult=id('폭주'),heal=id('생명의 축복');
+const baseline=C.run(data,ids,60),off=C.run({...data,executionPolicy:{disabled:[ult]}},ids,60);
+assert(baseline.events.some(e=>e.id===ult));assert(!off.events.some(e=>e.id===ult));assert(off.active.includes('연타'));assert.equal(off.missing.length,0);assert.equal(off.busy+off.wait,60);
+const none=C.run({...data,executionPolicy:{disabled:ids}},ids,60);assert.equal(none.casts,0);assert.equal(none.wait,60);
+const opening=C.run({...data,executionPolicy:{disabled:[ult],opener:[ult,heal,heal]}},ids,60);assert.deepEqual(opening.events.slice(0,3).map(e=>e.id),[ult,heal,heal]);assert(opening.events[2].start>=opening.events[1].start+D.skills.find(s=>s.id===heal).basic.cooldown);assert.equal(opening.events.filter(e=>e.id===ult).length,1);assert(opening.events.slice(0,3).every(e=>e.policyPhase==='opener'));
+const policy={hpBelow:{[heal]:90},hpTrace:[{time:0,percent:100},{time:10,percent:80},{time:40,percent:100},{time:60,percent:100}]};
+const gated=C.run({...data,executionPolicy:policy},ids,60);assert(gated.events.some(e=>e.id===heal));assert(gated.events.filter(e=>e.id===heal).every(e=>e.start>=10&&e.start<40&&e.hpPercent===80));
+assert(C.run({...data,executionPolicy:{hpBelow:{[heal]:90}}},ids,60).missing.some(x=>x.includes('HP 기록')));
+assert(C.run({...data,executionPolicy:{disabled:['invalid']}},ids,60).missing.length);
+assert(C.run({...data,executionPolicy:{hpBelow:{[heal]:101}}},ids,60).missing.length);
+assert(C.run({...data,executionPolicy:{hpBelow:{[heal]:90},hpTrace:[{time:0,percent:80},{time:0,percent:90}]}},ids,60).missing.length);
+const e=O.evaluate(D,ids,baseSlots,{stats:{attack:20532,maxHp:101115},executionPolicy:{disabled:[ult]}});assert(e.valid);assert.deepEqual(e.executionPolicy.disabled,[ult]);assert(!e.policyDecisions.some(x=>x.id===ult));
+console.log('Execution policy: disabled equipped ultimate, all-off wait, one-time opener, cooldown, HP boundaries, missing evidence and optimizer propagation passed.');

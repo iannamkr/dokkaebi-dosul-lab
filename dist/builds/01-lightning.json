@@ -53,26 +53,26 @@
     "source": "https://kkaebigg.com/deck/",
     "horizonSeconds": 60,
     "metrics": {
-      "firstActivationSeconds": 4.45,
+      "firstActivationSeconds": 4.05,
       "casts": 54,
       "additionalCastsFromShinsik": 9,
-      "attacksDuringShinsik": 31,
+      "attacksDuringShinsik": 33,
       "ultimateDuringShinsik": 1,
       "ultimateCasts": 1,
       "resetTimes": [
-        4.45,
-        34.45
+        4.05,
+        33.45
       ],
       "perSkill": {
-        "연쇄 번개": 5,
-        "낙뢰": 5,
-        "요기 폭발": 5,
-        "화염구": 10,
-        "얼음화살": 8,
-        "폭발하는 화살": 7,
-        "쐐기 화살": 7,
-        "밀쳐내는 화살": 6,
-        "대폭발": 1
+        "s060": 5,
+        "s054": 5,
+        "s064": 5,
+        "s063": 10,
+        "s059": 8,
+        "s045": 7,
+        "s041": 7,
+        "s037": 6,
+        "s066": 1
       },
       "unusedSkills": []
     },
@@ -122,6 +122,7 @@
         "대폭발": 2
       },
       "unusedSkills": []
-    }
+    },
+    "recalculatedReason": "시전 시 영력 이벤트와 재사용 분리 수정. 영상 적합도 보정 없음."
   }
 }

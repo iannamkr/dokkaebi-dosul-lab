@@ -11,11 +11,16 @@ function apply(data,snap){
   const s=data.skills.find(x=>x.id===localId(k.id));
   if(!s||s.name!==k.n){report.unmatched.push(k.n);continue;}
   s.referenceNumbers=s.referenceNumbers||{};
+  // Execution reads basic.cooldown independently of the reference snapshot.
+  if(typeof k.num?.cd==='number'&&s.basic&&s.basic.cooldown!==round(k.num.cd)){
+   report.changes.push({id:s.id,name:s.name,field:'basic.cooldown',before:s.basic.cooldown,after:round(k.num.cd)});s.basic.cooldown=round(k.num.cd);
+  }
+  for(const key of Object.keys(s.referenceNumbers))if(!(key in (k.num||{}))){report.changes.push({id:s.id,name:s.name,field:'referenceNumbers.'+key,before:s.referenceNumbers[key],after:null});delete s.referenceNumbers[key];}
+  s.referenceProgression={effects:k.ef||[],hit:k.hit||[],awakening:k.ak??null,source:'https://kkaebigg.com/data/skills.json'};
   for(const [key,value] of Object.entries(k.num||{})){
    if(JSON.stringify(s.referenceNumbers[key])===JSON.stringify(value))continue;
    report.changes.push({id:s.id,name:s.name,field:'referenceNumbers.'+key,before:s.referenceNumbers[key],after:value});s.referenceNumbers[key]=value;
-   // A changed cooldown is a patch; the timing engine reads basic.cooldown.
-   if(key==='cd'&&typeof value==='number'&&s.basic){report.changes.push({id:s.id,name:s.name,field:'basic.cooldown',before:s.basic.cooldown,after:round(value)});s.basic.cooldown=round(value);}
+
   }
   s.referenceDetail=s.referenceDetail||{buffs:[],debuffs:[]};
   for(const h of k.hit||[]){

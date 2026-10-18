@@ -945,6 +945,35 @@
         "scope": "적",
         "range": 1.6,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 0.45,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "질풍",
+            "l": [
+              "스킬 시전 시 자신에게 질풍 부여"
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "기세 (보호막)",
+            "l": [
+              "기세 보유 중 적중 시 자신에게 최대 체력 0.4% 보호막 적용"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1320,6 +1349,35 @@
         "scope": "적",
         "range": 1.6,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 12.685,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "충격 (추가 피해)",
+            "l": [
+              "충격 대상 적중 시 12.6% 추가 피해"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "관통",
+            "l": [
+              "타격 성공 시 대상에게 관통 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1694,6 +1752,35 @@
         "scope": "적",
         "range": 1.6,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "낙인",
+            "l": [
+              "타격 성공 시 대상에게 낙인 부여"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "파열 (받는 피해 증가)",
+            "l": [
+              "파열 대상 적중 시 받는 피해 5% 증가"
+            ]
+          }
+        ]
       }
     },
     {
@@ -2028,6 +2115,12 @@
         "scope": "적",
         "range": 7,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": []
       }
     },
     {
@@ -2372,6 +2465,29 @@
         "scope": "적",
         "range": 1.6,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:1:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "출혈",
+            "l": [
+              "대상에게 지속적으로",
+              "공격력의 5%만큼 피해를 입힙니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -2727,6 +2843,28 @@
         "scope": "적",
         "range": 1.6,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 10.6807,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "추가 피해 (출혈)",
+            "l": [
+              "출혈 상태의 적에게 10.6%의 추가 피해"
+            ]
+          }
+        ]
       }
     },
     {
@@ -3097,6 +3235,35 @@
         "scope": "적",
         "range": 1.6,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 0.7,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "질풍",
+            "l": [
+              "스킬 시전 시 자신에게 질풍 부여"
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "낙인 (체력 회복)",
+            "l": [
+              "낙인 대상 적중 시 자신의 최대 체력 0.7% 회복"
+            ]
+          }
+        ]
       }
     },
     {
@@ -3472,6 +3639,35 @@
         "scope": "적",
         "range": 1.6,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 26.5248,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "원소 (추가 피해)",
+            "l": [
+              "원소 보유 중 적중 시 26.5% 추가 피해"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "낙인",
+            "l": [
+              "타격 성공 시 대상에게 낙인 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -3825,6 +4021,34 @@
         "scope": "자신",
         "range": 1,
         "kind": null
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "은신",
+            "l": [
+              "투명 상태가 됩니다. 공격 시 해제됩니다."
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "경직",
+            "l": [
+              "적에게 경직을 부여해 움직임을 멈춥니다."
+            ]
+          },
+          {
+            "t": "",
+            "n": "",
+            "l": [
+              "연계 도술"
+            ]
+          }
+        ]
       }
     },
     {
@@ -4164,6 +4388,20 @@
         "scope": "적",
         "range": 1.8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": null,
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "슈퍼 아머",
+            "l": [
+              "모든 군중 제어 효과에 면역이 됩니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -4553,6 +4791,36 @@
         "scope": "적",
         "range": 1.6,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:1:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "정밀 (받는 피해 감소)",
+            "l": [
+              "정밀 보유 중 적중 시",
+              "자신의 받는 피해 5% 감소"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "충격",
+            "l": [
+              "타격 성공 시 대상에게 충격 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -4929,6 +5197,36 @@
         "scope": "적",
         "range": 1.8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:1:1",
+            "v": 0.45,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "낙인 (보호막)",
+            "l": [
+              "낙인 대상 적중 시 자신에게",
+              "최대 체력의 0.4% 보호막 적용"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "파쇄",
+            "l": [
+              "타격 성공 시 대상에게 파쇄 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -5278,6 +5576,35 @@
         "scope": "적",
         "range": 2,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 15,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "이동 속도 증가",
+            "l": [
+              "이동 속도가 15% 증가합니다."
+            ]
+          },
+          {
+            "t": "",
+            "n": "",
+            "l": [
+              "연계 도술"
+            ]
+          }
+        ]
       }
     },
     {
@@ -5626,6 +5953,28 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 10,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "방어력 감소",
+            "l": [
+              "방어력이 10% 감소합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -6023,6 +6372,36 @@
         "radius": 2,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:1:1",
+            "v": 0.7,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "기세 (체력 회복)",
+            "l": [
+              "기세 보유 중 적중 시",
+              "자신의 최대 체력 0.7% 회복"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "파쇄",
+            "l": [
+              "타격 성공 시 대상에게 파쇄 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -6362,6 +6741,12 @@
         "scope": "적",
         "range": 1.8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": []
       }
     },
     {
@@ -6709,6 +7094,20 @@
         "radius": 3,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "받는 피해 감소",
+            "l": [
+              "받는 피해를 5% 감소시킵니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -7076,6 +7475,35 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 40.1924,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": null,
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "슈퍼 아머",
+            "l": [
+              "모든 군중 제어 효과에 면역이 됩니다."
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "추가 피해 (화상)",
+            "l": [
+              "화상 상태의 적에게 매 타격마다 40.1% 추가 피해를 입힙니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -7454,6 +7882,35 @@
         "radius": 2.2,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "기세",
+            "l": [
+              "스킬 시전 시 자신에게 기세 부여"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "파열 (받는 피해 증가)",
+            "l": [
+              "파열 대상 적중 시 받는 피해 5% 증가"
+            ]
+          }
+        ]
       }
     },
     {
@@ -7832,6 +8289,35 @@
         "radius": 2.2,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "기세",
+            "l": [
+              "스킬 시전 시 자신에게 기세 부여"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "관통 (방어력 감소)",
+            "l": [
+              "관통 대상 적중 시 방어력 5% 감소"
+            ]
+          }
+        ]
       }
     },
     {
@@ -8217,6 +8703,36 @@
         "radius": 2.2,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:1:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "기세",
+            "l": [
+              "스킬 시전 시 자신에게 기세 부여"
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "정밀 (주는 피해 증가)",
+            "l": [
+              "정밀 보유 중 적중 시",
+              "자신의 주는 피해 5% 증가"
+            ]
+          }
+        ]
       }
     },
     {
@@ -8600,6 +9116,28 @@
         "radius": 2.2,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "정밀 (치명타 적중 증가)",
+            "l": [
+              "정밀 보유 중 적중 시",
+              "자신의 치명타 적중 5 증가"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "파열",
+            "l": [
+              "타격 성공 시 대상에게 파열 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -8986,6 +9524,35 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "충격",
+            "l": [
+              "타격 성공 시 대상에게 충격 부여"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "추적 (방어력 감소)",
+            "l": [
+              "추적 대상 적중 시 방어력 5% 감소"
+            ]
+          }
+        ]
       }
     },
     {
@@ -9364,6 +9931,36 @@
         "radius": 5,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:1:1",
+            "v": 0.45,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "질풍 (보호막)",
+            "l": [
+              "질풍 보유 중 적중 시",
+              "자신에게 최대 체력 0.4% 보호막 적용"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "파쇄",
+            "l": [
+              "타격 성공 시 대상에게 파쇄 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -9755,6 +10352,36 @@
         "radius": 4,
         "radiusAssumed": false,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 설명상 경로/직선"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:1:1",
+            "v": 30,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "파열",
+            "l": [
+              "타격 성공 시 대상에게 파열 부여"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "한기 (치유 효과 감소)",
+            "l": [
+              "한기 대상 적중 시",
+              "받는 체력 치유 효과 30% 감소"
+            ]
+          }
+        ]
       }
     },
     {
@@ -10131,6 +10758,42 @@
         "radius": 3,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 30,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          },
+          {
+            "k": "1:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "풀 차지 시 방어력 증가",
+            "l": [
+              "방어력을 30% 증가시킵니다."
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "받는 피해 감소",
+            "l": [
+              "받는 피해를 5% 감소시킵니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -10503,6 +11166,28 @@
         "radius": 4,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 10,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "풀 차지 시 공격력 증가",
+            "l": [
+              "공격력을 10% 증가시킵니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -10845,6 +11530,12 @@
         "radius": 3,
         "radiusAssumed": false,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 설명상 경로/직선"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": []
       }
     },
     {
@@ -11227,6 +11918,49 @@
         "radius": 5,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          },
+          {
+            "k": "2:0:1",
+            "v": 10,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": null,
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "받는 피해 감소",
+            "l": [
+              "받는 피해를 5% 감소시킵니다."
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "슈퍼 아머",
+            "l": [
+              "모든 군중 제어 효과에 면역이 됩니다."
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "풀 차지 시 방어력 감소",
+            "l": [
+              "방어력을 10% 감소시킵니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -11587,6 +12321,29 @@
         "scope": "적",
         "range": 2,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:1:1",
+            "v": 500,
+            "u": "",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "수호 (체력 회복)",
+            "l": [
+              "수호 보유 중 먹 베기 적중 시",
+              "자신의 체력 500 회복"
+            ]
+          }
+        ]
       }
     },
     {
@@ -11942,6 +12699,35 @@
         "scope": "적",
         "range": 2,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 10,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "방어력 감소",
+            "l": [
+              "방어력이 10% 감소합니다."
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "경직",
+            "l": [
+              "적에게 경직을 부여해 움직임을 멈춥니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -12297,6 +13083,29 @@
         "scope": "적",
         "range": 2,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:1:1",
+            "v": 25,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "피해 증가 (척살)",
+            "l": [
+              "체력이 25% 이하인 대상에게",
+              "주는 피해가 25% 증가합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -12652,6 +13461,29 @@
         "scope": "적",
         "range": 2,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:1:1",
+            "v": 25,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "피해 증가 (척살)",
+            "l": [
+              "체력이 75% 이상인 대상에게",
+              "주는 피해가 25% 증가합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -13012,6 +13844,29 @@
         "scope": "적",
         "range": 2,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:1:1",
+            "v": 25,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "피해 증가 (척살)",
+            "l": [
+              "체력이 50% 이하인 대상에게",
+              "주는 피해가 25% 증가합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -13367,6 +14222,29 @@
         "scope": "적",
         "range": 3,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:1:1",
+            "v": 25,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "피해 증가 (척살)",
+            "l": [
+              "체력이 50% 이상인 대상에게",
+              "주는 피해가 25% 증가합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -13731,6 +14609,28 @@
         "scope": "적",
         "range": 2.5,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": null,
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "슈퍼 아머",
+            "l": [
+              "모든 군중 제어 효과에 면역이 됩니다."
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "피해 증가 (받는 피해 증가)",
+            "l": [
+              "받는 피해 증가 상태의 적에게",
+              "기존 타격 피해가 10% 증가합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -14105,6 +15005,27 @@
         "scope": "적",
         "range": 8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "정밀",
+            "l": [
+              "스킬 시전 시 자신에게 정밀 부여"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "충격 (이동속도 감소)",
+            "l": [
+              "충격 대상 적중 시 이동속도 10% 감소"
+            ]
+          }
+        ]
       }
     },
     {
@@ -14480,6 +15401,35 @@
         "scope": "적",
         "range": 8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "관통 (받는 피해 감소)",
+            "l": [
+              "관통 대상 적중 시 자신의 받는 피해 5% 감소"
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "정밀",
+            "l": [
+              "스킬 시전 시 자신에게 정밀 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -14856,6 +15806,35 @@
         "scope": "적",
         "range": 8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 14.104,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "파쇄 (보호막 제거/추가 피해)",
+            "l": [
+              "파쇄 대상 적중 시 보호막 제거 및 14.1% 추가 피해"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "추적",
+            "l": [
+              "타격 성공 시 대상에게 추적 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -15230,6 +16209,35 @@
         "scope": "적",
         "range": 8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 18.1457,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "한기 (추가 피해)",
+            "l": [
+              "한기 대상 적중 시 18.1% 추가 피해"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "추적",
+            "l": [
+              "타격 성공 시 대상에게 추적 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -15575,6 +16583,20 @@
         "scope": "적",
         "range": 8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "보호막 제거",
+            "l": [
+              "대상의 보호막을 제거합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -15949,6 +16971,35 @@
         "scope": "적",
         "range": 8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 13.8734,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "질풍 (추가 피해)",
+            "l": [
+              "질풍 보유 중 적중 시 13.8% 추가 피해"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "추적",
+            "l": [
+              "타격 성공 시 대상에게 추적 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -16312,6 +17363,20 @@
         "scope": "적",
         "range": 8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "피해 증가 (마비)",
+            "l": [
+              "마비 상태의 적에게 10%의 피해 증가"
+            ]
+          }
+        ]
       }
     },
     {
@@ -16655,6 +17720,28 @@
         "scope": "적",
         "range": 8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 15,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "이동 속도 증가",
+            "l": [
+              "이동 속도가 15% 증가합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -17019,6 +18106,42 @@
         "scope": "적",
         "range": 8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 9.6312,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          },
+          {
+            "k": "1:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "피해 증가 (빙결)",
+            "l": [
+              "빙결 상태의 적에게 9.6%의 추가 피해"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "화상",
+            "l": [
+              "대상에게 지속적으로 공격력의 5%만큼 피해를 입힙니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -17362,6 +18485,28 @@
         "scope": "적",
         "range": 8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 10,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "받는 피해 증가",
+            "l": [
+              "대상이 받는 피해가 10% 증가합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -17757,6 +18902,27 @@
         "scope": "적",
         "range": 8,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": null,
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "슈퍼 아머",
+            "l": [
+              "모든 군중 제어 효과에 면역이 됩니다."
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "피해 증가 (상태이상)",
+            "l": [
+              "대상에게 적용된 출혈·화상·감전·저주 1개당 주는 피해가 15% 증가합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -18102,6 +19268,28 @@
         "radiusAssumed": true,
         "cap": 2,
         "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정 · 설명상 주위 1명 추가"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 7,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "저주",
+            "l": [
+              "대상에게 지속적으로 공격력의 7% 피해를 입힙니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -18449,6 +19637,28 @@
         "radiusAssumed": true,
         "cap": 2,
         "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정 · 설명상 주위 1명 추가"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 7,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "저주",
+            "l": [
+              "대상에게 지속적으로 공격력의 7% 피해를 입힙니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -18803,6 +20013,42 @@
         "radiusAssumed": true,
         "cap": null,
         "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 7,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          },
+          {
+            "k": "1:0:1",
+            "v": 50,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "저주",
+            "l": [
+              "대상에게 지속적으로 공격력의 7% 피해를 입힙니다."
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "받는 회복 감소",
+            "l": [
+              "받는 회복량이 50% 감소합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -19181,6 +20427,42 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 7,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          },
+          {
+            "k": "1:0:1",
+            "v": 10,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "저주",
+            "l": [
+              "대상에게 지속적으로 공격력의 7% 피해를 입힙니다."
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "방어력 감소",
+            "l": [
+              "방어력이 10% 감소합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -19533,6 +20815,42 @@
         "radiusAssumed": true,
         "cap": null,
         "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 7,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          },
+          {
+            "k": "1:0:1",
+            "v": 10,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "저주",
+            "l": [
+              "대상에게 지속적으로 공격력의 7% 피해를 입힙니다."
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "공격력 감소",
+            "l": [
+              "공격력이 10% 감소합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -19910,6 +21228,34 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": null,
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "슈퍼 아머",
+            "l": [
+              "모든 군중 제어 효과에 면역이 됩니다."
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "강화 저주",
+            "l": [
+              "지속적으로 중첩당 7% 피해를 입힙니다. 5중첩 시 반경 3m 내 최대 5명의 적에게 351.1% 피해를 입히고 중첩이 초기화됩니다. (PvP 1.7% · 224.3%)"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "받는 치명타 피해량 증가",
+            "l": [
+              "받는 치명타 피해량이 30% 증가합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -20285,6 +21631,35 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "원소",
+            "l": [
+              "스킬 시전 시 자신에게 원소 부여"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "관통 (방어력 감소)",
+            "l": [
+              "관통 대상 적중 시 방어력 5% 감소"
+            ]
+          }
+        ]
       }
     },
     {
@@ -20661,6 +22036,35 @@
         "radiusAssumed": true,
         "cap": null,
         "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 0.7,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "기세 (체력 회복)",
+            "l": [
+              "기세 보유 중 적중 시 자신의 최대 체력 0.7% 회복"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "한기",
+            "l": [
+              "타격 성공 시 대상에게 한기 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -21012,6 +22416,35 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "마비",
+            "l": [
+              "대상을 마비시켜 행동 불가 상태로 만듭니다."
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "감전",
+            "l": [
+              "대상에게 지속적으로 공격력의 5%만큼 피해를 입힙니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -21387,6 +22820,35 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 10,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "원소",
+            "l": [
+              "스킬 시전 시 자신에게 원소 부여"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "추적 (이동속도 감소)",
+            "l": [
+              "추적 대상 적중 시 이동속도 10% 감소"
+            ]
+          }
+        ]
       }
     },
     {
@@ -21726,6 +23188,20 @@
         "radiusAssumed": true,
         "cap": null,
         "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "이동속도 감소",
+            "l": [
+              "이동 속도가 50% 감소합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -22102,6 +23578,35 @@
         "radiusAssumed": true,
         "cap": null,
         "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 34.8134,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "원소 (추가 피해)",
+            "l": [
+              "원소 보유 중 적중 시 34.8% 추가 피해"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "한기",
+            "l": [
+              "타격 성공 시 대상에게 한기 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -22480,6 +23985,35 @@
         "radiusAssumed": true,
         "cap": null,
         "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "원소",
+            "l": [
+              "스킬 시전 시 자신에게 원소 부여"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "파쇄 (받는 피해 증가)",
+            "l": [
+              "파쇄 대상 적중 시 받는 피해 5% 증가"
+            ]
+          }
+        ]
       }
     },
     {
@@ -22830,6 +24364,28 @@
         "scope": "적",
         "range": 6,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 10,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "받는 피해 증가",
+            "l": [
+              "대상이 받는 피해가 10% 증가합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -23207,6 +24763,35 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "원소",
+            "l": [
+              "스킬 시전 시 자신에게 원소 부여"
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "파쇄 (받는 피해 증가)",
+            "l": [
+              "파쇄 대상 적중 시 받는 피해 5% 증가"
+            ]
+          }
+        ]
       }
     },
     {
@@ -23563,6 +25148,28 @@
         "radiusAssumed": true,
         "cap": null,
         "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "화상",
+            "l": [
+              "대상에게 지속적으로 공격력의 5%만큼 피해를 입힙니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -23906,6 +25513,12 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": []
       }
     },
     {
@@ -24252,6 +25865,28 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "화상",
+            "l": [
+              "대상에게 지속적으로 공격력의 5%만큼 피해를 입힙니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -24352,6 +25987,11 @@
           {
             "name": "슈퍼 아머",
             "description": "모든 군중 제어 효과에 면역이 됩니다.",
+            "duration": null
+          },
+          {
+            "name": "다중 타격 피해 분산",
+            "description": "5명 이상 타격 시 피해량이 점차 감소하며 30명 일 때 20%의 피해를 입힙니다.",
             "duration": null
           }
         ],
@@ -24610,6 +26250,27 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": null,
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "다중 타격 피해 분산",
+            "l": [
+              "5명 이상 타격 시 피해량이 점차 감소하며 30명 일 때 20%의 피해를 입힙니다."
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "슈퍼 아머",
+            "l": [
+              "모든 군중 제어 효과에 면역이 됩니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -24976,6 +26637,444 @@
         "radius": 1.5,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 3.7,
+            "u": "%",
+            "m": "factor",
+            "fl": [
+              {
+                "level": 1,
+                "coefficient": 0.011254999786615372
+              },
+              {
+                "level": 2,
+                "coefficient": 0.022637000307440758
+              },
+              {
+                "level": 3,
+                "coefficient": 0.034147001802921295
+              },
+              {
+                "level": 4,
+                "coefficient": 0.04578699916601181
+              },
+              {
+                "level": 5,
+                "coefficient": 0.05755700170993805
+              },
+              {
+                "level": 6,
+                "coefficient": 0.06945999711751938
+              },
+              {
+                "level": 7,
+                "coefficient": 0.08149699866771698
+              },
+              {
+                "level": 8,
+                "coefficient": 0.09366899728775024
+              },
+              {
+                "level": 9,
+                "coefficient": 0.10597900301218033
+              },
+              {
+                "level": 10,
+                "coefficient": 0.11842700093984604
+              },
+              {
+                "level": 11,
+                "coefficient": 0.13101500272750854
+              },
+              {
+                "level": 12,
+                "coefficient": 0.14374500513076782
+              },
+              {
+                "level": 13,
+                "coefficient": 0.15661799907684326
+              },
+              {
+                "level": 14,
+                "coefficient": 0.16963599622249603
+              },
+              {
+                "level": 15,
+                "coefficient": 0.18279999494552612
+              },
+              {
+                "level": 16,
+                "coefficient": 0.1961130052804947
+              },
+              {
+                "level": 17,
+                "coefficient": 0.20957499742507935
+              },
+              {
+                "level": 18,
+                "coefficient": 0.22318899631500244
+              },
+              {
+                "level": 19,
+                "coefficient": 0.23695699870586395
+              },
+              {
+                "level": 20,
+                "coefficient": 0.2508789896965027
+              },
+              {
+                "level": 21,
+                "coefficient": 0.264957994222641
+              },
+              {
+                "level": 22,
+                "coefficient": 0.27919501066207886
+              },
+              {
+                "level": 23,
+                "coefficient": 0.29359298944473267
+              },
+              {
+                "level": 24,
+                "coefficient": 0.3081519901752472
+              },
+              {
+                "level": 25,
+                "coefficient": 0.3228760063648224
+              },
+              {
+                "level": 26,
+                "coefficient": 0.33776500821113586
+              },
+              {
+                "level": 27,
+                "coefficient": 0.3528220057487488
+              },
+              {
+                "level": 28,
+                "coefficient": 0.3680480122566223
+              },
+              {
+                "level": 29,
+                "coefficient": 0.38344600796699524
+              },
+              {
+                "level": 30,
+                "coefficient": 0.39901599287986755
+              },
+              {
+                "level": 31,
+                "coefficient": 0.4147630035877228
+              },
+              {
+                "level": 32,
+                "coefficient": 0.43068599700927734
+              },
+              {
+                "level": 33,
+                "coefficient": 0.4467889964580536
+              },
+              {
+                "level": 34,
+                "coefficient": 0.4630729854106903
+              },
+              {
+                "level": 35,
+                "coefficient": 0.47953999042510986
+              },
+              {
+                "level": 36,
+                "coefficient": 0.49619200825691223
+              },
+              {
+                "level": 37,
+                "coefficient": 0.5130320191383362
+              },
+              {
+                "level": 38,
+                "coefficient": 0.5300620198249817
+              },
+              {
+                "level": 39,
+                "coefficient": 0.5472829937934875
+              },
+              {
+                "level": 40,
+                "coefficient": 0.5646979808807373
+              },
+              {
+                "level": 41,
+                "coefficient": 0.5823090076446533
+              },
+              {
+                "level": 42,
+                "coefficient": 0.6001179814338684
+              },
+              {
+                "level": 43,
+                "coefficient": 0.6181269884109497
+              },
+              {
+                "level": 44,
+                "coefficient": 0.6363400220870972
+              },
+              {
+                "level": 45,
+                "coefficient": 0.654757022857666
+              },
+              {
+                "level": 46,
+                "coefficient": 0.6733819842338562
+              },
+              {
+                "level": 47,
+                "coefficient": 0.6922159790992737
+              },
+              {
+                "level": 48,
+                "coefficient": 0.7112619876861572
+              },
+              {
+                "level": 49,
+                "coefficient": 0.7305229902267456
+              },
+              {
+                "level": 50,
+                "coefficient": 0.75
+              }
+            ]
+          },
+          {
+            "k": "0:0:3",
+            "v": 2190,
+            "u": "",
+            "m": "factor",
+            "fl": [
+              {
+                "level": 1,
+                "coefficient": 0.011254999786615372
+              },
+              {
+                "level": 2,
+                "coefficient": 0.022637000307440758
+              },
+              {
+                "level": 3,
+                "coefficient": 0.034147001802921295
+              },
+              {
+                "level": 4,
+                "coefficient": 0.04578699916601181
+              },
+              {
+                "level": 5,
+                "coefficient": 0.05755700170993805
+              },
+              {
+                "level": 6,
+                "coefficient": 0.06945999711751938
+              },
+              {
+                "level": 7,
+                "coefficient": 0.08149699866771698
+              },
+              {
+                "level": 8,
+                "coefficient": 0.09366899728775024
+              },
+              {
+                "level": 9,
+                "coefficient": 0.10597900301218033
+              },
+              {
+                "level": 10,
+                "coefficient": 0.11842700093984604
+              },
+              {
+                "level": 11,
+                "coefficient": 0.13101500272750854
+              },
+              {
+                "level": 12,
+                "coefficient": 0.14374500513076782
+              },
+              {
+                "level": 13,
+                "coefficient": 0.15661799907684326
+              },
+              {
+                "level": 14,
+                "coefficient": 0.16963599622249603
+              },
+              {
+                "level": 15,
+                "coefficient": 0.18279999494552612
+              },
+              {
+                "level": 16,
+                "coefficient": 0.1961130052804947
+              },
+              {
+                "level": 17,
+                "coefficient": 0.20957499742507935
+              },
+              {
+                "level": 18,
+                "coefficient": 0.22318899631500244
+              },
+              {
+                "level": 19,
+                "coefficient": 0.23695699870586395
+              },
+              {
+                "level": 20,
+                "coefficient": 0.2508789896965027
+              },
+              {
+                "level": 21,
+                "coefficient": 0.264957994222641
+              },
+              {
+                "level": 22,
+                "coefficient": 0.27919501066207886
+              },
+              {
+                "level": 23,
+                "coefficient": 0.29359298944473267
+              },
+              {
+                "level": 24,
+                "coefficient": 0.3081519901752472
+              },
+              {
+                "level": 25,
+                "coefficient": 0.3228760063648224
+              },
+              {
+                "level": 26,
+                "coefficient": 0.33776500821113586
+              },
+              {
+                "level": 27,
+                "coefficient": 0.3528220057487488
+              },
+              {
+                "level": 28,
+                "coefficient": 0.3680480122566223
+              },
+              {
+                "level": 29,
+                "coefficient": 0.38344600796699524
+              },
+              {
+                "level": 30,
+                "coefficient": 0.39901599287986755
+              },
+              {
+                "level": 31,
+                "coefficient": 0.4147630035877228
+              },
+              {
+                "level": 32,
+                "coefficient": 0.43068599700927734
+              },
+              {
+                "level": 33,
+                "coefficient": 0.4467889964580536
+              },
+              {
+                "level": 34,
+                "coefficient": 0.4630729854106903
+              },
+              {
+                "level": 35,
+                "coefficient": 0.47953999042510986
+              },
+              {
+                "level": 36,
+                "coefficient": 0.49619200825691223
+              },
+              {
+                "level": 37,
+                "coefficient": 0.5130320191383362
+              },
+              {
+                "level": 38,
+                "coefficient": 0.5300620198249817
+              },
+              {
+                "level": 39,
+                "coefficient": 0.5472829937934875
+              },
+              {
+                "level": 40,
+                "coefficient": 0.5646979808807373
+              },
+              {
+                "level": 41,
+                "coefficient": 0.5823090076446533
+              },
+              {
+                "level": 42,
+                "coefficient": 0.6001179814338684
+              },
+              {
+                "level": 43,
+                "coefficient": 0.6181269884109497
+              },
+              {
+                "level": 44,
+                "coefficient": 0.6363400220870972
+              },
+              {
+                "level": 45,
+                "coefficient": 0.654757022857666
+              },
+              {
+                "level": 46,
+                "coefficient": 0.6733819842338562
+              },
+              {
+                "level": 47,
+                "coefficient": 0.6922159790992737
+              },
+              {
+                "level": 48,
+                "coefficient": 0.7112619876861572
+              },
+              {
+                "level": 49,
+                "coefficient": 0.7305229902267456
+              },
+              {
+                "level": 50,
+                "coefficient": 0.75
+              }
+            ]
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "자신과 아군에게 보호막",
+            "l": [
+              "시전자의 공격력의 3.7% + 2,190만큼 보호막을 부여합니다."
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "모든 약화 효과 해제",
+            "l": [
+              "대상의 모든 해로운 효과를 해제시킵니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -25360,6 +27459,35 @@
         "radius": 2,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "받는 피해 감소",
+            "l": [
+              "받는 피해를 5% 감소시킵니다."
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "수호",
+            "l": [
+              "스킬 시전 시 자신에게 수호 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -25709,6 +27837,437 @@
         "scope": "적",
         "range": 1.6,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 1.2,
+            "u": "%",
+            "m": "factor",
+            "fl": [
+              {
+                "level": 1,
+                "coefficient": 0.011254999786615372
+              },
+              {
+                "level": 2,
+                "coefficient": 0.022637000307440758
+              },
+              {
+                "level": 3,
+                "coefficient": 0.034147001802921295
+              },
+              {
+                "level": 4,
+                "coefficient": 0.04578699916601181
+              },
+              {
+                "level": 5,
+                "coefficient": 0.05755700170993805
+              },
+              {
+                "level": 6,
+                "coefficient": 0.06945999711751938
+              },
+              {
+                "level": 7,
+                "coefficient": 0.08149699866771698
+              },
+              {
+                "level": 8,
+                "coefficient": 0.09366899728775024
+              },
+              {
+                "level": 9,
+                "coefficient": 0.10597900301218033
+              },
+              {
+                "level": 10,
+                "coefficient": 0.11842700093984604
+              },
+              {
+                "level": 11,
+                "coefficient": 0.13101500272750854
+              },
+              {
+                "level": 12,
+                "coefficient": 0.14374500513076782
+              },
+              {
+                "level": 13,
+                "coefficient": 0.15661799907684326
+              },
+              {
+                "level": 14,
+                "coefficient": 0.16963599622249603
+              },
+              {
+                "level": 15,
+                "coefficient": 0.18279999494552612
+              },
+              {
+                "level": 16,
+                "coefficient": 0.1961130052804947
+              },
+              {
+                "level": 17,
+                "coefficient": 0.20957499742507935
+              },
+              {
+                "level": 18,
+                "coefficient": 0.22318899631500244
+              },
+              {
+                "level": 19,
+                "coefficient": 0.23695699870586395
+              },
+              {
+                "level": 20,
+                "coefficient": 0.2508789896965027
+              },
+              {
+                "level": 21,
+                "coefficient": 0.264957994222641
+              },
+              {
+                "level": 22,
+                "coefficient": 0.27919501066207886
+              },
+              {
+                "level": 23,
+                "coefficient": 0.29359298944473267
+              },
+              {
+                "level": 24,
+                "coefficient": 0.3081519901752472
+              },
+              {
+                "level": 25,
+                "coefficient": 0.3228760063648224
+              },
+              {
+                "level": 26,
+                "coefficient": 0.33776500821113586
+              },
+              {
+                "level": 27,
+                "coefficient": 0.3528220057487488
+              },
+              {
+                "level": 28,
+                "coefficient": 0.3680480122566223
+              },
+              {
+                "level": 29,
+                "coefficient": 0.38344600796699524
+              },
+              {
+                "level": 30,
+                "coefficient": 0.39901599287986755
+              },
+              {
+                "level": 31,
+                "coefficient": 0.4147630035877228
+              },
+              {
+                "level": 32,
+                "coefficient": 0.43068599700927734
+              },
+              {
+                "level": 33,
+                "coefficient": 0.4467889964580536
+              },
+              {
+                "level": 34,
+                "coefficient": 0.4630729854106903
+              },
+              {
+                "level": 35,
+                "coefficient": 0.47953999042510986
+              },
+              {
+                "level": 36,
+                "coefficient": 0.49619200825691223
+              },
+              {
+                "level": 37,
+                "coefficient": 0.5130320191383362
+              },
+              {
+                "level": 38,
+                "coefficient": 0.5300620198249817
+              },
+              {
+                "level": 39,
+                "coefficient": 0.5472829937934875
+              },
+              {
+                "level": 40,
+                "coefficient": 0.5646979808807373
+              },
+              {
+                "level": 41,
+                "coefficient": 0.5823090076446533
+              },
+              {
+                "level": 42,
+                "coefficient": 0.6001179814338684
+              },
+              {
+                "level": 43,
+                "coefficient": 0.6181269884109497
+              },
+              {
+                "level": 44,
+                "coefficient": 0.6363400220870972
+              },
+              {
+                "level": 45,
+                "coefficient": 0.654757022857666
+              },
+              {
+                "level": 46,
+                "coefficient": 0.6733819842338562
+              },
+              {
+                "level": 47,
+                "coefficient": 0.6922159790992737
+              },
+              {
+                "level": 48,
+                "coefficient": 0.7112619876861572
+              },
+              {
+                "level": 49,
+                "coefficient": 0.7305229902267456
+              },
+              {
+                "level": 50,
+                "coefficient": 0.75
+              }
+            ]
+          },
+          {
+            "k": "0:0:3",
+            "v": 1460,
+            "u": "",
+            "m": "factor",
+            "fl": [
+              {
+                "level": 1,
+                "coefficient": 0.011254999786615372
+              },
+              {
+                "level": 2,
+                "coefficient": 0.022637000307440758
+              },
+              {
+                "level": 3,
+                "coefficient": 0.034147001802921295
+              },
+              {
+                "level": 4,
+                "coefficient": 0.04578699916601181
+              },
+              {
+                "level": 5,
+                "coefficient": 0.05755700170993805
+              },
+              {
+                "level": 6,
+                "coefficient": 0.06945999711751938
+              },
+              {
+                "level": 7,
+                "coefficient": 0.08149699866771698
+              },
+              {
+                "level": 8,
+                "coefficient": 0.09366899728775024
+              },
+              {
+                "level": 9,
+                "coefficient": 0.10597900301218033
+              },
+              {
+                "level": 10,
+                "coefficient": 0.11842700093984604
+              },
+              {
+                "level": 11,
+                "coefficient": 0.13101500272750854
+              },
+              {
+                "level": 12,
+                "coefficient": 0.14374500513076782
+              },
+              {
+                "level": 13,
+                "coefficient": 0.15661799907684326
+              },
+              {
+                "level": 14,
+                "coefficient": 0.16963599622249603
+              },
+              {
+                "level": 15,
+                "coefficient": 0.18279999494552612
+              },
+              {
+                "level": 16,
+                "coefficient": 0.1961130052804947
+              },
+              {
+                "level": 17,
+                "coefficient": 0.20957499742507935
+              },
+              {
+                "level": 18,
+                "coefficient": 0.22318899631500244
+              },
+              {
+                "level": 19,
+                "coefficient": 0.23695699870586395
+              },
+              {
+                "level": 20,
+                "coefficient": 0.2508789896965027
+              },
+              {
+                "level": 21,
+                "coefficient": 0.264957994222641
+              },
+              {
+                "level": 22,
+                "coefficient": 0.27919501066207886
+              },
+              {
+                "level": 23,
+                "coefficient": 0.29359298944473267
+              },
+              {
+                "level": 24,
+                "coefficient": 0.3081519901752472
+              },
+              {
+                "level": 25,
+                "coefficient": 0.3228760063648224
+              },
+              {
+                "level": 26,
+                "coefficient": 0.33776500821113586
+              },
+              {
+                "level": 27,
+                "coefficient": 0.3528220057487488
+              },
+              {
+                "level": 28,
+                "coefficient": 0.3680480122566223
+              },
+              {
+                "level": 29,
+                "coefficient": 0.38344600796699524
+              },
+              {
+                "level": 30,
+                "coefficient": 0.39901599287986755
+              },
+              {
+                "level": 31,
+                "coefficient": 0.4147630035877228
+              },
+              {
+                "level": 32,
+                "coefficient": 0.43068599700927734
+              },
+              {
+                "level": 33,
+                "coefficient": 0.4467889964580536
+              },
+              {
+                "level": 34,
+                "coefficient": 0.4630729854106903
+              },
+              {
+                "level": 35,
+                "coefficient": 0.47953999042510986
+              },
+              {
+                "level": 36,
+                "coefficient": 0.49619200825691223
+              },
+              {
+                "level": 37,
+                "coefficient": 0.5130320191383362
+              },
+              {
+                "level": 38,
+                "coefficient": 0.5300620198249817
+              },
+              {
+                "level": 39,
+                "coefficient": 0.5472829937934875
+              },
+              {
+                "level": 40,
+                "coefficient": 0.5646979808807373
+              },
+              {
+                "level": 41,
+                "coefficient": 0.5823090076446533
+              },
+              {
+                "level": 42,
+                "coefficient": 0.6001179814338684
+              },
+              {
+                "level": 43,
+                "coefficient": 0.6181269884109497
+              },
+              {
+                "level": 44,
+                "coefficient": 0.6363400220870972
+              },
+              {
+                "level": 45,
+                "coefficient": 0.654757022857666
+              },
+              {
+                "level": 46,
+                "coefficient": 0.6733819842338562
+              },
+              {
+                "level": 47,
+                "coefficient": 0.6922159790992737
+              },
+              {
+                "level": 48,
+                "coefficient": 0.7112619876861572
+              },
+              {
+                "level": 49,
+                "coefficient": 0.7305229902267456
+              },
+              {
+                "level": 50,
+                "coefficient": 0.75
+              }
+            ]
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "자신에게 보호막",
+            "l": [
+              "시전자의 공격력의 1.2% + 1,460만큼 보호막을 부여합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -26063,6 +28622,437 @@
         "radius": 2,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 2.45,
+            "u": "%",
+            "m": "factor",
+            "fl": [
+              {
+                "level": 1,
+                "coefficient": 0.011254999786615372
+              },
+              {
+                "level": 2,
+                "coefficient": 0.022637000307440758
+              },
+              {
+                "level": 3,
+                "coefficient": 0.034147001802921295
+              },
+              {
+                "level": 4,
+                "coefficient": 0.04578699916601181
+              },
+              {
+                "level": 5,
+                "coefficient": 0.05755700170993805
+              },
+              {
+                "level": 6,
+                "coefficient": 0.06945999711751938
+              },
+              {
+                "level": 7,
+                "coefficient": 0.08149699866771698
+              },
+              {
+                "level": 8,
+                "coefficient": 0.09366899728775024
+              },
+              {
+                "level": 9,
+                "coefficient": 0.10597900301218033
+              },
+              {
+                "level": 10,
+                "coefficient": 0.11842700093984604
+              },
+              {
+                "level": 11,
+                "coefficient": 0.13101500272750854
+              },
+              {
+                "level": 12,
+                "coefficient": 0.14374500513076782
+              },
+              {
+                "level": 13,
+                "coefficient": 0.15661799907684326
+              },
+              {
+                "level": 14,
+                "coefficient": 0.16963599622249603
+              },
+              {
+                "level": 15,
+                "coefficient": 0.18279999494552612
+              },
+              {
+                "level": 16,
+                "coefficient": 0.1961130052804947
+              },
+              {
+                "level": 17,
+                "coefficient": 0.20957499742507935
+              },
+              {
+                "level": 18,
+                "coefficient": 0.22318899631500244
+              },
+              {
+                "level": 19,
+                "coefficient": 0.23695699870586395
+              },
+              {
+                "level": 20,
+                "coefficient": 0.2508789896965027
+              },
+              {
+                "level": 21,
+                "coefficient": 0.264957994222641
+              },
+              {
+                "level": 22,
+                "coefficient": 0.27919501066207886
+              },
+              {
+                "level": 23,
+                "coefficient": 0.29359298944473267
+              },
+              {
+                "level": 24,
+                "coefficient": 0.3081519901752472
+              },
+              {
+                "level": 25,
+                "coefficient": 0.3228760063648224
+              },
+              {
+                "level": 26,
+                "coefficient": 0.33776500821113586
+              },
+              {
+                "level": 27,
+                "coefficient": 0.3528220057487488
+              },
+              {
+                "level": 28,
+                "coefficient": 0.3680480122566223
+              },
+              {
+                "level": 29,
+                "coefficient": 0.38344600796699524
+              },
+              {
+                "level": 30,
+                "coefficient": 0.39901599287986755
+              },
+              {
+                "level": 31,
+                "coefficient": 0.4147630035877228
+              },
+              {
+                "level": 32,
+                "coefficient": 0.43068599700927734
+              },
+              {
+                "level": 33,
+                "coefficient": 0.4467889964580536
+              },
+              {
+                "level": 34,
+                "coefficient": 0.4630729854106903
+              },
+              {
+                "level": 35,
+                "coefficient": 0.47953999042510986
+              },
+              {
+                "level": 36,
+                "coefficient": 0.49619200825691223
+              },
+              {
+                "level": 37,
+                "coefficient": 0.5130320191383362
+              },
+              {
+                "level": 38,
+                "coefficient": 0.5300620198249817
+              },
+              {
+                "level": 39,
+                "coefficient": 0.5472829937934875
+              },
+              {
+                "level": 40,
+                "coefficient": 0.5646979808807373
+              },
+              {
+                "level": 41,
+                "coefficient": 0.5823090076446533
+              },
+              {
+                "level": 42,
+                "coefficient": 0.6001179814338684
+              },
+              {
+                "level": 43,
+                "coefficient": 0.6181269884109497
+              },
+              {
+                "level": 44,
+                "coefficient": 0.6363400220870972
+              },
+              {
+                "level": 45,
+                "coefficient": 0.654757022857666
+              },
+              {
+                "level": 46,
+                "coefficient": 0.6733819842338562
+              },
+              {
+                "level": 47,
+                "coefficient": 0.6922159790992737
+              },
+              {
+                "level": 48,
+                "coefficient": 0.7112619876861572
+              },
+              {
+                "level": 49,
+                "coefficient": 0.7305229902267456
+              },
+              {
+                "level": 50,
+                "coefficient": 0.75
+              }
+            ]
+          },
+          {
+            "k": "0:0:3",
+            "v": 1820,
+            "u": "",
+            "m": "factor",
+            "fl": [
+              {
+                "level": 1,
+                "coefficient": 0.011254999786615372
+              },
+              {
+                "level": 2,
+                "coefficient": 0.022637000307440758
+              },
+              {
+                "level": 3,
+                "coefficient": 0.034147001802921295
+              },
+              {
+                "level": 4,
+                "coefficient": 0.04578699916601181
+              },
+              {
+                "level": 5,
+                "coefficient": 0.05755700170993805
+              },
+              {
+                "level": 6,
+                "coefficient": 0.06945999711751938
+              },
+              {
+                "level": 7,
+                "coefficient": 0.08149699866771698
+              },
+              {
+                "level": 8,
+                "coefficient": 0.09366899728775024
+              },
+              {
+                "level": 9,
+                "coefficient": 0.10597900301218033
+              },
+              {
+                "level": 10,
+                "coefficient": 0.11842700093984604
+              },
+              {
+                "level": 11,
+                "coefficient": 0.13101500272750854
+              },
+              {
+                "level": 12,
+                "coefficient": 0.14374500513076782
+              },
+              {
+                "level": 13,
+                "coefficient": 0.15661799907684326
+              },
+              {
+                "level": 14,
+                "coefficient": 0.16963599622249603
+              },
+              {
+                "level": 15,
+                "coefficient": 0.18279999494552612
+              },
+              {
+                "level": 16,
+                "coefficient": 0.1961130052804947
+              },
+              {
+                "level": 17,
+                "coefficient": 0.20957499742507935
+              },
+              {
+                "level": 18,
+                "coefficient": 0.22318899631500244
+              },
+              {
+                "level": 19,
+                "coefficient": 0.23695699870586395
+              },
+              {
+                "level": 20,
+                "coefficient": 0.2508789896965027
+              },
+              {
+                "level": 21,
+                "coefficient": 0.264957994222641
+              },
+              {
+                "level": 22,
+                "coefficient": 0.27919501066207886
+              },
+              {
+                "level": 23,
+                "coefficient": 0.29359298944473267
+              },
+              {
+                "level": 24,
+                "coefficient": 0.3081519901752472
+              },
+              {
+                "level": 25,
+                "coefficient": 0.3228760063648224
+              },
+              {
+                "level": 26,
+                "coefficient": 0.33776500821113586
+              },
+              {
+                "level": 27,
+                "coefficient": 0.3528220057487488
+              },
+              {
+                "level": 28,
+                "coefficient": 0.3680480122566223
+              },
+              {
+                "level": 29,
+                "coefficient": 0.38344600796699524
+              },
+              {
+                "level": 30,
+                "coefficient": 0.39901599287986755
+              },
+              {
+                "level": 31,
+                "coefficient": 0.4147630035877228
+              },
+              {
+                "level": 32,
+                "coefficient": 0.43068599700927734
+              },
+              {
+                "level": 33,
+                "coefficient": 0.4467889964580536
+              },
+              {
+                "level": 34,
+                "coefficient": 0.4630729854106903
+              },
+              {
+                "level": 35,
+                "coefficient": 0.47953999042510986
+              },
+              {
+                "level": 36,
+                "coefficient": 0.49619200825691223
+              },
+              {
+                "level": 37,
+                "coefficient": 0.5130320191383362
+              },
+              {
+                "level": 38,
+                "coefficient": 0.5300620198249817
+              },
+              {
+                "level": 39,
+                "coefficient": 0.5472829937934875
+              },
+              {
+                "level": 40,
+                "coefficient": 0.5646979808807373
+              },
+              {
+                "level": 41,
+                "coefficient": 0.5823090076446533
+              },
+              {
+                "level": 42,
+                "coefficient": 0.6001179814338684
+              },
+              {
+                "level": 43,
+                "coefficient": 0.6181269884109497
+              },
+              {
+                "level": 44,
+                "coefficient": 0.6363400220870972
+              },
+              {
+                "level": 45,
+                "coefficient": 0.654757022857666
+              },
+              {
+                "level": 46,
+                "coefficient": 0.6733819842338562
+              },
+              {
+                "level": 47,
+                "coefficient": 0.6922159790992737
+              },
+              {
+                "level": 48,
+                "coefficient": 0.7112619876861572
+              },
+              {
+                "level": 49,
+                "coefficient": 0.7305229902267456
+              },
+              {
+                "level": 50,
+                "coefficient": 0.75
+              }
+            ]
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "자신과 아군에게 보호막",
+            "l": [
+              "시전자의 공격력의 2.4% + 1,820만큼 보호막을 부여합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -26436,6 +29426,35 @@
         "scope": "적",
         "range": 1.6,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 10,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "방어력 증가",
+            "l": [
+              "방어력을 10% 증가시킵니다."
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "수호",
+            "l": [
+              "스킬 시전 시 자신에게 수호 부여"
+            ]
+          }
+        ]
       }
     },
     {
@@ -26788,6 +29807,20 @@
         "radius": 2.4,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "자신에게 면역",
+            "l": [
+              "모든 상태 이상 효과에 면역이 됩니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -27180,6 +30213,42 @@
         "radiusAssumed": true,
         "cap": null,
         "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "1:0:1",
+            "v": 30,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": null,
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "슈퍼 아머",
+            "l": [
+              "모든 군중 제어 효과에 면역이 됩니다."
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "이동속도 감소",
+            "l": [
+              "이동 속도가 30% 감소합니다."
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "기절",
+            "l": [
+              "대상을 기절시켜 행동 불가 상태로 만듭니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -27529,6 +30598,28 @@
         "scope": "적",
         "range": 7,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "출혈",
+            "l": [
+              "대상에게 지속적으로 공격력의 5%만큼 피해를 입힙니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -27885,6 +30976,20 @@
         "scope": "적",
         "range": 5,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "수호 (보호막)",
+            "l": [
+              "수호 보유 중 도약 찌르기 적중 시 자신에게 보호막 1,460 적용"
+            ]
+          }
+        ]
       }
     },
     {
@@ -28234,7 +31339,11 @@
         "recharge": "sequential",
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
-        "reference": true
+        "reference": true,
+        "recasts": 1,
+        "recastSource": "https://kkaebigg.com/skills/gidong/",
+        "recastNote": "최초 사용 후 재사용 횟수. 각 동작을 독립 시전으로 계산. 재사용 유효시간/취소 규칙 미확인.",
+        "recastEvidence": "2.mp4 4.6–6.8초: 연속 쇄도 재사용별 게이지 증가, 첫 동작부터 같은 쿨타임 감소. 모션 수치는 깨비지지 num.m 사용; 입력 간격 미측정."
       },
       "aim": {
         "source": "kkaebi.gg",
@@ -28247,6 +31356,35 @@
         "radius": 4.5,
         "radiusAssumed": false,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 설명상 경로/직선"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 10.4,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "추가 피해 (속박)",
+            "l": [
+              "속박 상태의 적에게 10.4%의 추가 피해"
+            ]
+          },
+          {
+            "t": "",
+            "n": "",
+            "l": [
+              "연계 도술"
+            ]
+          }
+        ]
       }
     },
     {
@@ -28599,6 +31737,28 @@
         "radius": 4,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 15,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "이동속도 감소",
+            "l": [
+              "이동 속도가 15% 감소합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -28967,6 +32127,28 @@
         "radiusAssumed": true,
         "cap": null,
         "basis": "대상 지정 범위 · 대상 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "수호 (방어력 증가)",
+            "l": [
+              "수호 보유 중 휩쓸어 베기 적중 시 자신의 방어력 5% 증가"
+            ]
+          }
+        ]
       }
     },
     {
@@ -29309,6 +32491,20 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 이동 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "",
+            "n": "",
+            "l": [
+              "연계 도술"
+            ]
+          }
+        ]
       }
     },
     {
@@ -29661,6 +32857,28 @@
         "radius": 7.5,
         "radiusAssumed": false,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 설명상 경로/직선"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "감전",
+            "l": [
+              "대상에게 지속적으로 공격력의 5%만큼 피해를 입힙니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -29998,7 +33216,11 @@
         "recharge": "sequential",
         "source": "https://kkaebigg.com/data/skills.json",
         "checkedAt": "2026-10-17",
-        "reference": true
+        "reference": true,
+        "recasts": 3,
+        "recastSource": "https://kkaebigg.com/skills/gidong/",
+        "recastNote": "최초 사용 후 재사용 횟수. 각 동작을 독립 시전으로 계산. 재사용 유효시간/취소 규칙 미확인.",
+        "recastEvidence": "2.mp4 4.6–6.8초: 연속 쇄도 재사용별 게이지 증가, 첫 동작부터 같은 쿨타임 감소. 모션 수치는 깨비지지 num.m 사용; 입력 간격 미측정."
       },
       "aim": {
         "source": "kkaebi.gg",
@@ -30011,6 +33233,21 @@
         "radius": 4,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": null,
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "슈퍼 아머",
+            "l": [
+              "모든 군중 제어 효과에 면역이 됩니다.",
+              "연계 도술"
+            ]
+          }
+        ]
       }
     },
     {
@@ -30365,6 +33602,20 @@
         "radius": 5,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "면역",
+            "l": [
+              "모든 상태 이상 효과에 면역이 됩니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -30719,6 +33970,20 @@
         "radius": 4,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "이동 속도 증가",
+            "l": [
+              "이동 속도가 10% 증가합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -31065,6 +34330,437 @@
         "scope": "아군·자신",
         "range": 5,
         "kind": null
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 3.1,
+            "u": "%",
+            "m": "factor",
+            "fl": [
+              {
+                "level": 1,
+                "coefficient": 0.011254999786615372
+              },
+              {
+                "level": 2,
+                "coefficient": 0.022637000307440758
+              },
+              {
+                "level": 3,
+                "coefficient": 0.034147001802921295
+              },
+              {
+                "level": 4,
+                "coefficient": 0.04578699916601181
+              },
+              {
+                "level": 5,
+                "coefficient": 0.05755700170993805
+              },
+              {
+                "level": 6,
+                "coefficient": 0.06945999711751938
+              },
+              {
+                "level": 7,
+                "coefficient": 0.08149699866771698
+              },
+              {
+                "level": 8,
+                "coefficient": 0.09366899728775024
+              },
+              {
+                "level": 9,
+                "coefficient": 0.10597900301218033
+              },
+              {
+                "level": 10,
+                "coefficient": 0.11842700093984604
+              },
+              {
+                "level": 11,
+                "coefficient": 0.13101500272750854
+              },
+              {
+                "level": 12,
+                "coefficient": 0.14374500513076782
+              },
+              {
+                "level": 13,
+                "coefficient": 0.15661799907684326
+              },
+              {
+                "level": 14,
+                "coefficient": 0.16963599622249603
+              },
+              {
+                "level": 15,
+                "coefficient": 0.18279999494552612
+              },
+              {
+                "level": 16,
+                "coefficient": 0.1961130052804947
+              },
+              {
+                "level": 17,
+                "coefficient": 0.20957499742507935
+              },
+              {
+                "level": 18,
+                "coefficient": 0.22318899631500244
+              },
+              {
+                "level": 19,
+                "coefficient": 0.23695699870586395
+              },
+              {
+                "level": 20,
+                "coefficient": 0.2508789896965027
+              },
+              {
+                "level": 21,
+                "coefficient": 0.264957994222641
+              },
+              {
+                "level": 22,
+                "coefficient": 0.27919501066207886
+              },
+              {
+                "level": 23,
+                "coefficient": 0.29359298944473267
+              },
+              {
+                "level": 24,
+                "coefficient": 0.3081519901752472
+              },
+              {
+                "level": 25,
+                "coefficient": 0.3228760063648224
+              },
+              {
+                "level": 26,
+                "coefficient": 0.33776500821113586
+              },
+              {
+                "level": 27,
+                "coefficient": 0.3528220057487488
+              },
+              {
+                "level": 28,
+                "coefficient": 0.3680480122566223
+              },
+              {
+                "level": 29,
+                "coefficient": 0.38344600796699524
+              },
+              {
+                "level": 30,
+                "coefficient": 0.39901599287986755
+              },
+              {
+                "level": 31,
+                "coefficient": 0.4147630035877228
+              },
+              {
+                "level": 32,
+                "coefficient": 0.43068599700927734
+              },
+              {
+                "level": 33,
+                "coefficient": 0.4467889964580536
+              },
+              {
+                "level": 34,
+                "coefficient": 0.4630729854106903
+              },
+              {
+                "level": 35,
+                "coefficient": 0.47953999042510986
+              },
+              {
+                "level": 36,
+                "coefficient": 0.49619200825691223
+              },
+              {
+                "level": 37,
+                "coefficient": 0.5130320191383362
+              },
+              {
+                "level": 38,
+                "coefficient": 0.5300620198249817
+              },
+              {
+                "level": 39,
+                "coefficient": 0.5472829937934875
+              },
+              {
+                "level": 40,
+                "coefficient": 0.5646979808807373
+              },
+              {
+                "level": 41,
+                "coefficient": 0.5823090076446533
+              },
+              {
+                "level": 42,
+                "coefficient": 0.6001179814338684
+              },
+              {
+                "level": 43,
+                "coefficient": 0.6181269884109497
+              },
+              {
+                "level": 44,
+                "coefficient": 0.6363400220870972
+              },
+              {
+                "level": 45,
+                "coefficient": 0.654757022857666
+              },
+              {
+                "level": 46,
+                "coefficient": 0.6733819842338562
+              },
+              {
+                "level": 47,
+                "coefficient": 0.6922159790992737
+              },
+              {
+                "level": 48,
+                "coefficient": 0.7112619876861572
+              },
+              {
+                "level": 49,
+                "coefficient": 0.7305229902267456
+              },
+              {
+                "level": 50,
+                "coefficient": 0.75
+              }
+            ]
+          },
+          {
+            "k": "0:0:3",
+            "v": 2800,
+            "u": "",
+            "m": "factor",
+            "fl": [
+              {
+                "level": 1,
+                "coefficient": 0.011254999786615372
+              },
+              {
+                "level": 2,
+                "coefficient": 0.022637000307440758
+              },
+              {
+                "level": 3,
+                "coefficient": 0.034147001802921295
+              },
+              {
+                "level": 4,
+                "coefficient": 0.04578699916601181
+              },
+              {
+                "level": 5,
+                "coefficient": 0.05755700170993805
+              },
+              {
+                "level": 6,
+                "coefficient": 0.06945999711751938
+              },
+              {
+                "level": 7,
+                "coefficient": 0.08149699866771698
+              },
+              {
+                "level": 8,
+                "coefficient": 0.09366899728775024
+              },
+              {
+                "level": 9,
+                "coefficient": 0.10597900301218033
+              },
+              {
+                "level": 10,
+                "coefficient": 0.11842700093984604
+              },
+              {
+                "level": 11,
+                "coefficient": 0.13101500272750854
+              },
+              {
+                "level": 12,
+                "coefficient": 0.14374500513076782
+              },
+              {
+                "level": 13,
+                "coefficient": 0.15661799907684326
+              },
+              {
+                "level": 14,
+                "coefficient": 0.16963599622249603
+              },
+              {
+                "level": 15,
+                "coefficient": 0.18279999494552612
+              },
+              {
+                "level": 16,
+                "coefficient": 0.1961130052804947
+              },
+              {
+                "level": 17,
+                "coefficient": 0.20957499742507935
+              },
+              {
+                "level": 18,
+                "coefficient": 0.22318899631500244
+              },
+              {
+                "level": 19,
+                "coefficient": 0.23695699870586395
+              },
+              {
+                "level": 20,
+                "coefficient": 0.2508789896965027
+              },
+              {
+                "level": 21,
+                "coefficient": 0.264957994222641
+              },
+              {
+                "level": 22,
+                "coefficient": 0.27919501066207886
+              },
+              {
+                "level": 23,
+                "coefficient": 0.29359298944473267
+              },
+              {
+                "level": 24,
+                "coefficient": 0.3081519901752472
+              },
+              {
+                "level": 25,
+                "coefficient": 0.3228760063648224
+              },
+              {
+                "level": 26,
+                "coefficient": 0.33776500821113586
+              },
+              {
+                "level": 27,
+                "coefficient": 0.3528220057487488
+              },
+              {
+                "level": 28,
+                "coefficient": 0.3680480122566223
+              },
+              {
+                "level": 29,
+                "coefficient": 0.38344600796699524
+              },
+              {
+                "level": 30,
+                "coefficient": 0.39901599287986755
+              },
+              {
+                "level": 31,
+                "coefficient": 0.4147630035877228
+              },
+              {
+                "level": 32,
+                "coefficient": 0.43068599700927734
+              },
+              {
+                "level": 33,
+                "coefficient": 0.4467889964580536
+              },
+              {
+                "level": 34,
+                "coefficient": 0.4630729854106903
+              },
+              {
+                "level": 35,
+                "coefficient": 0.47953999042510986
+              },
+              {
+                "level": 36,
+                "coefficient": 0.49619200825691223
+              },
+              {
+                "level": 37,
+                "coefficient": 0.5130320191383362
+              },
+              {
+                "level": 38,
+                "coefficient": 0.5300620198249817
+              },
+              {
+                "level": 39,
+                "coefficient": 0.5472829937934875
+              },
+              {
+                "level": 40,
+                "coefficient": 0.5646979808807373
+              },
+              {
+                "level": 41,
+                "coefficient": 0.5823090076446533
+              },
+              {
+                "level": 42,
+                "coefficient": 0.6001179814338684
+              },
+              {
+                "level": 43,
+                "coefficient": 0.6181269884109497
+              },
+              {
+                "level": 44,
+                "coefficient": 0.6363400220870972
+              },
+              {
+                "level": 45,
+                "coefficient": 0.654757022857666
+              },
+              {
+                "level": 46,
+                "coefficient": 0.6733819842338562
+              },
+              {
+                "level": 47,
+                "coefficient": 0.6922159790992737
+              },
+              {
+                "level": 48,
+                "coefficient": 0.7112619876861572
+              },
+              {
+                "level": 49,
+                "coefficient": 0.7305229902267456
+              },
+              {
+                "level": 50,
+                "coefficient": 0.75
+              }
+            ]
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "즉시 회복",
+            "l": [
+              "공격력의 3.1% + 2,800만큼 최대 1회 회복합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -31410,6 +35106,444 @@
         "scope": "아군·자신",
         "range": 5,
         "kind": null
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 0.39,
+            "u": "%",
+            "m": "factor",
+            "fl": [
+              {
+                "level": 1,
+                "coefficient": 0.011254999786615372
+              },
+              {
+                "level": 2,
+                "coefficient": 0.022637000307440758
+              },
+              {
+                "level": 3,
+                "coefficient": 0.034147001802921295
+              },
+              {
+                "level": 4,
+                "coefficient": 0.04578699916601181
+              },
+              {
+                "level": 5,
+                "coefficient": 0.05755700170993805
+              },
+              {
+                "level": 6,
+                "coefficient": 0.06945999711751938
+              },
+              {
+                "level": 7,
+                "coefficient": 0.08149699866771698
+              },
+              {
+                "level": 8,
+                "coefficient": 0.09366899728775024
+              },
+              {
+                "level": 9,
+                "coefficient": 0.10597900301218033
+              },
+              {
+                "level": 10,
+                "coefficient": 0.11842700093984604
+              },
+              {
+                "level": 11,
+                "coefficient": 0.13101500272750854
+              },
+              {
+                "level": 12,
+                "coefficient": 0.14374500513076782
+              },
+              {
+                "level": 13,
+                "coefficient": 0.15661799907684326
+              },
+              {
+                "level": 14,
+                "coefficient": 0.16963599622249603
+              },
+              {
+                "level": 15,
+                "coefficient": 0.18279999494552612
+              },
+              {
+                "level": 16,
+                "coefficient": 0.1961130052804947
+              },
+              {
+                "level": 17,
+                "coefficient": 0.20957499742507935
+              },
+              {
+                "level": 18,
+                "coefficient": 0.22318899631500244
+              },
+              {
+                "level": 19,
+                "coefficient": 0.23695699870586395
+              },
+              {
+                "level": 20,
+                "coefficient": 0.2508789896965027
+              },
+              {
+                "level": 21,
+                "coefficient": 0.264957994222641
+              },
+              {
+                "level": 22,
+                "coefficient": 0.27919501066207886
+              },
+              {
+                "level": 23,
+                "coefficient": 0.29359298944473267
+              },
+              {
+                "level": 24,
+                "coefficient": 0.3081519901752472
+              },
+              {
+                "level": 25,
+                "coefficient": 0.3228760063648224
+              },
+              {
+                "level": 26,
+                "coefficient": 0.33776500821113586
+              },
+              {
+                "level": 27,
+                "coefficient": 0.3528220057487488
+              },
+              {
+                "level": 28,
+                "coefficient": 0.3680480122566223
+              },
+              {
+                "level": 29,
+                "coefficient": 0.38344600796699524
+              },
+              {
+                "level": 30,
+                "coefficient": 0.39901599287986755
+              },
+              {
+                "level": 31,
+                "coefficient": 0.4147630035877228
+              },
+              {
+                "level": 32,
+                "coefficient": 0.43068599700927734
+              },
+              {
+                "level": 33,
+                "coefficient": 0.4467889964580536
+              },
+              {
+                "level": 34,
+                "coefficient": 0.4630729854106903
+              },
+              {
+                "level": 35,
+                "coefficient": 0.47953999042510986
+              },
+              {
+                "level": 36,
+                "coefficient": 0.49619200825691223
+              },
+              {
+                "level": 37,
+                "coefficient": 0.5130320191383362
+              },
+              {
+                "level": 38,
+                "coefficient": 0.5300620198249817
+              },
+              {
+                "level": 39,
+                "coefficient": 0.5472829937934875
+              },
+              {
+                "level": 40,
+                "coefficient": 0.5646979808807373
+              },
+              {
+                "level": 41,
+                "coefficient": 0.5823090076446533
+              },
+              {
+                "level": 42,
+                "coefficient": 0.6001179814338684
+              },
+              {
+                "level": 43,
+                "coefficient": 0.6181269884109497
+              },
+              {
+                "level": 44,
+                "coefficient": 0.6363400220870972
+              },
+              {
+                "level": 45,
+                "coefficient": 0.654757022857666
+              },
+              {
+                "level": 46,
+                "coefficient": 0.6733819842338562
+              },
+              {
+                "level": 47,
+                "coefficient": 0.6922159790992737
+              },
+              {
+                "level": 48,
+                "coefficient": 0.7112619876861572
+              },
+              {
+                "level": 49,
+                "coefficient": 0.7305229902267456
+              },
+              {
+                "level": 50,
+                "coefficient": 0.75
+              }
+            ]
+          },
+          {
+            "k": "0:0:3",
+            "v": 400,
+            "u": "",
+            "m": "factor",
+            "fl": [
+              {
+                "level": 1,
+                "coefficient": 0.011254999786615372
+              },
+              {
+                "level": 2,
+                "coefficient": 0.022637000307440758
+              },
+              {
+                "level": 3,
+                "coefficient": 0.034147001802921295
+              },
+              {
+                "level": 4,
+                "coefficient": 0.04578699916601181
+              },
+              {
+                "level": 5,
+                "coefficient": 0.05755700170993805
+              },
+              {
+                "level": 6,
+                "coefficient": 0.06945999711751938
+              },
+              {
+                "level": 7,
+                "coefficient": 0.08149699866771698
+              },
+              {
+                "level": 8,
+                "coefficient": 0.09366899728775024
+              },
+              {
+                "level": 9,
+                "coefficient": 0.10597900301218033
+              },
+              {
+                "level": 10,
+                "coefficient": 0.11842700093984604
+              },
+              {
+                "level": 11,
+                "coefficient": 0.13101500272750854
+              },
+              {
+                "level": 12,
+                "coefficient": 0.14374500513076782
+              },
+              {
+                "level": 13,
+                "coefficient": 0.15661799907684326
+              },
+              {
+                "level": 14,
+                "coefficient": 0.16963599622249603
+              },
+              {
+                "level": 15,
+                "coefficient": 0.18279999494552612
+              },
+              {
+                "level": 16,
+                "coefficient": 0.1961130052804947
+              },
+              {
+                "level": 17,
+                "coefficient": 0.20957499742507935
+              },
+              {
+                "level": 18,
+                "coefficient": 0.22318899631500244
+              },
+              {
+                "level": 19,
+                "coefficient": 0.23695699870586395
+              },
+              {
+                "level": 20,
+                "coefficient": 0.2508789896965027
+              },
+              {
+                "level": 21,
+                "coefficient": 0.264957994222641
+              },
+              {
+                "level": 22,
+                "coefficient": 0.27919501066207886
+              },
+              {
+                "level": 23,
+                "coefficient": 0.29359298944473267
+              },
+              {
+                "level": 24,
+                "coefficient": 0.3081519901752472
+              },
+              {
+                "level": 25,
+                "coefficient": 0.3228760063648224
+              },
+              {
+                "level": 26,
+                "coefficient": 0.33776500821113586
+              },
+              {
+                "level": 27,
+                "coefficient": 0.3528220057487488
+              },
+              {
+                "level": 28,
+                "coefficient": 0.3680480122566223
+              },
+              {
+                "level": 29,
+                "coefficient": 0.38344600796699524
+              },
+              {
+                "level": 30,
+                "coefficient": 0.39901599287986755
+              },
+              {
+                "level": 31,
+                "coefficient": 0.4147630035877228
+              },
+              {
+                "level": 32,
+                "coefficient": 0.43068599700927734
+              },
+              {
+                "level": 33,
+                "coefficient": 0.4467889964580536
+              },
+              {
+                "level": 34,
+                "coefficient": 0.4630729854106903
+              },
+              {
+                "level": 35,
+                "coefficient": 0.47953999042510986
+              },
+              {
+                "level": 36,
+                "coefficient": 0.49619200825691223
+              },
+              {
+                "level": 37,
+                "coefficient": 0.5130320191383362
+              },
+              {
+                "level": 38,
+                "coefficient": 0.5300620198249817
+              },
+              {
+                "level": 39,
+                "coefficient": 0.5472829937934875
+              },
+              {
+                "level": 40,
+                "coefficient": 0.5646979808807373
+              },
+              {
+                "level": 41,
+                "coefficient": 0.5823090076446533
+              },
+              {
+                "level": 42,
+                "coefficient": 0.6001179814338684
+              },
+              {
+                "level": 43,
+                "coefficient": 0.6181269884109497
+              },
+              {
+                "level": 44,
+                "coefficient": 0.6363400220870972
+              },
+              {
+                "level": 45,
+                "coefficient": 0.654757022857666
+              },
+              {
+                "level": 46,
+                "coefficient": 0.6733819842338562
+              },
+              {
+                "level": 47,
+                "coefficient": 0.6922159790992737
+              },
+              {
+                "level": 48,
+                "coefficient": 0.7112619876861572
+              },
+              {
+                "level": 49,
+                "coefficient": 0.7305229902267456
+              },
+              {
+                "level": 50,
+                "coefficient": 0.75
+              }
+            ]
+          },
+          {
+            "k": "0:0:5",
+            "v": 5,
+            "u": "회",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "체력 지속 회복",
+            "l": [
+              "공격력의 0.3% + 400만큼 최대 5회 회복합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -31795,6 +35929,35 @@
         "radius": 3,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 6.5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "피해 증가",
+            "l": [
+              "적에게 주는 피해를 6.5% 증가합니다."
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "불사",
+            "l": [
+              "일정 시간 불사 상태가 되어 사망하지 않습니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -32161,6 +36324,35 @@
         "radius": 5,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 6.5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "피해 증가",
+            "l": [
+              "적에게 주는 피해를 6.5% 증가합니다."
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "받는 피해 감소",
+            "l": [
+              "받는 피해를 9.7% 감소시킵니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -32566,6 +36758,70 @@
         "radius": 2.5,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 0.5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          },
+          {
+            "k": "2:0:1",
+            "v": 13,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          },
+          {
+            "k": "3:0:1",
+            "v": 8,
+            "u": "%",
+            "m": "constant",
+            "fl": null
+          }
+        ],
+        "awakening": null,
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "보호막",
+            "l": [
+              "최대 체력의 0.5% + 3,100 보호막 적용"
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "치명타 적중 증가",
+            "l": [
+              "치명타 적중 13 증가"
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "치명타 피해 증가",
+            "l": [
+              "치명타 피해 13% 증가"
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "도술 재사용 대기시간 감소",
+            "l": [
+              "도술 재사용 대기시간 8% 감소"
+            ]
+          },
+          {
+            "t": "강화",
+            "n": "슈퍼 아머",
+            "l": [
+              "모든 군중 제어 효과에 면역이 됩니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -32916,6 +37172,20 @@
         "scope": "아군·자신",
         "range": 5.5,
         "kind": null
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "탐지 (은신)",
+            "l": [
+              "은신을 감지합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -33283,6 +37553,42 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          },
+          {
+            "k": "1:0:1",
+            "v": 5,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "받는 피해 감소",
+            "l": [
+              "받는 피해를 5% 감소시킵니다."
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "받는 피해 증가",
+            "l": [
+              "대상이 받는 피해가 5% 증가합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -33635,6 +37941,20 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "침묵",
+            "l": [
+              "대상을 침묵시켜 도술 사용을 막습니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -33987,6 +38307,28 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 50,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "회복량 감소",
+            "l": [
+              "대상이 시전하는 회복량을 50% 감소시킵니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -34336,6 +38678,28 @@
         "scope": "적",
         "range": 5.5,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 30,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "이동 속도 감소",
+            "l": [
+              "이동 속도가 30% 감소합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -34688,6 +39052,20 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "이동속도 감소",
+            "l": [
+              "이동 속도가 50% 감소합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -35047,6 +39425,20 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "보호막 제거",
+            "l": [
+              "대상의 보호막을 제거합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -35398,6 +39790,12 @@
         "radius": 2.5,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": null,
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": []
       }
     },
     {
@@ -35747,6 +40145,20 @@
         "scope": "적",
         "range": 5,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "변이",
+            "l": [
+              "변이 상태가 되어 이동을 제외한 행동을 할 수 없으며, 피해를 받으면 해제됩니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -36099,6 +40511,20 @@
         "radius": 5.5,
         "radiusAssumed": true,
         "basis": "방향 지정 · 사거리를 길이로 사용 · 부채꼴 각도 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "침묵",
+            "l": [
+              "대상을 침묵시켜 도술 사용을 막습니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -36448,6 +40874,20 @@
         "scope": "적",
         "range": 4,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "속박",
+            "l": [
+              "대상을 속박시켜 이동을 제한합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -36809,6 +41249,35 @@
         "scope": "적",
         "range": 5,
         "kind": "single"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 10,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "이동속도 감소",
+            "l": [
+              "이동 속도가 10% 감소합니다."
+            ]
+          },
+          {
+            "t": "약화",
+            "n": "빙결",
+            "l": [
+              "대상을 빙결시켜 행동 불가 상태로 만듭니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -37161,6 +41630,20 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "수면",
+            "l": [
+              "수면 상태가 되어 행동할 수 없습니다. 피해를 받으면 해제됩니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -37515,6 +41998,20 @@
         "radius": 2.8,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "기절",
+            "l": [
+              "대상을 기절시켜 행동 불가 상태로 만듭니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -37867,6 +42364,28 @@
         "radius": 2.4,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [
+          {
+            "k": "0:0:1",
+            "v": 50,
+            "u": "%",
+            "m": "base",
+            "fl": null
+          }
+        ],
+        "awakening": "Active_Heroic",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "이동속도 감소",
+            "l": [
+              "이동 속도가 50% 감소합니다."
+            ]
+          }
+        ]
       }
     },
     {
@@ -38226,6 +42745,20 @@
         "radius": 2,
         "radiusAssumed": true,
         "basis": "지면 지정 · 지점 주변 반경 2m 가정"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": "Active_Legendary",
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "약화",
+            "n": "얼어붙은 다리",
+            "l": [
+              "이동 속도가 중첩당 15% 감소합니다. (최대 3중첩)"
+            ]
+          }
+        ]
       }
     },
     {
@@ -38571,6 +43104,21 @@
         "radius": 5,
         "radiusAssumed": false,
         "basis": "자신 중심 · 사거리를 반경으로 사용"
+      },
+      "referenceProgression": {
+        "effects": [],
+        "awakening": null,
+        "source": "https://kkaebigg.com/data/skills.json",
+        "hit": [
+          {
+            "t": "강화",
+            "n": "슈퍼 아머",
+            "l": [
+              "모든 군중 제어 효과에 면역이 됩니다.",
+              "연계 도술"
+            ]
+          }
+        ]
       }
     }
   ],
@@ -38719,5 +43267,49 @@
         "d": "강화된 궁극기에 피격당한 적은 푸른 사슬 효과를 받는다"
       }
     ]
+  },
+  "shinsikEventRules": {
+    "척살": {
+      "source": "https://kkaebigg.com/skills/cheoksal/",
+      "checkedAt": "2026-10-18",
+      "killEnergy": 100.0,
+      "maximum": 100.0,
+      "stackLife": 30.0,
+      "stackCap": 10.0,
+      "damagePerStack": 2.0
+    },
+    "강인": {
+      "source": "https://kkaebigg.com/skills/gangin/",
+      "checkedAt": "2026-10-18",
+      "hitEnergy": 20.0,
+      "hitCooldown": 2.0,
+      "maximum": 100.0
+    },
+    "기동": {
+      "source": "https://kkaebigg.com/skills/gidong/",
+      "checkedAt": "2026-10-18",
+      "dodgeEnergy": 30.0,
+      "maximum": 200.0,
+      "chainLife": 10.0
+    },
+    "저격": {
+      "source": "https://kkaebigg.com/skills/jeogyeok/",
+      "checkedAt": "2026-10-18",
+      "dodgeEnergy": 100.0,
+      "maximum": 100.0
+    },
+    "기만": {
+      "source": "https://kkaebigg.com/skills/giman/",
+      "checkedAt": "2026-10-18",
+      "illusionCap": 5.0
+    },
+    "제압": {
+      "source": "https://kkaebigg.com/skills/jeap/",
+      "checkedAt": "2026-10-18",
+      "rootLife": 2.0,
+      "ampLife": 10.0,
+      "ampPerStack": 2.0,
+      "ampCap": 9.0
+    }
   }
 }

@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),D=require('./dist/data.json'),C=require('./dist/combat.js'),H=require('./dist/hit-timing.js'),F=require('./dist/shinsik.js');
+const id=n=>D.skills.find(s=>s.name===n).id,base=['쌍검 가르기','도약 찌르기','휩쓸어 베기'].map(id),u=id('연속 쇄도');
+const r=C.run({...D,baseSlots:base,executionPolicy:{disabled:base}},[u,...base],20);
+assert.equal(r.events.length,4);assert.deepEqual(r.events.map(e=>e.recastStage),[1,2,3,4]);
+assert(r.events.every(e=>e.cooldownEnd===30));assert.equal(r.procs.filter(p=>p.name==='영력 획득').length,4);
+assert.deepEqual(r.hits.map(h=>h.hitIndex),[1,2,3,4]);assert.equal(r.hits.length,4);
+const skill=D.skills.find(s=>s.id===u),sum=r.events.reduce((n,e)=>n+F.eventCoefficient(skill,e),0);
+assert(Math.abs(sum-F.eventCoefficient(skill))<1e-8,'Recasts partition total damage rather than multiply it');
+const preview=F.preview(D,r);assert(Math.abs(preview.base-sum)<.01);
+assert.equal(r.events[3].end,1.8,'Four source 450ms motions; no video-fitted correction');
+console.log('Recast execution: four uses, one shared cooldown, four source hits, conserved coefficient, cast energy.');
