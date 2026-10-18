@@ -1,8 +1,9 @@
 (function(root){
 'use strict';
-// Generic build search: keeps the current ultimate and slot count, then searches skills, order and base equipment.
+// Generic build search: keeps the slot count, then searches the ultimate (any one of the allowed families), skills, order
+// and base equipment. Switching the ultimate brings in three of its family and re-fits the base slots for its condition.
 // Sustain amounts are parsed from skill text; durations and overwrite rules come from the kkaebigg buff dictionary snapshot.
-// Incoming damage is a user input or a measurement; monster attack data does not exist in any source.
+// Incoming damage per monster is a user input or a measurement; how many monsters attack comes from zone density (hunt).
 const Sim=typeof module!=='undefined'?require('./simulation.js'):root.DosulSimulation;
 const Q=typeof module!=='undefined'?require('./sequence.js'):root.DosulSequence;
 const K=typeof module!=='undefined'?require('./kkaebigg.js'):root.DosulKkaebigg;
@@ -119,14 +120,77 @@ function zoneSummary(zone){
   attack:round(avg('attack')),maxAttack:Math.max(...ms.map(m=>m.attack)),hp:round(avg('hp')),maxHp:Math.max(...ms.map(m=>m.hp))};
 }
 function zoneScale(from,to){const a=zoneSummary(from),b=zoneSummary(to);return a&&b&&a.attack>0?b.attack/a.attack:1;}
+
+// Monsters never attack first: only the ones a skill has hit fight back. An area attack therefore pulls every monster
+// standing in its area, and they keep attacking until they die.
+// Calibrated on the 2026-10-18 recordings in 독기 지대: 불굴's 5 m ring (456 px wide) against the ~7 monsters on screen
+// gives the map scale; kill speed on the target bar (≈9.8 kills/min, 45k HP) against coefficient × attack gives the share
+// of the coefficient that ends up as damage (defence, crits and walking between monsters included).
+const M_PER_PX=0.95,DAMAGE_RATE=0.155;
+const pullCache=new Map();
+function spawnPoints(zone){
+ if(!zone?.map?.width||!zone.monsters)return [];
+ return zone.monsters.flatMap(m=>(m.points||m.spawn?.points||[]).map(([x,y])=>[x/100*zone.map.width*M_PER_PX,y/100*zone.map.height*M_PER_PX]));
+}
+// Monsters per square metre around a monster (where the player fights). Spawn points sit 3 m+ apart but monsters roam,
+// so density is averaged over a 12 m neighbourhood instead of counting exact neighbours.
+const DENSITY_RADIUS=12;
+function density(zone){
+ if(!zone)return 0;if(pullCache.has(zone.id))return pullCache.get(zone.id);
+ const p=spawnPoints(zone),r2=DENSITY_RADIUS**2;let n=0;for(const a of p)for(const b of p)if(a!==b&&(a[0]-b[0])**2+(a[1]-b[1])**2<=r2)n++;
+ const v=p.length?n/p.length/(Math.PI*r2):0;pullCache.set(zone.id,v);return v;
+}
+// Expected number of other monsters inside an area of the given radius.
+function pull(zone,radius){return radius>0?density(zone)*Math.PI*radius*radius:0;}
+// Radius of a circle with the same area as the attack shape.
+function reach(g){
+ if(g.kind==='circle'||g.kind==='target'||g.kind==='chain')return g.radius;
+ if(g.kind==='line')return Math.sqrt(g.radius*g.width/Math.PI);
+ if(g.kind==='cone')return Math.sqrt(g.angle/2*g.radius*g.radius/Math.PI);
+ return 0;
+}
+function castCoefficient(s){const n=s.referenceNumbers||{},ds=n.cm?[n.dc?.at(-1)].filter(Boolean):n.dc||[];return ds.reduce((a,d)=>a+(Number.isFinite(d.basic_coefficient)?d.basic_coefficient*d.hits:0),0);}
+// Expected-value hunt over the cast timeline: single-target hits finish one monster at a time, area hits pull the
+// monsters in range (up to the target cap) and damage every engaged one. Returns the time-averaged number of monsters
+// attacking the player and kills per minute in the zone. The next monster is engaged as soon as one dies, so a
+// single-target build always fights exactly one (faster kills never look like less damage taken).
+function hunt(run,data,zone,attack,rate=DAMAGE_RATE){
+ const hp=zoneSummary(zone)?.hp;if(!hp||!(attack>0))return null;
+ const byId=Object.fromEntries(data.skills.map(s=>[s.id,s])),events=run.schedule.events.filter(e=>e.completed&&e.end<=run.horizon).sort((a,b)=>a.end-b.end);
+ let groups=[{w:1,h:hp}],t=0,alive=0,kills=0,pulled=0;const engaged=()=>groups.reduce((a,g)=>a+g.w,0);
+ // Never fewer than one monster: when the engaged ones are (expected to be) dead, the next one is engaged.
+ const engageNext=()=>{const w=engaged();if(w<1-1e-9)groups.push({w:1-w,h:hp});};
+ for(const e of events){
+  const s=byId[e.id],g=Sim.geometry(s),coef=castCoefficient(s);if(g.kind==='support'||g.kind==='unknown'||!coef)continue;
+  alive+=engaged()*(e.end-t);t=e.end;if(!groups.length)groups.push({w:1,h:hp});
+  const d=rate*attack*coef/100;
+  if(g.kind==='single'){
+   if(groups[0].w>1){const f=groups[0];groups.splice(0,1,{w:1,h:f.h},{w:f.w-1,h:f.h});}
+   const f=groups[0];if(d>=f.h){kills+=f.w;groups.shift();engageNext();}else f.h-=d;continue;
+  }
+  // Monsters near the target are already engaged; only the rest of the expected neighbourhood joins.
+  const near=Math.min(Math.max(0,g.cap-1),pull(zone,reach(g))),fresh=Math.max(0,near-(engaged()-1));
+  if(fresh>1e-9){groups.push({w:fresh,h:hp});pulled+=fresh;}
+  const hit=Math.min(1,g.cap/Math.max(engaged(),1e-9));
+  for(const x of groups)x.h-=d*hit;
+  for(const x of groups.filter(x=>x.h<=0))kills+=x.w;groups=groups.filter(x=>x.h>0);engageNext();
+ }
+ alive+=engaged()*(run.horizon-t);
+ return {attackers:round(alive/run.horizon*1000)/1000,killsPerMin:round(kills/(run.horizon/60)),pulledPerMin:round(pulled/(run.horizon/60)),monsterHp:hp};
+}
 function evaluate(data,ids,baseSlots,ctx){
  const v=Q.validate({...data,baseSlots},ids);if(v.issues.length)return {valid:false,issue:v.issues.join(' / ')};
  const run=Sim.run({...data,baseSlots},ids,ctx.profile||PROFILES[0],ctx.horizon||180);
  if(run.validation.issues.length||run.schedule.missing.length)return {valid:false,issue:[...run.validation.issues,...run.schedule.missing].join(' / ')};
  const multi=run.impacts.filter(i=>i.targets.length>1).length;
  if(ctx.singleOnly&&multi)return {valid:false,issue:'여러 대상 동시 적중'};
- const s=sustain(run,data,ids,ctx.stats,ctx.overrides,{incoming:ctx.incoming,snapshot:ctx.snapshot}),partial=run.rows.filter(r=>r.unknown.includes('피해 계수')).map(r=>r.name);
- const out={valid:true,coefficient:round(run.metrics.coefficient),perMin:s.perMin,full:s.full,modeled:s.modeled,rows:s.rows,unquantified:s.unquantified,multiTargetHits:multi,partial,active:run.schedule.active};
+ // With a zone, power is kills per minute and incoming damage grows with the monsters the build pulls.
+ const h=ctx.zone?hunt(run,data,ctx.zone,Number(ctx.stats?.attack)):null,attackers=h?h.attackers:1;
+ const incoming=Number(ctx.perMob)>0?round(ctx.perMob*attackers):ctx.incoming;
+ const s=sustain(run,data,ids,ctx.stats,ctx.overrides,{incoming,snapshot:ctx.snapshot}),partial=run.rows.filter(r=>r.unknown.includes('피해 계수')).map(r=>r.name);
+ const need=Number(ctx.perMob)>0?round(incoming-(Number(ctx.regenPerMin)||0)+(Number(ctx.margin)||0)):ctx.need;
+ const out={valid:true,coefficient:round(run.metrics.coefficient),power:h?h.killsPerMin:round(run.metrics.coefficient),hunt:h,attackers,incoming:incoming??null,need:need??null,
+  perMin:s.perMin,full:s.full,modeled:s.modeled,rows:s.rows,unquantified:s.unquantified,multiTargetHits:multi,partial,active:run.schedule.active,idle:round(run.schedule.wait),casts:run.schedule.casts};
  // Calibration re-runs the shield timeline on the same simulation at other incoming values.
  if(ctx.keepRun)out.sustainAt=incoming=>sustain(run,data,ids,ctx.stats,ctx.overrides,{incoming,snapshot:ctx.snapshot}).perMin;
  return out;
@@ -136,11 +200,37 @@ function verify(data,ids,baseSlots,ctx){
  let worst=null;const runs=[];
  for(const horizon of HORIZONS)for(const profile of PROFILES){
   const r=evaluate(data,ids,baseSlots,{...ctx,keepRun:false,profile,horizon});if(!r.valid)return {valid:false,issue:`${profile}/${horizon}초: ${r.issue}`};
-  runs.push({profile,horizon,coefficient:r.coefficient,perMin:r.perMin});
-  if(!worst||r.perMin<worst.perMin)worst={...r,profile,horizon};
+  const need=r.need??ctx.need;runs.push({profile,horizon,coefficient:r.coefficient,power:r.power,perMin:r.perMin,need,attackers:r.attackers,incoming:r.incoming});
+  const room=need===null||need===undefined?r.perMin:r.perMin-need;
+  if(!worst||room<worst.room)worst={...r,profile,horizon,room,need};
  }
- const long=runs.filter(r=>r.horizon===180);
- return {valid:true,minPerMin:worst.perMin,minCoefficient:Math.min(...long.map(r=>r.coefficient)),margin:ctx.need===null||ctx.need===undefined?null:round(worst.perMin-ctx.need),worst,runs};
+ const long=runs.filter(r=>r.horizon===180),hasNeed=worst.need!==null&&worst.need!==undefined;
+ return {valid:true,minPerMin:worst.perMin,minCoefficient:Math.min(...long.map(r=>r.coefficient)),minPower:Math.min(...long.map(r=>r.power)),
+  attackers:Math.max(...long.map(r=>r.attackers)),incoming:worst.incoming,need:hasNeed?worst.need:null,margin:hasNeed?round(worst.room):null,worst,runs};
+}
+// What would make a build survive, one lever at a time, solved on the build's worst preset (profile and length) so the
+// target matches the verification: incoming damage cut, natural regen, max HP, attack, and the zones where it already holds (hardest first).
+// Each value is the smallest change that reaches the need (which includes the safety margin); null = that lever alone is not enough.
+function improvements(data,ids,baseSlots,ctx,opts={}){
+ const v=verify(data,ids,baseSlots,ctx);if(!v.valid)return null;
+ const w=v.worst,wctx={...ctx,profile:w.profile,horizon:w.horizon},st=ctx.stats||{};
+ const room=c=>{const r=evaluate(data,ids,baseSlots,c);return r.valid?r.perMin-r.need:-Infinity;};
+ const solve=(make,lo,hi)=>{if(room(make(hi))<0)return null;for(let i=0;i<14;i++){const m=(lo+hi)/2;if(room(make(m))>=0)hi=m;else lo=m;}return hi;};
+ const deficit=Math.max(0,round(w.need-w.perMin)),out={deficit,profile:w.profile,horizon:w.horizon,perMob:ctx.perMob};
+ const period=Number(st.regenPeriod)||5,regen=Number(st.regen)||0;
+ out.regen={from:regen,to:Math.ceil(regen+deficit/(60/period))};
+ if(deficit>0){
+  const cut=solve(f=>({...wctx,perMob:ctx.perMob*(1-f)}),0,0.95);out.incomingCut=cut===null?null:Math.ceil(cut*1000)/10;
+  const hp=solve(f=>({...wctx,stats:{...st,maxHp:st.maxHp*f}}),1,4);out.maxHp=hp===null?null:{from:st.maxHp,to:Math.ceil(st.maxHp*hp)};
+  const atk=solve(f=>({...wctx,stats:{...st,attack:st.attack*f}}),1,4);out.attack=atk===null?null:{from:st.attack,to:Math.ceil(st.attack*atk)};
+ }else{out.incomingCut=0;out.maxHp={from:st.maxHp,to:st.maxHp};out.attack={from:st.attack,to:st.attack};}
+ // Zones: damage per monster moves with the spawn-weighted attack ratio; density and monster HP come from each zone.
+ if(opts.zones&&ctx.zone){
+  out.zones=opts.zones.map(z=>{const r=evaluate(data,ids,baseSlots,{...wctx,zone:z,perMob:ctx.perMob*zoneScale(ctx.zone,z)});
+   return r.valid?{id:z.id,name:z.name,recommendedPower:z.recommendedPower,killsPerMin:r.power,room:round(r.perMin-r.need)}:null;})
+   .filter(x=>x&&x.room>=0).sort((a,b)=>b.recommendedPower-a.recommendedPower||b.killsPerMin-a.killsPerMin);
+ }
+ return out;
 }
 function pool(data,ids,{families,singleOnly}){
  const keep=new Set(ids.filter(id=>!data.skills.find(s=>s.id===id)?.ultimate));
@@ -148,37 +238,60 @@ function pool(data,ids,{families,singleOnly}){
 }
 function rng(seed){let x=(seed>>>0)||1;return ()=>((x=(Math.imul(x,1664525)+1013904223)>>>0)/4294967296);}
 function createSearch(data,current,opts){
- const ult=current.ids.find(id=>data.skills.find(s=>s.id===id)?.ultimate)||null,normals=current.ids.filter(id=>id!==ult);
- const ctx={stats:opts.stats,overrides:opts.overrides||{},singleOnly:!!opts.singleOnly,profile:opts.profile||'185547',horizon:180,need:opts.need,incoming:opts.incoming,snapshot:opts.snapshot};
+ const byId=Object.fromEntries(data.skills.map(s=>[s.id,s])),isUlt=id=>!!byId[id]?.ultimate;
+ const ult=current.ids.find(isUlt)||null,normals=current.ids.filter(id=>id!==ult);
+ const ctx={stats:opts.stats,overrides:opts.overrides||{},singleOnly:!!opts.singleOnly,profile:opts.profile||'185547',horizon:180,need:opts.need,incoming:opts.incoming,snapshot:opts.snapshot,
+  zone:opts.zone||null,perMob:opts.perMob,regenPerMin:opts.regenPerMin,margin:opts.margin};
  const candidates=pool(data,current.ids,opts),cache=new Map(),archive=new Map(),random=rng(opts.seed||20261018);
- const total=Math.max(30,opts.iterations||4000),chains=Math.max(1,opts.chains||3),perChain=Math.ceil(total/chains);
+ // Only a build that already has an ultimate may switch it; ultimates of unchecked families (locked) never enter.
+ const ultimates=ult?[...new Set([ult,...data.skills.filter(s=>s.ultimate&&(opts.families||[]).includes(s.family)&&typeof s.basic?.cooldown==='number').map(s=>s.id)])]:[];
+ // `iterations` is spread over the near chains as before; far chains add the same per-chain budget and must keep
+ // at least FAR skills different from the current build, so the "different builds" group is really explored.
+ const FAR=4,nearChains=Math.max(1,opts.chains||3),farChains=Math.max(0,opts.farChains??2),perChain=Math.ceil(Math.max(30,opts.iterations||4000)/nearChains),total=perChain*(nearChains+farChains),chains=nearChains+farChains;
+ const changed=s=>s.ids.filter(id=>!current.ids.includes(id)).length;
  const key=s=>s.ids.join()+'|'+[...s.base].sort().join();
  const ev=s=>{const k=key(s);if(!cache.has(k))cache.set(k,evaluate(data,s.ids,s.base,ctx));return cache.get(k);};
  const start={ids:[...current.ids],base:[...current.baseSlots]},startEval=ev(start);
- const scale=Math.max(1,startEval.valid?startEval.coefficient:1),need=ctx.need;
- const penalty=r=>need===null||need===undefined?0:Math.max(0,need-r.perMin)*3*scale/Math.max(need,1);
- // Equal damage is common (order changes nothing); the tiny sustain term breaks those ties toward more room.
- const score=r=>r.valid?r.coefficient-penalty(r)+r.perMin*1e-4:-Infinity;
- const feasible=r=>r.valid&&(need===null||need===undefined||r.perMin>=need);
+ // Each build has its own need: pulling more monsters raises the damage it must absorb.
+ const scale=Math.max(1e-6,startEval.valid?startEval.power:1),needOf=r=>r.need??ctx.need,has=n=>n!==null&&n!==undefined;
+ const penalty=r=>{const need=needOf(r);return has(need)?Math.max(0,need-r.perMin)*3*scale/Math.max(need,1):0;};
+ // Equal power is common (order changes nothing); the tiny sustain term breaks those ties toward more room.
+ const score=r=>r.valid?r.power-penalty(r)+(r.perMin-(needOf(r)||0))*1e-9*scale:-Infinity;
+ const feasible=r=>r.valid&&(!has(needOf(r))||r.perMin>=needOf(r));
  let cur=start,curScore=score(startEval),done=0,chain=0,temp=0.03*scale;
  const pick=a=>a[Math.floor(random()*a.length)];
+ // New ultimate in the same slot; skills of its family replace others until three are in the build, then the base
+ // slots are re-fitted so the ultimate's condition (three of its family equipped) holds.
+ function switchUltimate(s,u){
+  const n={ids:[...s.ids],base:[...s.base]},old=n.ids.find(isUlt);if(!old||!u||u===old)return n;n.ids[n.ids.indexOf(old)]=u;
+  const fam=byId[u].family,own=()=>n.ids.filter(id=>!isUlt(id)&&byId[id].family===fam).length,avail=candidates.filter(id=>byId[id].family===fam&&!n.ids.includes(id));
+  while(own()<3&&avail.length){const out=pick(n.ids.filter(id=>!isUlt(id)&&byId[id].family!==fam));if(!out)break;const inn=avail.splice(Math.floor(random()*avail.length),1)[0];n.ids[n.ids.indexOf(out)]=inn;const bi=n.base.indexOf(out);if(bi>=0)n.base[bi]=inn;}
+  n.base=Q.fit(data,n.ids,n.base);return n;
+ }
+ function replaceOne(s){const n={ids:[...s.ids],base:[...s.base]},out=pick(n.ids.filter(id=>!isUlt(id)&&current.ids.includes(id))||[]),avail=candidates.filter(id=>!n.ids.includes(id));if(!out||!avail.length)return n;const inn=pick(avail);n.ids[n.ids.indexOf(out)]=inn;const bi=n.base.indexOf(out);if(bi>=0)n.base[bi]=inn;return n;}
  function mutate(s){
   const n={ids:[...s.ids],base:[...s.base]},m=random();
+  // Only the ultimate-exploring far chain switches ultimates; the other chains keep the current one.
+  if(ultimates.length>1&&chain>=nearChains&&(chain-nearChains)%2===1&&random()<0.05)return switchUltimate(s,pick(ultimates.filter(u=>!n.ids.includes(u))));
   if(m<0.35){const a=Math.floor(random()*n.ids.length),b=Math.floor(random()*n.ids.length);[n.ids[a],n.ids[b]]=[n.ids[b],n.ids[a]];}
   else if(m<0.6){const a=Math.floor(random()*n.ids.length),b=Math.floor(random()*n.ids.length);const [x]=n.ids.splice(a,1);n.ids.splice(b,0,x);}
-  else if(m<0.85){const out=pick(n.ids.filter(id=>id!==ult)),avail=candidates.filter(id=>!n.ids.includes(id));if(!out||!avail.length)return n;const inn=pick(avail);n.ids[n.ids.indexOf(out)]=inn;const bi=n.base.indexOf(out);if(bi>=0)n.base[bi]=inn;}
-  else{const avail=n.ids.filter(id=>id!==ult&&!n.base.includes(id));if(!avail.length||!n.base.length)return n;n.base[Math.floor(random()*n.base.length)]=pick(avail);}
+  else if(m<0.85){const out=pick(n.ids.filter(id=>!isUlt(id))),avail=candidates.filter(id=>!n.ids.includes(id));if(!out||!avail.length)return n;const inn=pick(avail);n.ids[n.ids.indexOf(out)]=inn;const bi=n.base.indexOf(out);if(bi>=0)n.base[bi]=inn;}
+  else{const avail=n.ids.filter(id=>!isUlt(id)&&!n.base.includes(id));if(!avail.length||!n.base.length)return n;n.base[Math.floor(random()*n.base.length)]=pick(avail);}
   return n;
  }
- function remember(s,r){if(!feasible(r))return;const k=key(s);if(!archive.has(k))archive.set(k,{ids:s.ids,baseSlots:s.base,coefficient:r.coefficient,perMin:r.perMin});}
+ // Builds that fall short are kept too (best room first), so a zone nobody survives still shows how close it gets.
+ const nearMiss=new Map();
+ function remember(s,r){if(r.valid&&!feasible(r)){const k=key(s);if(!nearMiss.has(k)){nearMiss.set(k,{ids:s.ids,baseSlots:s.base,coefficient:r.coefficient,power:r.power,perMin:r.perMin,room:r.perMin-(needOf(r)||0)});if(nearMiss.size>400){const keep=[...nearMiss].sort((a,b)=>b[1].room-a[1].room).slice(0,200);nearMiss.clear();keep.forEach(([k,v])=>nearMiss.set(k,v));}}}if(!feasible(r))return;const k=key(s);if(!archive.has(k))archive.set(k,{ids:s.ids,baseSlots:s.base,coefficient:r.coefficient,power:r.power,perMin:r.perMin,room:r.perMin-(needOf(r)||0)});}
  remember(start,startEval);
  // Every single swap, move, skill replacement and base change of one build.
  function neighbors(s){
   const out=[],n=s.ids.length,avail=candidates.filter(id=>!s.ids.includes(id));
   for(let a=0;a<n;a++)for(let b=a+1;b<n;b++){const ids=[...s.ids];[ids[a],ids[b]]=[ids[b],ids[a]];out.push({ids,base:[...s.base]});}
   for(let a=0;a<n;a++)for(let b=0;b<n;b++){if(a===b||b===a-1)continue;const ids=[...s.ids];const [x]=ids.splice(a,1);ids.splice(b,0,x);out.push({ids,base:[...s.base]});}
-  for(const old of s.ids)if(old!==ult)for(const inn of avail)out.push({ids:s.ids.map(x=>x===old?inn:x),base:s.base.map(x=>x===old?inn:x)});
-  for(let i=0;i<s.base.length;i++)for(const id of s.ids)if(id!==ult&&!s.base.includes(id)){const base=[...s.base];base[i]=id;out.push({ids:[...s.ids],base});}
+  for(const old of s.ids)if(!isUlt(old))for(const inn of avail)out.push({ids:s.ids.map(x=>x===old?inn:x),base:s.base.map(x=>x===old?inn:x)});
+  for(let i=0;i<s.base.length;i++)for(const id of s.ids)if(!isUlt(id)&&!s.base.includes(id)){const base=[...s.base];base[i]=id;out.push({ids:[...s.ids],base});}
+  // Another ultimate whose family already has three skills in the build: swap it in and re-fit the base slots.
+  const own=s.ids.find(isUlt);if(own)for(const u of ultimates)if(!s.ids.includes(u)&&s.ids.filter(id=>!isUlt(id)&&byId[id].family===byId[u].family).length>=3){const ids=s.ids.map(x=>x===own?u:x);out.push({ids,base:Q.fit(data,ids,s.base)});}
   return out;
  }
  // Random search alone stops near good builds; polishing climbs from the best ones until no single change helps.
@@ -188,13 +301,16 @@ function createSearch(data,current,opts){
   const end=Date.now()+budgetMs;
   while(Date.now()<end){
    if(done<total){
-    if(done>0&&done%perChain===0&&chain<Math.floor(done/perChain)){chain=Math.floor(done/perChain);cur=start;for(let i=0;i<chain*3;i++)cur=mutate(cur);curScore=score(ev(cur));temp=0.03*scale;}
-    const next=mutate(cur),r=ev(next),s=score(r);
+        if(done>0&&done%perChain===0&&chain<Math.floor(done/perChain)){chain=Math.floor(done/perChain);cur=start;
+     if(chain<nearChains){for(let i=0;i<chain*3;i++)cur=mutate(cur);}else{for(let i=0;i<FAR+chain-nearChains;i++)cur=replaceOne(cur);if((chain-nearChains)%2===1&&ultimates.length>1)cur=switchUltimate(cur,pick(ultimates.filter(u=>u!==ult)));}
+     curScore=score(ev(cur));temp=0.03*scale;}
+    const next=mutate(cur);if(chain>=nearChains&&changed(next)<FAR){done++;continue;}const r=ev(next),s=score(r);
     if(s>=curScore||random()<Math.exp((s-curScore)/Math.max(temp,1e-9))){cur=next;curScore=s;}
     remember(next,r);temp=Math.max(0.0006*scale,temp*Math.pow(0.02,1/perChain));done++;continue;
    }
    if(polished>=polishBudget)break;
-   if(!queue)queue=distinct().sort((a,b)=>b.coefficient-a.coefficient||b.perMin-a.perMin).slice(0,4).map(c=>({ids:[...c.ids],base:[...c.baseSlots]}));
+   // Polish the best near builds and the best far ones (4+ skills changed) so both result groups are refined.
+   if(!queue){const all=distinct().sort((a,b)=>b.power-a.power||b.room-a.room),far=c=>changed(c)>=FAR;queue=[...all.filter(c=>!far(c)).slice(0,3),...all.filter(far).slice(0,3)].map(c=>({ids:[...c.ids],base:[...c.baseSlots]}));}
    if(!pc){pc=queue.shift();if(!pc){polished=polishBudget;break;}pcScore=score(ev(pc));nb=neighbors(pc);ni=0;bestN=null;bestNS=-Infinity;}
    if(ni<nb.length){const n=nb[ni++],fresh=!cache.has(key(n)),r=ev(n),s=score(r);remember(n,r);if(s>bestNS){bestN=n;bestNS=s;}if(fresh)polished++;continue;}
    if(bestN&&bestNS>pcScore+1e-9){pc=bestN;pcScore=bestNS;nb=neighbors(pc);ni=0;bestN=null;bestNS=-Infinity;}else pc=null;
@@ -205,20 +321,43 @@ function createSearch(data,current,opts){
  function distinct(){
   const groups=new Map(),overlap=c=>c.baseSlots.filter(id=>current.baseSlots.includes(id)).length;
   // Orders that only swap skills without changing any outcome are the same choice for the player.
-  for(const c of archive.values()){const k=[...c.ids].sort().join()+'|'+c.coefficient+'|'+c.perMin,prev=groups.get(k);if(!prev||overlap(c)>overlap(prev))groups.set(k,c);}
+  for(const c of archive.values()){const k=[...c.ids].sort().join()+'|'+c.power+'|'+c.perMin,prev=groups.get(k);if(!prev||overlap(c)>overlap(prev))groups.set(k,c);}
   return [...groups.values()];
  }
  function results(limit=5){
   const list=distinct(),verified=[],checked=new Set();
   const check=c=>{const k=key({ids:c.ids,base:c.baseSlots});if(checked.has(k))return null;checked.add(k);const v=verify(data,c.ids,c.baseSlots,ctx);return v.valid&&(v.margin===null||v.margin>=0)?{...c,verification:v}:null;};
-  for(const c of [...list].sort((a,b)=>b.coefficient-a.coefficient||b.perMin-a.perMin)){if(verified.length>=limit)break;const r=check(c);if(r)verified.push(r);}
+  for(const c of [...list].sort((a,b)=>b.power-a.power||b.room-a.room)){if(verified.length>=limit)break;const r=check(c);if(r)verified.push(r);}
   // Also surface the roomiest option that keeps at least 97% of the best damage.
-  const best=verified[0]?.coefficient||0,roomy=list.filter(c=>c.coefficient>=best*0.97).sort((a,b)=>b.perMin-a.perMin).slice(0,limit*2);
-  let safest=null;for(const c of roomy){const r=check(c)||verified.find(v=>v.ids.join()===c.ids.join()&&v.baseSlots.join()===c.baseSlots.join());if(r&&(!safest||r.verification.minPerMin>safest.verification.minPerMin))safest=r;}
+  const best=verified[0]?.power||0,roomy=list.filter(c=>c.power>=best*0.97).sort((a,b)=>b.room-a.room).slice(0,limit*2);
+  const roomOf=v=>v.margin??v.minPerMin;
+  let safest=null;for(const c of roomy){const r=check(c)||verified.find(v=>v.ids.join()===c.ids.join()&&v.baseSlots.join()===c.baseSlots.join());if(r&&(!safest||roomOf(r.verification)>roomOf(safest.verification)))safest=r;}
   return {best:verified,safest};
  }
- return {step,results,pool:candidates,ultimate:ult,slots:normals.length,start:startEval};
+ // One entry per skill set (its best verified order and equipment), split by how many skills differ from the current build:
+ // `similar` changes at most `maxChanges` skills (0 = only order or equipment), `different` changes more.
+ function grouped(limit=10,maxChanges=3,PER_ULTIMATE=3){
+  const start=new Set(current.ids),sets=new Map();
+  for(const c of archive.values()){const k=[...c.ids].sort().join();if(!sets.has(k))sets.set(k,[]);sets.get(k).push(c);}
+  const rank=(a,b)=>b.power-a.power||b.room-a.room,lists=[...sets.values()].map(l=>l.sort(rank)).sort((a,b)=>rank(a[0],b[0]));
+  const out={similar:[],different:[]};
+  for(const list of lists){
+   const changes=list[0].ids.filter(id=>!start.has(id)).length,group=changes<=maxChanges?'similar':'different',u=list[0].ids.find(isUlt);
+   // The current ultimate keeps the similar group and half of the different one; a switched ultimate gets PER_ULTIMATE places.
+   const cap=u!==ult?PER_ULTIMATE:group==='similar'?limit:Math.ceil(limit/2);if(out[group].filter(c=>c.ids.includes(u)).length>=cap)continue;
+   if(out[group].length>=limit){if(out.similar.length>=limit&&out.different.length>=limit)break;continue;}
+   // A skill set's best layout can fail on another preset; try its next layouts before giving up on it.
+   for(const c of list.slice(0,3)){const v=verify(data,c.ids,c.baseSlots,ctx);if(v.valid&&(v.margin===null||v.margin>=0)){out[group].push({...c,verification:v,changes});break;}}
+  }
+  const byResult=(a,b)=>b.verification.minPower-a.verification.minPower||b.verification.margin-a.verification.margin;
+  out.similar.sort(byResult);out.different.sort(byResult);
+  // Closest builds that still fall short: one per skill set, most room first, verified like the others.
+  const closest=[],seen=new Set();
+  for(const c of [...nearMiss.values()].sort((a,b)=>b.room-a.room)){if(closest.length>=3)break;const k=[...c.ids].sort().join();if(seen.has(k))continue;seen.add(k);const v=verify(data,c.ids,c.baseSlots,ctx);if(v.valid)closest.push({...c,verification:v,changes:c.ids.filter(id=>!start.has(id)).length});}
+  return {...out,closest,feasible:archive.size,sets:sets.size,maxChanges};
+ }
+ return {step,results,grouped,pool:candidates,ultimate:ult,ultimates,slots:normals.length,start:startEval};
 }
-const api={zoneSummary,zoneScale,parseAmount,parseReduction,timeline,sources,amount,needsStats,sustain,regenPerMin,calibrate,evaluate,verify,pool,createSearch,profiles:PROFILES,horizons:HORIZONS};
+const api={improvements,castCoefficient,hunt,pull,density,reach,spawnPoints,mPerPx:M_PER_PX,damageRate:DAMAGE_RATE,zoneSummary,zoneScale,parseAmount,parseReduction,timeline,sources,amount,needsStats,sustain,regenPerMin,calibrate,evaluate,verify,pool,createSearch,profiles:PROFILES,horizons:HORIZONS};
 if(typeof module!=='undefined')module.exports=api;else root.DosulOptimizer=api;
 })(typeof window!=='undefined'?window:globalThis);

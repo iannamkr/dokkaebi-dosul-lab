@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 'use strict';
 // Writes dist/kkaebi-gg/hunting.js (window.DOSUL_HUNTING) from hunting.json for the build optimizer.
-// Spawn coordinates stay in the JSON; the page only needs stats and spawn counts.
+// Spawn coordinates (% of the map image) are kept: the optimizer turns them into monster density around the player.
 const fs=require('node:fs'),path=require('node:path');
 const DIR=path.resolve(__dirname,'../dist/kkaebi-gg');
 function compact(h){
- return {source:h.source,fetchedAt:h.fetchedAt,zones:h.zones.map(z=>({id:z.id,name:z.name,region:z.region,recommendedPower:z.recommendedPower,subZones:z.subZones,levels:z.levels,coins:z.coins,
-  monsters:z.monsters.map(m=>({name:m.name,level:m.level,hp:m.hp,attack:m.attack,defense:m.defense,spawns:m.spawn?.count||0}))}))};
+ return {source:h.source,fetchedAt:h.fetchedAt,zones:h.zones.map(z=>({id:z.id,name:z.name,region:z.region,recommendedPower:z.recommendedPower,subZones:z.subZones,levels:z.levels,coins:z.coins,map:z.map?{width:z.map.width,height:z.map.height}:null,
+  monsters:z.monsters.map(m=>({name:m.name,level:m.level,hp:m.hp,attack:m.attack,defense:m.defense,spawns:m.spawn?.count||0,points:m.spawn?.points||[]}))}))};
 }
 function script(h){return 'window.DOSUL_HUNTING = '+JSON.stringify(compact(h))+';\n';}
 module.exports={compact,script};

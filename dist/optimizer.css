@@ -57,12 +57,6 @@
 .opt-run{display:flex;align-items:center;gap:12px;margin:18px 0 6px;flex-wrap:wrap}
 .opt-run progress{flex:1;min-width:120px;max-width:320px;accent-color:#21795a}
 .opt-run span{font-size:12px;color:#64765c;font-variant-numeric:tabular-nums}
-.opt-order{display:flex;flex-wrap:wrap;gap:2px 10px;max-width:520px}
-.opt-order span{white-space:nowrap}
-.opt-order .opt-new{color:#21795a;font-weight:600}
-.opt-results td small{display:block}
-.opt-results td:last-child{white-space:nowrap}
-.opt-results button+button{margin-left:6px}
 @media (max-width:900px){.opt-grid{grid-template-columns:1fr}.opt-panel+.opt-panel{border-left:0;padding-left:0;border-top:1px solid #d5dfcd;padding-top:14px}}
 .opt-data{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:#64765c;margin:10px 0 0}
 .opt-data button{min-height:30px!important;padding:3px 10px!important}
@@ -87,9 +81,34 @@
 .opt-metrics small{font-size:11px;color:#67785f}
 .opt-metrics b{font-size:22px;font-variant-numeric:tabular-nums;color:#1f6b4d}
 .opt-metrics span{font-size:12px;color:#64765c;font-variant-numeric:tabular-nums}
-.opt-card .opt-order{max-width:none;font-size:13px;gap:4px 14px}
 .opt-card-actions{display:flex;gap:8px;flex-wrap:wrap}
 .opt-more{margin:4px 0 8px;font-size:13px}
 .opt-more summary{cursor:pointer;font-weight:600;padding:6px 0}
 .opt-assumptions h3{font-size:13px;margin:16px 0 4px}
 @media (max-width:760px){.opt-metrics{grid-template-columns:1fr}}
+.opt-card .opt-build{margin:0;border:0;padding:0}
+.opt-build>span.opt-new{outline:2px solid #2f9a72;outline-offset:-1px;border-radius:6px;background:#eef8f1}
+.opt-build>span.opt-new b{color:#1f6b4d}
+.opt-caption .opt-new{color:#1f6b4d;font-weight:600}
+.opt-alts{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.opt-alt{border:1px solid #d5dfcd;border-radius:8px;background:#fff;padding:10px 14px}
+.opt-alt .opt-build{margin:8px 0 0;border:0;padding:0}
+.opt-alt .opt-caption{margin:6px 0 0}
+.opt-alt-head{display:flex;align-items:center;gap:8px 18px;flex-wrap:wrap;font-size:13px}
+.opt-alt-head strong{font-variant-numeric:tabular-nums}
+.opt-alt-head small{color:#67785f}
+.opt-alt-actions{margin-left:auto;display:flex;gap:6px}
+.opt-summary{margin:6px 0 0;font-size:13px;line-height:1.6;color:#2b4a37;font-weight:600}
+.opt-alt .opt-summary{font-size:12px}
+.opt-alt-head>small{color:#67785f;font-size:11px}
+/* Ultimate tile: its own border and background so it stands out in every build strip. */
+.opt-build>span.opt-ult{border:2px solid #7b4bb7;border-radius:6px;background:#f2ebfb}
+.opt-build>span.opt-ult b{color:#55308a}
+.opt-build>span.opt-ult.opt-new{outline:2px solid #2f9a72;outline-offset:1px}
+.opt-ult-key{color:#55308a;font-weight:600;background:#f2ebfb;border:1px solid #7b4bb7;border-radius:3px;padding:0 4px}
+.opt-export{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:4px 0 10px}
+.opt-export small{flex-basis:100%;font-size:11px;color:#67785f}
+#opt-export-status{font-size:12px;color:#31563f}
+.opt-closest-title{font-size:13px;margin:6px 0 0;color:#94601c}
+.opt-improve{margin:4px 0 6px;padding-left:18px;font-size:13px;line-height:1.7}
+.opt-improve li::marker{color:#94601c}

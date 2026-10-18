@@ -7,7 +7,7 @@ const RULES={
  강타:{slug:'gangta',name:'강압',note:'영력 100에서 궁극기 사용 → 일반 도술 초기화 · 10초 차지 생략'},
  척살:{slug:'cheoksal',name:'척살 태세·척결',note:'도술 사용으로 영력 축적 · 태세/척결 유지 · 시간 변화 없음'},
  저격:{slug:'jeogyeok',name:'조준',note:'시간 경과로 화살촉 획득 · 저격 시 소비 · 시간 변화 없음'},
- 주술:{slug:'jusul',name:'구슬',note:'주술 사용 시 구슬별 일반 도술 0.3/0.6/0.9초 감소 · 버그 무시'},
+ 주술:{slug:'jusul',name:'구슬',note:'주술 사용 시 구슬별 모든 일반 도술 0.3/0.6/0.9초 감소 (다른 계열 포함 · 게임에서 동작 확인)'},
  파멸:{slug:'pamyeol',name:'요기범람',note:'영력 200 → 일반 도술 초기화 · 20초 시전 준비 속도 +50%'},
  강인:{slug:'gangin',name:'강건',note:'영력 100에서 강인 사용 → 10초 강화 · 피격 획득 제외'},
  기동:{slug:'gidong',name:'연쇄',note:'영력 200 → 기동 궁극기 초기화 · 시전 가속 수치 미확인'},
@@ -26,7 +26,7 @@ function run(data,ids,horizon=60,enabled=true){
  if(has('절명'))warnings.push('절명 신식은 공격 도술이 적중한다고 가정하여 계산합니다. 비공격 도술은 형상을 얻지 않으며, 빗나감·실제 적중 시각에 따른 차이는 미반영입니다.');
   if(has('파멸'))warnings.push('파멸 영력은 상세 자료의 사용당 25를 적용합니다. 요약의 15와 상충하며 발동 시간은 참고값입니다.');
  if(has('기동'))warnings.push('기동 연쇄의 시전 가속 수치는 자료가 없어 제외했습니다. 궁극기 초기화는 반영합니다.');
- if(has('주술'))warnings.push('주술은 버그를 무시하고 모든 일반 도술의 대기시간을 줄이는 의도된 효과로 계산합니다.');
+ if(has('주술'))warnings.push('주술 구슬은 다른 계열을 포함한 모든 일반 도술의 대기시간을 줄입니다(2026-10-18 게임에서 동작 확인).');
  if(has('강타'))warnings.push('강타 영력은 상세 설명의 사용당 10을 적용합니다. 같은 자료의 요약에는 5로 적혀 있어 강압 발동 시점은 참고값입니다. 차지 생략 후에도 준비·공격 모션은 남습니다.');
  const capacity=Object.fromEntries(skills.map(s=>[s.id,Math.max(1,s.usage?.charges||1)])),charges={...capacity},ready=Object.fromEntries(ids.map(id=>[id,Infinity])),last={},uses=Object.fromEntries(ids.map(id=>[id,0]));
  let now=0,clock=0,guard=0,pam=0,yogi=0,smash=0,pressure=0,dash=0,chain=0,tears=0,locks=0,forms=0,hex=0,snipe=0,arrows=0,hearts=0,armor=0,sturdy=0,exec=0,execStacks=0,execUntil=0,rage=0,rageUntil=0;
