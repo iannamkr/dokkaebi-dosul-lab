@@ -106,15 +106,25 @@ function sustain(run,data,ids,stats,overrides={},opts={}){
  const kept=rows.filter(r=>r.perMin!==null);
  return {perMin:round(kept.reduce((a,r)=>a+r.perMin,0)),full:round(kept.reduce((a,r)=>a+(r.full??0),0)),rows,unquantified,modeled};
 }
-function regenPerMin(stats={}){const amount=Number(stats.regen)||0,period=Number(stats.regenPeriod)||5;return amount>0?amount*60/period:0;}
+function incomingFromHit(damage,interval){if(damage===''||interval===''||damage==null||interval==null)return null;const d=Number(damage),t=Number(interval);return Number.isFinite(d)&&d>=0&&Number.isFinite(t)&&t>0?round(d*60/t):null;}
+function regenPerMin(stats={}){const amount=Number(stats.regen)||0,period=Number(stats.regenPeriod)||N.regenInterval(stats.inCombat!==false);return amount>0?amount*60/period:0;}
 // Net HP change while hunting with the measured build: incoming = sustain(incoming) + natural regen - net gain.
 // Absorption depends on incoming, so iterate to the fixed point when a sustain function is given.
-function calibrate({sustainPerMin,sustainAt,stats,hpStart,hpEnd,seconds}){
- if(!(seconds>0)||!Number.isFinite(hpStart)||!Number.isFinite(hpEnd))return null;
+function calibrate({sustainPerMin,sustainAt,stats,hpStart,hpEnd,seconds,hpCapped=false}){
+ if(!Number.isFinite(seconds)||!(seconds>0)||!Number.isFinite(hpStart)||!Number.isFinite(hpEnd)||hpStart<=0||hpEnd<=0||hpCapped)return null;
+ if(Number.isFinite(stats?.maxHp)&&(hpStart>stats.maxHp||hpEnd>=stats.maxHp))return null;
  const base=regenPerMin(stats)-(hpEnd-hpStart)*60/seconds;
- if(typeof sustainAt!=='function')return round(sustainPerMin+base);
- let x=sustainAt(null)+base;for(let i=0;i<30;i++){const next=sustainAt(Math.max(1,x))+base;if(Math.abs(next-x)<0.5){x=next;break;}x=next;}
- return round(x);
+ if(typeof sustainAt!=='function'){const value=sustainPerMin+base;return Number.isFinite(value)&&value>=0?round(value):null;}
+ let x=sustainAt(null)+base;
+ for(let i=0;i<30;i++){
+  if(!Number.isFinite(x)||x<0)return null;
+  const next=sustainAt(x)+base;
+  if(!Number.isFinite(next)||next<0)return null;
+  if(Math.abs(next-x)<0.5)return round(next);
+  x=next;
+ }
+ // A divergent or unconverged inverse model cannot supply a damage measurement.
+ return null;
 }
 // Hunting zones: spawn-weighted monster stats. Incoming damage moves between zones by the attack ratio,
 // an estimate because the defence formula is not public.
@@ -131,7 +141,7 @@ function zoneScale(from,to){const a=zoneSummary(from),b=zoneSummary(to);return a
 // Calibrated on the 2026-10-18 recordings in 독기 지대: 불굴's 5 m ring (456 px wide) against the ~7 monsters on screen
 // gives the map scale; kill speed on the target bar (≈9.8 kills/min, 45k HP) against coefficient × attack gives the share
 // of the coefficient that ends up as damage (defence, crits and walking between monsters included).
-const M_PER_PX=0.95,DAMAGE_RATE=0.14;
+const M_PER_PX=0.95,DAMAGE_RATE=1;
 const pullCache=new Map();
 function spawnPoints(zone){
  if(!zone?.map?.width||!zone.monsters)return [];
@@ -160,6 +170,7 @@ function castCoefficient(s){const n=s.referenceNumbers||{},ds=n.cm?[n.dc?.at(-1)
 // attacking the player and kills per minute in the zone. The next monster is engaged as soon as one dies, so a
 // single-target build always fights exactly one (faster kills never look like less damage taken).
 function hunt(run,data,zone,attack,rate=DAMAGE_RATE){
+ if(rate!==1)throw Error('실측 피해 보정계수는 지원하지 않습니다.');
  const hp=zoneSummary(zone)?.hp;if(!hp||!(attack>0))return null;
  const fx=F.prepare(run,data.shinsikEffects!==false,true);
  const byId=Object.fromEntries(data.skills.map(s=>[s.id,s])),events=run.schedule.events.filter(e=>e.completed&&e.end<=run.horizon).sort((a,b)=>a.end-b.end);
@@ -169,7 +180,7 @@ function hunt(run,data,zone,attack,rate=DAMAGE_RATE){
  for(const e of events){
   const s=byId[e.id],g=Sim.geometry(s),coef=F.eventCoefficient(s,e);if(g.kind==='support'||g.kind==='unknown'||!coef)continue;
   alive+=engaged()*(e.end-t);t=e.end;if(!groups.length)groups.push({w:1,h:hp});
-  const d=rate*attack*coef/100*F.castMultiplier(fx,s,e);
+  const d=attack*coef/100*F.castMultiplier(fx,s,e)*N.damageFactor(data.combatModifiers||{});
   if(g.kind==='single'){
    if(groups[0].w>1){const f=groups[0];groups.splice(0,1,{w:1,h:f.h},{w:f.w-1,h:f.h});}
    const f=groups[0];if(d>=f.h){kills+=f.w;groups.shift();engageNext();}else f.h-=d;continue;
@@ -188,13 +199,15 @@ function evaluate(data,ids,baseSlots,ctx){
  ctx.onEvaluate?.();
  if(ctx.executionPolicy!==undefined)data={...data,executionPolicy:ctx.executionPolicy};
  const v=Q.validate({...data,baseSlots},ids);if(v.issues.length)return {valid:false,issue:v.issues.join(' / ')};
- const world=ctx.encounter===true&&Encounter;
+ const world=(ctx.encounter===true||ctx.targetMode==='single')&&Encounter;
  const zone=zoneSummary(ctx.zone),points=spawnPoints(ctx.zone),profile=ctx.profile||PROFILES[0];
  let localPoints;
  if(points.length){const pi=Math.max(0,PROFILES.indexOf(profile)),origin=points[Math.floor(pi*points.length/PROFILES.length)];localPoints=points.map(p=>({x:p[0]-origin[0]+1.5,y:p[1]-origin[1]})).sort((a,b)=>a.x*a.x+a.y*a.y-b.x*b.x-b.y*b.y).slice(0,24);}
+ if(ctx.targetMode==='single')localPoints=[localPoints?.[0]||{x:1.5,y:0}];
  const run=world?Encounter.run({...data,baseSlots},ids,profile,ctx.horizon||180,{attack:Number(ctx.stats?.attack),hp:zone?.hp,points:localPoints,scenario:ctx.scenario,damageRate:ctx.damageRate??DAMAGE_RATE,trace:!!ctx.trace}):Sim.run({...data,baseSlots},ids,profile,ctx.horizon||180);
  if(run.validation.issues.length||run.schedule.missing.length)return {valid:false,issue:[...run.validation.issues,...run.schedule.missing].join(' / ')};
  const multi=run.impacts.filter(i=>i.targets.length>1).length;
+ if(ctx.singleOnly&&ids.some(id=>!singleTargetSafe(data.skills.find(s=>s.id===id))))return {valid:false,issue:'여러 대상 공격 가능 도술 · 단일 사냥 조건 위반'};
  if(ctx.singleOnly&&multi)return {valid:false,issue:'여러 대상 동시 적중'};
  // With a zone, power is kills per minute and incoming damage grows with the monsters the build pulls.
  const h=run.encounter||(ctx.zone?hunt(run,data,ctx.zone,Number(ctx.stats?.attack)):null),attackers=h?h.attackers:1;
@@ -217,26 +230,26 @@ function verify(data,ids,baseSlots,ctx){
   const r=evaluate(data,ids,baseSlots,{...ctx,keepRun:false,profile,horizon});if(!r.valid)return {valid:false,issue:`${profile}/${horizon}초: ${r.issue}`};
   const need=r.need??ctx.need;runs.push({profile,horizon,coefficient:r.coefficient,power:r.power,perMin:r.perMin,need,attackers:r.attackers,incoming:r.incoming});
   const room=need===null||need===undefined?r.perMin:r.perMin-need;
-  if(!worst||room<worst.room)worst={...r,profile,horizon,room,need};
+  if(!worst||room<worst.room)worst={...r,profile,horizon,room,need,scenarioConfig:{...ctx.scenario}};
  }
  if(ctx.encounter&&Encounter&&ctx.sensitivity!==false)for(const variant of Encounter.sensitivity)for(const profile of PROFILES){
   const r=evaluate(data,ids,baseSlots,{...ctx,profile,horizon:180,scenario:{...ctx.scenario,...variant.scenario}});if(!r.valid)return {valid:false,issue:r.issue};const need=r.need??ctx.need,room=need===null||need===undefined?r.perMin:r.perMin-need;
-  runs.push({scenario:variant.name,profile,horizon:180,coefficient:r.coefficient,power:r.power,perMin:r.perMin,need,attackers:r.attackers,incoming:r.incoming});if(!worst||room<worst.room)worst={...r,profile,horizon:180,room,need,scenario:variant.name};
+  runs.push({scenario:variant.name,profile,horizon:180,coefficient:r.coefficient,power:r.power,perMin:r.perMin,need,attackers:r.attackers,incoming:r.incoming});if(!worst||room<worst.room)worst={...r,profile,horizon:180,room,need,scenario:variant.name,scenarioConfig:{...ctx.scenario,...variant.scenario}};
  }
  const long=runs.filter(r=>r.horizon===180),hasNeed=worst.need!==null&&worst.need!==undefined;
  return {valid:true,sensitivity:ctx.encounter&&ctx.sensitivity!==false?{variants:Encounter.sensitivity,minimum:Math.min(...runs.filter(r=>r.horizon===180).map(r=>r.power)),maximum:Math.max(...runs.filter(r=>r.horizon===180).map(r=>r.power)),note:'단일 요인 변화 검사 · 모든 조합의 보장 범위 아님'}:null,minPerMin:worst.perMin,minCoefficient:Math.min(...long.map(r=>r.coefficient)),minPower:Math.min(...long.map(r=>r.power)),
-  attackers:Math.max(...long.map(r=>r.attackers)),incoming:worst.incoming,need:hasNeed?worst.need:null,margin:hasNeed?round(worst.room):null,worst,runs};
+  attackers:worst.attackers,maxAttackers:Math.max(...long.map(r=>r.attackers)),incoming:worst.incoming,need:hasNeed?worst.need:null,margin:hasNeed?round(worst.room):null,worst,runs};
 }
 // What would make a build survive, one lever at a time, solved on the build's worst preset (profile and length) so the
 // target matches the verification: incoming damage cut, natural regen, max HP, attack, and the zones where it already holds (hardest first).
 // Each value is the smallest change that reaches the need (which includes the safety margin); null = that lever alone is not enough.
 function improvements(data,ids,baseSlots,ctx,opts={}){
  const v=verify(data,ids,baseSlots,ctx);if(!v.valid)return null;
- const w=v.worst,wctx={...ctx,profile:w.profile,horizon:w.horizon},st=ctx.stats||{};
+ const w=v.worst,wctx={...ctx,profile:w.profile,horizon:w.horizon,scenario:w.scenarioConfig||ctx.scenario},st=ctx.stats||{};
  const room=c=>{const r=evaluate(data,ids,baseSlots,c);return r.valid?r.perMin-r.need:-Infinity;};
  const solve=(make,lo,hi)=>{if(room(make(hi))<0)return null;for(let i=0;i<14;i++){const m=(lo+hi)/2;if(room(make(m))>=0)hi=m;else lo=m;}return hi;};
- const deficit=Math.max(0,round(w.need-w.perMin)),out={deficit,profile:w.profile,horizon:w.horizon,perMob:ctx.perMob};
- const period=Number(st.regenPeriod)||5,regen=Number(st.regen)||0;
+ const deficit=Math.max(0,round(w.need-w.perMin)),out={deficit,profile:w.profile,horizon:w.horizon,scenario:w.scenario||null,scenarioConfig:wctx.scenario,perMob:ctx.perMob};
+ const period=Number(st.regenPeriod)||N.regenInterval(st.inCombat!==false),regen=Number(st.regen)||0;
  out.regen={from:regen,to:Math.ceil(regen+deficit/(60/period))};
  if(deficit>0){
   const cut=solve(f=>({...wctx,perMob:ctx.perMob*(1-f)}),0,0.95);out.incomingCut=cut===null?null:Math.ceil(cut*1000)/10;
@@ -251,13 +264,39 @@ function improvements(data,ids,baseSlots,ctx,opts={}){
  }
  return out;
 }
-function pool(data,ids,{families,singleOnly}){
+function singleTargetSafe(s){
+ if(s.damage===false||s.referenceNumbers?.nd)return true;
+ const g=Sim.geometry(s);return s.targeting?.kind==='single'&&g.kind==='single'&&g.cap===1;
+}
+function pool(data,ids,{families,singleOnly,targetMode}){
  const keep=new Set(ids.filter(id=>!data.skills.find(s=>s.id===id)?.ultimate));
- return data.skills.filter(s=>!s.ultimate&&(keep.has(s.id)||(families.includes(s.family)&&typeof s.basic?.cooldown==='number'&&(!singleOnly||s.targeting?.kind==='single'||s.damage===false)))).map(s=>s.id);
+ return data.skills.filter(s=>!s.ultimate&&(!(singleOnly||targetMode==='single')||singleTargetSafe(s))&&families.includes(s.family)&&typeof s.basic?.cooldown==='number').map(s=>s.id);
 }
 function rng(seed){let x=(seed>>>0)||1;return ()=>((x=(Math.imul(x,1664525)+1013904223)>>>0)/4294967296);}
 // Quality-diversity cells describe observed execution, never skill names or families.
 function behavior(r){return r.behavior||{idle:0,reset:0,boost:0};}
+// Group measured execution ratios, independent of skill names and families.
+function mechanismGroup(candidate){
+ const b=candidate.behavior||{},level=x=>Math.min(2,Math.floor(Math.max(0,Math.min(1,Number(x)||0))*3));
+ const bins=['idle','reset','boost'].map(k=>level(b[k]));
+ return {id:bins.join('-'),label:[['연속 실행','대기 혼합','대기 중심'][bins[0]],['재사용 변경 낮음','재사용 변경 혼합','재사용 변경 중심'][bins[1]],['증폭 낮음','증폭 혼합','증폭 중심'][bins[2]]].join(' · ')};
+}
+function groupRoundRobin(candidates,limit,perGroup=Infinity){
+ const groups=new Map();for(const c of candidates){const id=mechanismGroup(c).id;if(!groups.has(id))groups.set(id,[]);groups.get(id).push(c);}
+ const result=[];for(let i=0;i<perGroup&&result.length<limit;i++){let added=false;for(const list of groups.values()){if(list[i]){result.push(list[i]);added=true;if(result.length===limit)break;}}if(!added)break;}return result;
+}
+function mechanismSubgroup(candidate){
+ const b=behavior(candidate),keys=['idle','reset','boost'];
+ const bins=keys.map(k=>Math.min(9,Math.floor(Math.max(0,Math.min(1,Number(b[k])||0))*10)));
+ const range=i=>`${i*10}–${(i+1)*10}%`;
+ return {id:mechanismGroup(candidate).id+':'+bins.join('-'),label:`대기 ${range(bins[0])} · 재사용 변경 ${range(bins[1])} · 증폭 ${range(bins[2])}`};
+}
+function detailedRoundRobin(candidates,limit,perSubgroup=6){
+ const parents=new Map();
+ for(const c of candidates){const p=mechanismGroup(c).id,k=mechanismSubgroup(c).id;if(!parents.has(p))parents.set(p,new Map());const sub=parents.get(p);if(!sub.has(k))sub.set(k,[]);sub.get(k).push(c);}
+ const queues=[...parents.values()].map(sub=>{const out=[];for(let rank=0;rank<perSubgroup;rank++){let added=false;for(const rows of sub.values())if(rows[rank]){out.push(rows[rank]);added=true;}if(!added)break;}return out;});
+ const result=[];for(let round=0;result.length<limit;round++){let added=false;for(const q of queues)if(q[round]){result.push(q[round]);added=true;if(result.length===limit)break;}if(!added)break;}return result;
+}
 function createBehaviorArchive(bins=6){
  if(!Number.isInteger(bins)||bins<2||bins>10)throw Error('behavior bins must be 2..10');
  const cells=new Map();let selections=0,offers=0;
@@ -271,14 +310,33 @@ function createBehaviorArchive(bins=6){
  return {offer,select,feedback,entries:()=>[...cells.values()],report:()=>({bins,capacity:bins**3,occupied:cells.size,selections,offers,cells:[...cells.values()].map(c=>({key:c.key,quality:c.quality,visits:c.visits,behavior:behavior(c.result),ids:c.candidate.ids,baseSlots:c.candidate.base}))})};
 }
 function conditionSeed(data,conditions={},allowedFamilies=Object.keys(data.families),preferred=[]){
+ allowedFamilies=allowedFamilies.filter(f=>!(conditions.excludedFamilies||[]).includes(f));
+ const primary=conditions.primaryFamily||null,strict=conditions.targetMode==='single'||conditions.singleOnly===true;
+ if(primary&&(!data.families[primary]||!allowedFamilies.includes(primary)))throw Error('사용 가능한 주력 계열을 선택하세요.');
  const fixed=[...new Set(conditions.requiredSkills||[])],families=[...new Set(conditions.requiredFamilies||[])],forced=[...new Set(conditions.requiredShinsik||[])],by=new Map(data.skills.map(s=>[s.id,s]));
  if(forced.length>1)throw Error('기본 장착 5칸으로 두 계열 신식을 동시에 개방할 수 없습니다.');
  for(const id of fixed)if(!by.has(id))throw Error('존재하지 않는 필수 도술입니다.');
  for(const f of [...families,...forced])if(!data.families[f]||!allowedFamilies.includes(f))throw Error('선택 계열을 사용 가능한 계열에 포함하세요: '+f);
  if(fixed.some(id=>!allowedFamilies.includes(by.get(id).family)))throw Error('필수 도술의 계열이 사용 가능 목록에서 제외되었습니다.');
- const normals=data.skills.filter(s=>!s.ultimate&&allowedFamilies.includes(s.family)&&Number.isFinite(s.basic?.cooldown));
+ if(strict&&fixed.some(id=>!singleTargetSafe(by.get(id))))throw Error('단일 사냥에는 범위 피해 도술을 고정할 수 없습니다.');
+ const normals=data.skills.filter(s=>(!strict||singleTargetSafe(s))&&!s.ultimate&&allowedFamilies.includes(s.family)&&Number.isFinite(s.basic?.cooldown));
  const lockedUlt=fixed.filter(id=>by.get(id).ultimate);if(lockedUlt.length>1)throw Error('궁극기는 하나만 선택할 수 있습니다.');
- const ultimates=data.skills.filter(s=>s.ultimate&&allowedFamilies.includes(s.family)&&(!lockedUlt.length||lockedUlt.includes(s.id))&&(!forced.length||forced.includes(s.family))).sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id)));
+ if(conditions.useUltimate===false){
+  if(lockedUlt.length)throw Error('궁극기 사용을 끈 상태에서는 궁극기를 고정할 수 없습니다.');
+  const ordered=[...normals].sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id))||a.basic.cooldown-b.basic.cooldown),ids=[...fixed];
+  const add=id=>{if(!ids.includes(id))ids.push(id);};
+  for(const f of [...new Set([primary,...forced].filter(Boolean))]){
+   for(const skill of ordered.filter(s=>s.family===f)){if(ids.filter(id=>by.get(id).family===f).length>=3)break;add(skill.id);}
+   if(ids.filter(id=>by.get(id).family===f).length<3)throw Error(f+' 일반 도술 3개를 선택할 수 없습니다.');
+  }
+  for(const f of families)if(!ids.some(id=>by.get(id).family===f)){const skill=ordered.find(s=>s.family===f);if(!skill)throw Error(f+' 도술을 선택할 수 없습니다.');add(skill.id);}
+  if(ids.length>8)throw Error('필수 도술이 일반 도술 8칸을 초과합니다.');
+  for(const skill of ordered){if(ids.length===8)break;add(skill.id);}if(ids.length!==8)throw Error('선택 조건으로 일반 도술 8개를 구성할 수 없습니다.');
+  const order=[...preferred.filter(id=>ids.includes(id)),...ids.filter(id=>!preferred.includes(id))],family=forced[0]||primary;
+  const core=family?order.filter(id=>by.get(id).family===family).slice(0,3):[];
+  return {ids:order,baseSlots:[...core,...order.filter(id=>!core.includes(id))].slice(0,5)};
+ }
+ const ultimates=data.skills.filter(s=>(!strict||singleTargetSafe(s))&&s.ultimate&&(!primary||s.family===primary)&&allowedFamilies.includes(s.family)&&(!lockedUlt.length||lockedUlt.includes(s.id))&&(!forced.length||forced.includes(s.family))).sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id)));
  const ordered=[...normals].sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id))||a.basic.cooldown-b.basic.cooldown);
  for(const u of ultimates){const ids=fixed.filter(id=>!by.get(id).ultimate);const add=id=>{if(!ids.includes(id))ids.push(id);};
   for(const s of ordered.filter(s=>s.family===u.family)){if(ids.filter(id=>by.get(id).family===u.family).length>=3)break;add(s.id);}
@@ -290,13 +348,18 @@ function conditionSeed(data,conditions={},allowedFamilies=Object.keys(data.famil
  throw Error('선택 조건을 만족하는 일반 8개·궁극기 1개 구성을 만들 수 없습니다.');
 }
 function createSearch(data,current,opts){
- if(opts.conditions)current=conditionSeed(data,opts.conditions,opts.families,current.ids);
+ opts={...opts,singleOnly:opts.singleOnly===true||opts.targetMode==='single'};
+ if(opts.useUltimate===false){const ids=current.ids.filter(id=>!data.skills.find(s=>s.id===id)?.ultimate);current={...current,ids,baseSlots:current.baseSlots.filter(id=>ids.includes(id))};if(opts.conditions)opts.conditions={...opts.conditions,useUltimate:false};}
+ if(opts.conditions)opts.conditions={...opts.conditions,singleOnly:opts.singleOnly};
+ opts={...opts,families:(opts.families||Object.keys(data.families)).filter(f=>!(opts.excludedFamilies||[]).includes(f))};
+ if(opts.conditions?.excludedFamilies?.length)opts={...opts,families:(opts.families||Object.keys(data.families)).filter(f=>!opts.conditions.excludedFamilies.includes(f))};
+ if(opts.conditions||current.ids.some(id=>{const s=data.skills.find(s=>s.id===id);return !opts.families.includes(s.family)||opts.singleOnly&&!singleTargetSafe(s);}))current=conditionSeed(data,opts.conditions||{singleOnly:opts.singleOnly,useUltimate:opts.useUltimate!==false&&current.ids.some(id=>data.skills.find(s=>s.id===id)?.ultimate)},opts.families,current.ids);
  const byId=Object.fromEntries(data.skills.map(s=>[s.id,s])),isUlt=id=>!!byId[id]?.ultimate;
  const ult=current.ids.find(isUlt)||null,normals=current.ids.filter(id=>id!==ult);
- const ctx={executionPolicy:opts.executionPolicy,stats:opts.stats,overrides:opts.overrides||{},singleOnly:!!opts.singleOnly,profile:opts.profile||'185547',horizon:180,need:opts.need,incoming:opts.incoming,snapshot:opts.snapshot,
+ const ctx={targetMode:opts.targetMode,executionPolicy:opts.executionPolicy,stats:opts.stats,overrides:opts.overrides||{},singleOnly:!!opts.singleOnly,profile:opts.profile||'185547',horizon:180,need:opts.need,incoming:opts.incoming,snapshot:opts.snapshot,
   encounter:opts.encounter===true,scenario:opts.scenario,damageRate:opts.damageRate,zone:opts.zone||null,perMob:opts.perMob,regenPerMin:opts.regenPerMin,margin:opts.margin};
  const spatialSelection=opts.boundedSelection===true||(opts.spatialSelection??ctx.encounter);
- const screenLimit=opts.screenLimit??12,finalistLimit=opts.finalistLimit??3;
+ const screenLimit=opts.screenLimit??(opts.detailedGroups?96:opts.mechanismGroups?24:12),finalistLimit=opts.finalistLimit??(opts.detailedGroups?36:opts.mechanismGroups?9:3);
  for(const n of [screenLimit,finalistLimit])if(!Number.isSafeInteger(n)||n<1)throw Error('selection limits must be positive integers');
  const verificationRuns=HORIZONS.length*PROFILES.length+((opts.boundedSelection&&!ctx.encounter)||ctx.sensitivity===false?0:Encounter.sensitivity.length*PROFILES.length);
  const reserve=spatialSelection?screenLimit+finalistLimit*verificationRuns:0;
@@ -307,7 +370,7 @@ function createSearch(data,current,opts){
 
  const candidates=pool(data,current.ids,opts),cache=new Map(),archive=new Map(),random=rng(opts.seed||20261018);
  // Only a build that already has an ultimate may switch it; ultimates of unchecked families (locked) never enter.
- const ultimates=ult?[...new Set([ult,...data.skills.filter(s=>s.ultimate&&(opts.families||[]).includes(s.family)&&typeof s.basic?.cooldown==='number').map(s=>s.id)])]:[];
+ const ultimates=ult?[...new Set([ult,...data.skills.filter(s=>(!opts.singleOnly||singleTargetSafe(s))&&s.ultimate&&(!opts.conditions?.primaryFamily||s.family===opts.conditions.primaryFamily)&&(opts.families||[]).includes(s.family)&&typeof s.basic?.cooldown==='number').map(s=>s.id)])]:[];
  // `iterations` is spread over the near chains as before; far chains add the same per-chain budget and must keep
  // at least FAR skills different from the current build, so the "different builds" group is really explored.
  const FAR=4,nearChains=Math.max(1,opts.chains||3),farChains=Math.max(0,opts.farChains??2),perChain=Math.ceil(Math.max(30,opts.iterations||4000)/nearChains),total=perChain*(nearChains+farChains),chains=nearChains+farChains;
@@ -353,7 +416,7 @@ function createSearch(data,current,opts){
  }
  // Builds that fall short are kept too (best room first), so a zone nobody survives still shows how close it gets.
  const nearMiss=new Map();
- function remember(s,r){if(feasible(r))diversity.offer(s,r,score(r));if(r.valid&&!feasible(r)){const k=key(s);if(!nearMiss.has(k)){nearMiss.set(k,{ids:s.ids,baseSlots:s.base,coefficient:r.coefficient,power:r.power,perMin:r.perMin,room:r.perMin-(needOf(r)||0)});if(nearMiss.size>400){const keep=[...nearMiss].sort((a,b)=>b[1].room-a[1].room).slice(0,200);nearMiss.clear();keep.forEach(([k,v])=>nearMiss.set(k,v));}}}if(!feasible(r))return;const k=key(s);if(!archive.has(k))archive.set(k,{ids:s.ids,baseSlots:s.base,coefficient:r.coefficient,power:r.power,perMin:r.perMin,room:r.perMin-(needOf(r)||0)});}
+ function remember(s,r){if(feasible(r))diversity.offer(s,r,score(r));if(r.valid&&!feasible(r)){const k=key(s);if(!nearMiss.has(k)){nearMiss.set(k,{ids:s.ids,baseSlots:s.base,behavior:behavior(r),coefficient:r.coefficient,power:r.power,perMin:r.perMin,room:r.perMin-(needOf(r)||0)});if(nearMiss.size>400){const keep=[...nearMiss].sort((a,b)=>b[1].room-a[1].room).slice(0,200);nearMiss.clear();keep.forEach(([k,v])=>nearMiss.set(k,v));}}}if(!feasible(r))return;const k=key(s);if(!archive.has(k))archive.set(k,{ids:s.ids,baseSlots:s.base,behavior:behavior(r),coefficient:r.coefficient,power:r.power,perMin:r.perMin,room:r.perMin-(needOf(r)||0)});}
  remember(start,startEval);
  const seeds=ultimates.filter(u=>u!==ult).map(u=>{let s=switchUltimate(start,u);for(let i=0;i<50&&changed(s)<FAR;i++)s=replaceOne(s);s.base=Q.fit(data,s.ids,s.base);return s;}).filter(s=>changed(s)>=FAR);
  for(const s of seeds)remember(s,ev(s));
@@ -408,24 +471,25 @@ function createSearch(data,current,opts){
  function distinct(){
   const groups=new Map(),overlap=c=>c.baseSlots.filter(id=>current.baseSlots.includes(id)).length;
   // Orders that only swap skills without changing any outcome are the same choice for the player.
-  for(const c of archive.values()){const k=[...c.ids].sort().join()+'|'+c.power+'|'+c.perMin,prev=groups.get(k);if(!prev||overlap(c)>overlap(prev))groups.set(k,c);}
+  for(const c of archive.values()){const k=[...c.ids].sort().join()+'|'+c.power+'|'+c.perMin+(opts.mechanismGroups?'|'+(opts.detailedGroups?mechanismSubgroup(c).id:mechanismGroup(c).id):''),prev=groups.get(k);if(!prev||overlap(c)>overlap(prev))groups.set(k,c);}
   return [...groups.values()];
  }
  function spatialResults(){
   if(spatialCache)return spatialCache;
   const started=Date.now(),seen=new Set(),shortlist=[];
   const ranked=distinct().sort((a,b)=>b.power-a.power||b.room-a.room);if(!ranked.length)ranked.push(...[...nearMiss.values()].sort((a,b)=>b.room-a.room));
-  const elites=diversity.entries().sort((a,b)=>b.quality-a.quality).map(e=>({ids:e.candidate.ids,baseSlots:e.candidate.base}));
+  const elites=diversity.entries().sort((a,b)=>b.quality-a.quality).map(e=>({ids:e.candidate.ids,baseSlots:e.candidate.base,behavior:behavior(e.result)}));
   // Alternate objective leaders with behavior elites. Only executed candidates are eligible.
-  const queues=[ranked,opts.diverseSelection===false?[]:elites];let turn=0;
+  const queues=[opts.detailedGroups?detailedRoundRobin(ranked,ranked.length,ranked.length):opts.mechanismGroups?groupRoundRobin(ranked,ranked.length):ranked,opts.diverseSelection===false?[]:elites];let turn=0;
   while(shortlist.length<screenLimit&&queues.some(q=>q.length)){const queue=queues[turn++%2];if(!queue.length)continue;const c=queue.shift(),k=key({ids:c.ids,base:c.baseSlots});if(seen.has(k))continue;seen.add(k);shortlist.push(c);}
   const spatialCtx={...ctx,encounter:opts.boundedSelection?ctx.encounter:true,onEvaluate:()=>{finalEvaluations++;}},screened=[];
-  for(const c of shortlist){const r=evaluate(data,c.ids,c.baseSlots,spatialCtx);if(r.valid)screened.push({...c,power:r.power,perMin:r.perMin,coefficient:r.coefficient,room:r.perMin-(needOf(r)||0)});}
+  for(const c of shortlist){const r=evaluate(data,c.ids,c.baseSlots,spatialCtx);if(r.valid)screened.push({...c,behavior:behavior(r),power:r.power,perMin:r.perMin,coefficient:r.coefficient,room:r.perMin-(needOf(r)||0)});}
   screened.sort((a,b)=>(b.room>=0)-(a.room>=0)||(a.room<0&&b.room<0?b.room-a.room:b.power-a.power)||b.room-a.room);
   const verified=[],closest=[];
-  for(const c of screened.slice(0,finalistLimit)){const v=verify(data,c.ids,c.baseSlots,spatialCtx);if(v.valid){if(v.margin===null||v.margin>=0)verified.push({...c,verification:v});else closest.push({...c,verification:v});}}
+  const finalists=opts.detailedGroups?detailedRoundRobin(screened,finalistLimit):opts.mechanismGroups?groupRoundRobin(screened,finalistLimit,3):screened.slice(0,finalistLimit);
+  for(const c of finalists){const v=verify(data,c.ids,c.baseSlots,spatialCtx);if(v.valid){if(v.margin===null||v.margin>=0)verified.push({...c,verification:v});else closest.push({...c,verification:v});}}
   verified.sort((a,b)=>b.verification.minPower-a.verification.minPower||(b.verification.margin??0)-(a.verification.margin??0));
-  const cost={searchEvaluations:cache.size,screened:shortlist.length,finalistCount:Math.min(screened.length,finalistLimit),spatialEvaluations:finalEvaluations,totalEvaluations:cache.size+finalEvaluations,totalBudget:Number.isFinite(totalBudget)?totalBudget:null,reservedEvaluations:reserve,validationMs:Date.now()-started};
+  const cost={searchEvaluations:cache.size,screened:shortlist.length,finalistCount:finalists.length,spatialEvaluations:finalEvaluations,totalEvaluations:cache.size+finalEvaluations,totalBudget:Number.isFinite(totalBudget)?totalBudget:null,reservedEvaluations:reserve,validationMs:Date.now()-started};
   spatialCache={best:verified,closest,safest:[...verified].sort((a,b)=>(b.verification.margin??b.verification.minPerMin)-(a.verification.margin??a.verification.minPerMin))[0]||null,cost};return spatialCache;
  }
  function results(limit=5){
@@ -442,7 +506,7 @@ function createSearch(data,current,opts){
  // One entry per skill set (its best verified order and equipment), split by how many skills differ from the current build:
  // `similar` changes at most `maxChanges` skills (0 = only order or equipment), `different` changes more.
  function grouped(limit=10,maxChanges=3,PER_ULTIMATE=3){
-  if(spatialSelection){const r=spatialResults(),out={similar:[],different:[]};for(const c of r.best){const changes=changed(c),group=changes<=maxChanges?'similar':'different';if(out[group].length<limit)out[group].push({...c,changes});}return {...out,closest:r.closest.map(c=>({...c,changes:changed(c)})),feasible:archive.size,sets:new Set([...archive.values()].map(c=>[...c.ids].sort().join())).size,maxChanges,diagnostics:{...JSON.parse(JSON.stringify(diagnostics)),diversity:diversity.report(),selection:r.cost}};}
+  if(spatialSelection){const r=spatialResults(),out={similar:[],different:[]};for(const c of r.best){const changes=changed(c),group=changes<=maxChanges?'similar':'different';if(opts.mechanismGroups||out[group].length<limit)out[group].push({...c,changes});}const mechanismGroups=opts.mechanismGroups?[...new Set(r.best.map(c=>mechanismGroup(c).id))].map(id=>{const candidates=[...out.similar,...out.different].filter(c=>mechanismGroup(c).id===id).sort((a,b)=>b.verification.minPower-a.verification.minPower);const subgroups=opts.detailedGroups?[...new Set(candidates.map(c=>mechanismSubgroup(c).id))].map(key=>{const rows=candidates.filter(c=>mechanismSubgroup(c).id===key);return {...mechanismSubgroup(rows[0]),candidates:rows};}):[];return {...mechanismGroup(candidates[0]),candidates,subgroups};}):[];return {...out,mechanismGroups,closest:r.closest.map(c=>({...c,changes:changed(c)})),feasible:archive.size,sets:new Set([...archive.values()].map(c=>[...c.ids].sort().join())).size,maxChanges,diagnostics:{...JSON.parse(JSON.stringify(diagnostics)),diversity:diversity.report(),selection:r.cost}};}
 
   const start=new Set(current.ids),sets=new Map();
   for(const c of archive.values()){const k=[...c.ids].sort().join();if(!sets.has(k))sets.set(k,[]);sets.get(k).push(c);}
@@ -471,6 +535,6 @@ function createSearch(data,current,opts){
  function preview(limit=3){return distinct().sort((a,b)=>b.power-a.power||b.room-a.room).slice(0,limit).map(c=>({ids:[...c.ids],baseSlots:[...c.baseSlots],power:c.power,perMin:c.perMin}));}
  return {step,results,grouped,audit,preview,pool:candidates,ultimate:ult,ultimates,slots:normals.length,start:startEval};
 }
-const api={conditionSeed,createBehaviorArchive,improvements,castCoefficient,hunt,pull,density,reach,spawnPoints,mPerPx:M_PER_PX,damageRate:DAMAGE_RATE,zoneSummary,zoneScale,parseAmount,parseReduction,timeline,sources,amount,needsStats,sustain,regenPerMin,calibrate,evaluate,verify,pool,createSearch,profiles:PROFILES,horizons:HORIZONS};
+const api={incomingFromHit,mechanismSubgroup,detailedRoundRobin,mechanismGroup,groupRoundRobin,conditionSeed,createBehaviorArchive,improvements,castCoefficient,hunt,pull,density,reach,spawnPoints,mPerPx:M_PER_PX,damageRate:DAMAGE_RATE,zoneSummary,zoneScale,parseAmount,parseReduction,timeline,sources,amount,needsStats,sustain,regenPerMin,calibrate,evaluate,verify,pool,createSearch,profiles:PROFILES,horizons:HORIZONS};
 if(typeof module!=='undefined')module.exports=api;else root.DosulOptimizer=api;
 })(typeof window!=='undefined'?window:globalThis);

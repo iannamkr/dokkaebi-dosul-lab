@@ -1,5 +1,6 @@
 (function(root){
 'use strict';
+const N=typeof module!=='undefined'?require('./numbers.js'):root.DosulNumbers;
 const S=typeof module!=='undefined'?require('./simulation.js'):root.DosulSimulation;
 const H=typeof module!=='undefined'?require('./hit-timing.js'):root.DosulHits;
 const A=typeof module!=='undefined'?require('./timing-auto.js'):root.DosulAuto;
@@ -9,7 +10,7 @@ const model='encounter-coupled-v2',defaults={playerSpeed:3,monsterSpeed:1.5,resp
 const evidence={source:'화면 녹화 중 2026-10-18 155256.mp4',duration:123.466633,review:'2초 간격 전체, 26–34초 0.5초 간격 추가 확인',observations:[{interval:[28,30],finding:'캐릭터와 지형이 거의 정지한 동안 뒤쪽 3마리가 대각선 대열로 접근; 순간 집결 아님'},{interval:[30,34],finding:'근접 무리와 외곽 추적 몹이 공존; 소용돌이는 설치 위치에 남음'},{interval:[72,94],finding:'이동 후 군집이 늘어졌다가 다시 수렴; 외곽 몹 전부가 동시에 참여하지 않음'}],uncertain:['정확한 m/s·이동 충돌 반경·장판 틱 간격·리젠 시간','화면 밖 이동과 사망 구분','근처 다른 캐릭터와 일부 효과의 소유자'],applied:['개별 추적','밀집 시 간격 유지','지면 장판 위치 고정','군집 반경·밀집 비율 계측']};
 evidence.speedEstimate={metresPerSecond:1.5,observedSampleRange:[1.21,1.50],sensitivity:[.9,2],effectivePixelsPerMetre:56.45,samples:3,interval:[28,30],basis:'대상 거리 정수 표기 + 수동 발 위치 · 비경 사마귀 마인의 해당 장면 유효속도, 투영/감속 오차 포함',record:'evidence/movement-155256.json'};
 const sensitivity=[{name:'추적 느림',scenario:{monsterSpeed:.9}},{name:'추적 빠름',scenario:{monsterSpeed:2}},{name:'리젠 빠름 가정',scenario:{respawn:4}},{name:'리젠 느림 가정',scenario:{respawn:12}}];
-const limitations=['지속 장판은 실험상 8초에 자료의 타격 수를 분배: 영상 26–34초의 잔존을 참고한 가정, 실측 틱 아님','몹 추적 1.5m/s는 28–30초 3표본 투영 근사; 플레이어 속도·리젠·복귀 반경은 실험 가정','실제 적중의 절명 형상·궁극기 쿨 감소를 다음 시전에 연결; 사거리 밖 사거리 밖에서는 접근 후 시전하는 우선순위 AI 가정','평타·회피·기동 가속 미반영 · 처치 자원 반영 · 피격/귀보는 관측 이벤트 제공 필요','피해 보정 0.14는 기존 모델 값: 이동 비용과 중복될 수 있어 새 모델 실측 보정 필요','회복·보호막은 실제 적중 조건을 쓰지만 평균 피격량 기준, 과잉 회복·HP 사망 판정 제외'];
+const limitations=['지속 장판은 실험상 8초에 자료의 타격 수를 분배: 영상 26–34초의 잔존을 참고한 가정, 실측 틱 아님','몹 추적 1.5m/s는 28–30초 3표본 투영 근사; 플레이어 속도·리젠·복귀 반경은 실험 가정','실제 적중의 절명 형상·궁극기 쿨 감소를 다음 시전에 연결; 사거리 밖 사거리 밖에서는 접근 후 시전하는 우선순위 AI 가정','평타·회피·기동 가속 미반영 · 처치 자원 반영 · 피격/귀보는 관측 이벤트 제공 필요','방어력·명중 확률 공식 미공개: 방어 적용 전 피해 기준 처치 추정, 실전 처치량 아님','회복·보호막은 실제 적중 조건을 쓰지만 평균 피격량 기준, 과잉 회복·HP 사망 판정 제외'];
 const round=n=>Math.round(n*100)/100,dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function movement(s){
  if(s.simulationMovement)return {...s.simulationMovement,basis:s.simulationMovement.basis||'사용자 지정 비교 가정'};
@@ -19,7 +20,9 @@ function movement(s){
 }
 function run(data,ids,profile,horizon,options={}){
  const out=S.run(data,ids,profile,horizon);if(out.issues.length&&out.schedule.missing.length)return out;
- const cfg={...defaults,...options.scenario},attack=Number(options.attack)||0,hp=Number(options.hp)||45000,rate=options.damageRate??.14;
+ out.combatFormula={source:N.combatRules.source,modifiers:data.combatModifiers||{},randomDistribution:null,empiricalCorrection:false,defenceApplied:false,status:'pre-defence-upper-bound'};
+ const cfg={...defaults,...options.scenario},attack=Number(options.attack)||0,hp=Number(options.hp)||45000,rate=options.damageRate??1;
+ if(rate!==1)throw Error('실측 피해 보정계수는 지원하지 않습니다.');
  for(const [k,v] of Object.entries(cfg))if(!Number.isFinite(v)||v<0||(['step','respawn','leash','homeRadius'].includes(k)&&v===0))throw Error('Invalid encounter setting: '+k);
  const experimental=data.skills.map(s=>s.hitTiming?.kind==='persistent'&&s.aim?.mode==='지면 지정'&&!s.hitTiming?.offsets?{...s,hitTiming:{...s.hitTiming,offsets:Array.from({length:(s.referenceNumbers?.dc||[]).reduce((n,d)=>n+d.hits,0)},(_,i)=>.5+i*Math.max(0,cfg.persistentDuration-.5)/Math.max(1,(s.referenceNumbers?.dc||[]).reduce((n,d)=>n+d.hits,0)-1)),confidence:'video-informed-assumption'}}:s);
  const by=Object.fromEntries(experimental.map(s=>[s.id,s])),geo=Object.fromEntries(ids.map(id=>[id,S.geometry(by[id])])),motion=Object.fromEntries(ids.map(id=>[id,movement(by[id])])),initialSchedule=out.schedule;let schedule=initialSchedule;
@@ -59,7 +62,7 @@ function run(data,ids,profile,horizon,options={}){
    }
    if(a.type==='hit'){const cast=casts.get(a.key),target=mobs.find(m=>m.id===cast?.targetId&&m.generation===cast.generation&&m.hp>0),targets=cast?.ground?(cast.groundValid?living().filter(m=>dist(m,cast.ground)<=g.radius).sort((a,b)=>dist(a,cast.ground)-dist(b,cast.ground)||a.id-b.id).slice(0,g.cap):[]):S.pickTargets(g,living(),target,cast?.angle||0,player),coef=S.coefficient(s,a.hit.hitIndex);checks++;hitCount+=targets.length;row.hitChecks++;row.targetHits+=targets.length;if(!targets.length){whiffs++;row.whiffs++;}
     for(const [n,m] of targets.entries()){for(const c of s.conditions||[]){if(c.scope==='self'&&n>0)continue;out.conditions.push({time,id:s.id,target:m.id+1,wave:1,scope:c.scope,effect:c.effect,result:c.result,...S.conditionState(s,a.ev,c,c.scope==='self'?self:m.effects,time)});}
-     if(!m.active){pulled++;m.active=true;}if(m.firstHit===null)m.firstHit=time;cast.targets.set(m.id,m.generation);if(coef!==null){row.coefficient+=coef;const damage=attack*rate*coef/100*(1+F.bonus(fx,s,a.ev,time))*(1+(time<(m.blueChainUntil||0)?m.blueChainPct||0:0));dealt+=Math.min(m.hp,damage);overkill+=Math.max(0,damage-m.hp);m.hp-=damage;if(m.hp<=0){notifyCombat?.('kill',time);kills++;ttk+=time-m.firstHit;m.active=false;m.respawnAt=time+cfg.respawn;events.push({type:'kill',time:round(time),id:s.id,target:m.id});}}}
+     if(!m.active){pulled++;m.active=true;}if(m.firstHit===null)m.firstHit=time;cast.targets.set(m.id,m.generation);if(coef!==null){row.coefficient+=coef;const damage=N.damageFactor(data.combatModifiers||{})*attack*coef/100*(1+F.bonus(fx,s,a.ev,time))*(1+(time<(m.blueChainUntil||0)?m.blueChainPct||0:0));dealt+=Math.min(m.hp,damage);overkill+=Math.max(0,damage-m.hp);m.hp-=damage;if(m.hp<=0){notifyCombat?.('kill',time);kills++;ttk+=time-m.firstHit;m.active=false;m.respawnAt=time+cfg.respawn;events.push({type:'kill',time:round(time),id:s.id,target:m.id});}}}
     for(const m of targets)if(m.hp>0)notifyCombat?.('skill-hit',time,{target:m,skill:s,event:a.ev});
     if(cast?.ground&&time>a.ev.end)for(const ef of s.debuffs||[])for(const m of targets)if(m.hp>0)apply(m.effects,s,ef,time,m.id+1);
     out.impacts.push({ground:cast?.ground?{...cast.ground}:null,time,id:s.id,castCycle:a.ev.cycle,hitIndex:a.hit.hitIndex,wave:1,kind:g.kind,geometry:g,targets:targets.map(m=>m.id),origin:{...player},positions:targets.map(m=>({x:m.x,y:m.y}))});

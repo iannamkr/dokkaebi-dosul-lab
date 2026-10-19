@@ -20,6 +20,8 @@ function timeline(data,events,horizon=Infinity,phase='uniform'){
  hits.sort((a,b)=>a.time-b.time||a.slot-b.slot||a.hitIndex-b.hitIndex);return {hits,unknown:[...unknown]};
 }
 function rage(hits,horizon){
+ if(!Number.isFinite(horizon)||horizon<=0)throw Error("격노 계산 시간은 양수여야 합니다.");
+ hits=[...hits].filter(h=>Number.isFinite(h.time)&&h.time>=0&&h.time<=horizon).sort((a,b)=>a.time-b.time);
  let stacks=0,last=null,first50=null,resets=0,max=0;const windows=[],points=[],gaps=[];
  for(const hit of hits){const gap=last===null?null:round(hit.time-last);if(gap!==null&&gap>=3-1e-7){resets++;gaps.push({start:last,end:hit.time,duration:gap});stacks=0;}
   stacks=Math.min(50,stacks+1);max=Math.max(max,stacks);if(stacks===50&&first50===null)first50=hit.time;
@@ -27,8 +29,11 @@ function rage(hits,horizon){
   points.push({...hit,stacks});last=hit.time;
  }
  if(last!==null&&horizon-last>=3-1e-7){resets++;gaps.push({start:last,end:horizon,duration:round(horizon-last),trailing:true});}
+ const resetTimes=gaps.map(g=>round(g.start+3));
+ const stackSeconds=points.reduce((sum,p,i)=>sum+p.stacks*Math.max(0,Math.min(horizon,p.time+3,points[i+1]?.time??Infinity)-p.time),0);
+ const maxStackSeconds=points.reduce((sum,p,i)=>sum+(p.stacks===50?Math.max(0,Math.min(horizon,p.time+3,points[i+1]?.time??Infinity)-p.time):0),0);
  const uptime=round(windows.reduce((n,w)=>n+w.end-w.start,0));
- return {windows,points,resets,first50,max,uptime,uptimePercent:round(100*uptime/horizon),gaps,confidence:'estimated',assumption:'대상 1명에 모든 모델 타격 적중 · 평타/지속피해/미확인 장판 제외'};
+ return {windows,points,resets,resetTimes,first50,max,meanStacks:round(stackSeconds/horizon),maxStackSeconds:round(maxStackSeconds),maxStackPercent:round(maxStackSeconds/horizon*100),meanReductionPct:round(stackSeconds/horizon*.4),uptime,uptimePercent:round(100*uptime/horizon),gaps,confidence:'estimated',assumption:'대상 1명에 모든 모델 타격 적중 · 평타/지속피해/미확인 장판 제외'};
 }
 const api={schedule,timeline,rage};if(typeof module!=='undefined')module.exports=api;else root.DosulHits=api;
 })(typeof window==='undefined'?globalThis:window);

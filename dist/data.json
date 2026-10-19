@@ -5632,7 +5632,7 @@
         "source": "https://forum.kakaogames.com/dokkaebi/postView/?code=library&id=3415"
       },
       "basic": {
-        "target": "단일",
+        "target": "범위",
         "cast": "즉시 시전",
         "cooldown": 8,
         "range": 2,
@@ -5642,29 +5642,28 @@
         "referenceFields": [
           "cast",
           "cooldown",
-          "range",
-          "target"
+          "range"
         ],
-        "targetSource": "target-audit-s014",
-        "targetEvidence": "개별 도술 표의 한 대상 분류. 이 사이트의 대상수3은 시뮬레이터용으로 보이며 공식 천벌10인도3으로 기재되어 실제상한으로 사용불가.",
+        "targetSource": "user-confirmed",
+        "targetEvidence": "사용자 인게임 확인: 연쇄 타격은 범위 공격. 정확한 대상 상한은 미확인.",
         "fieldNotes": {
-          "target": "개별 도술 표의 한 대상 분류. 이 사이트의 대상수3은 시뮬레이터용으로 보이며 공식 천벌10인도3으로 기재되어 실제상한으로 사용불가. 현행 인게임 대상 툴팁 직접 확인 전인 참고 분류입니다."
+          "target": "사용자 인게임 확인: 연쇄 타격은 범위 공격. 정확한 대상 상한은 미확인."
         }
       },
       "category": "일반",
       "targeting": {
-        "kind": "single",
-        "label": "단일",
+        "kind": "area",
+        "label": "범위",
         "count": null,
-        "reference": true,
-        "source": "target-audit-s014",
-        "basis": "비공식 개별 분류 참고",
-        "note": "개별 도술 표의 한 대상 분류. 이 사이트의 대상수3은 시뮬레이터용으로 보이며 공식 천벌10인도3으로 기재되어 실제상한으로 사용불가. 현행 인게임 대상 툴팁 직접 확인 전인 참고 분류입니다."
+        "reference": false,
+        "source": "user-confirmed",
+        "basis": "사용자 인게임 확인",
+        "note": "사용자 인게임 확인: 연쇄 타격은 범위 공격. 정확한 대상 상한은 미확인."
       },
       "targetAudit": {
-        "checkedAt": "2026-10-17",
-        "confidence": "secondary-reference",
-        "evidence": "개별 도술 표의 한 대상 분류. 이 사이트의 대상수3은 시뮬레이터용으로 보이며 공식 천벌10인도3으로 기재되어 실제상한으로 사용불가.",
+        "checkedAt": "2026-10-19",
+        "confidence": "user-confirmed",
+        "evidence": "사용자 인게임 확인: 연쇄 타격은 범위 공격. 정확한 대상 상한은 미확인.",
         "urls": [
           "https://kkaebi.info/dokkaebi/skills/combo/#s-k062"
         ],
@@ -5677,7 +5676,16 @@
           "basis": "공식 설명 기준",
           "note": "공식 설명 기준. 대상 종류와 인원수는 별도 정보입니다. 정확한 인원수는 미확인입니다. 편곤을 쉼 없이 휘둘러 전방을 휩쓸며 피해를 연속으로 입힙니다."
         },
-        "warning": "현재 인게임 툴팁의 직접 확인이 아니므로 확정 데이터로 표기하지 말 것."
+        "warning": "정확한 인원수는 미확인입니다.",
+        "rejectedClassification": {
+          "kind": "single",
+          "label": "단일",
+          "count": null,
+          "reference": true,
+          "source": "target-audit-s014",
+          "basis": "비공식 개별 분류 참고",
+          "note": "개별 도술 표의 한 대상 분류. 이 사이트의 대상수3은 시뮬레이터용으로 보이며 공식 천벌10인도3으로 기재되어 실제상한으로 사용불가. 현행 인게임 대상 툴팁 직접 확인 전인 참고 분류입니다."
+        }
       },
       "crosscheck": {
         "source": "kkaebigg",

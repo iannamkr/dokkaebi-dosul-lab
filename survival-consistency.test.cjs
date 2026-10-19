@@ -1,0 +1,26 @@
+const assert=require('node:assert/strict'),O=require('./dist/optimizer.js'),D=require('./dist/data.json'),H=require('./dist/kkaebi-gg/hunting.json');
+const stats={attack:22411,maxHp:104845,regen:3061,regenPeriod:5};
+const snapshotBox={window:{}};require('node:vm').runInNewContext(require('node:fs').readFileSync(require('node:path').join(__dirname,'dist/kkaebigg/snapshot.js'),'utf8'),snapshotBox);
+const snapshot=snapshotBox.window.KKAEBIGG_SNAPSHOT;
+for(const m of [{hpStart:105102,hpEnd:102701,seconds:600},{hpStart:90000,hpEnd:104845,seconds:60},{hpStart:-1,hpEnd:50000,seconds:60},{hpStart:90000,hpEnd:80000,seconds:0},{hpStart:90000,hpEnd:80000,seconds:60,hpCapped:true}])assert.equal(O.calibrate({stats,sustainPerMin:1000,...m}),null);
+assert(Number.isFinite(O.calibrate({stats,sustainPerMin:1000,hpStart:90000,hpEnd:80000,seconds:60})));
+const ids=['s010','s069','s003','s001','s011','s012','s007','s085','s013'],base=['s007','s001','s003'];
+const ctx={stats,snapshot,targetMode:'single',encounter:true,zone:H.zones.find(z=>z.name==='독기 지대'),perMob:285375.25,regenPerMin:O.regenPerMin(stats),margin:1000,profile:'185547',horizon:180};
+const v=O.verify(D,ids,base,ctx),w=v.worst;
+const replay=O.evaluate(D,ids,base,{...ctx,profile:w.profile,horizon:w.horizon,scenario:w.scenarioConfig});
+assert.equal(replay.incoming,w.incoming);assert.equal(replay.perMin,w.perMin);assert.equal(v.attackers,w.attackers);
+const im=O.improvements(D,ids,base,ctx,{zones:[ctx.zone]});
+assert.deepEqual(im.scenarioConfig,w.scenarioConfig);
+const check=patch=>{const r=O.evaluate(D,ids,base,{...ctx,profile:im.profile,horizon:im.horizon,scenario:im.scenarioConfig,...patch});assert(r.perMin-r.need>=-.05,JSON.stringify({patch,perMin:r.perMin,need:r.need}));};
+if(im.maxHp)check({stats:{...stats,maxHp:im.maxHp.to}});
+if(im.attack)check({stats:{...stats,attack:im.attack.to}});
+if(im.incomingCut!==null)check({perMob:ctx.perMob*(1-im.incomingCut/100)});
+if(w.room<0)assert(!im.zones.some(z=>z.id===ctx.zone.id),'Unchanged failing scenario must not be listed as sufficient');
+console.log(JSON.stringify({worstScenario:w.scenario,deficit:im.deficit,incomingCut:im.incomingCut,maxHp:im.maxHp,attack:im.attack,zones:im.zones}));
+console.log('Survival consistency: invalid/capped HP, exact worst-scenario replay, coherent exposure and executable improvements passed.');
+
+const measurement={stats,hpStart:90000,hpEnd:80000,seconds:60};
+for(const sustainAt of [()=>NaN,()=>Infinity,x=>x===null?0:x+1000])assert.equal(O.calibrate({...measurement,sustainAt}),null,'Invalid or nonconvergent inference must not be a damage estimate');
+assert.equal(O.calibrate({...measurement,sustainPerMin:NaN}),null);
+assert.equal(O.calibrate({...measurement,hpEnd:100000,stats:{...stats,regen:0},sustainPerMin:0}),null,'Unexplained HP gain cannot become negative incoming damage');
+assert.equal(O.calibrate({...measurement,stats:{...stats,regen:0},hpEnd:90000,sustainAt:()=>0}),0,'Zero incoming is a valid fixed point');

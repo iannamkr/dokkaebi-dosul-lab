@@ -41,6 +41,15 @@ function run(data,ids,horizon=60,enabled=true,runtime=null){
  if(has('주술'))warnings.push('주술 구슬은 다른 계열을 포함한 모든 일반 도술의 대기시간을 줄입니다(2026-10-18 게임에서 동작 확인).');
  if(has('강타'))warnings.push('강타 영력은 상세 설명의 사용당 10을 적용합니다. 같은 자료의 요약에는 5로 적혀 있어 강압 발동 시점은 참고값입니다. 차지 생략 후에도 준비·공격 모션은 남습니다.');
  const capacity=Object.fromEntries(skills.map(s=>[s.id,Math.max(1,s.usage?.charges||1)])),charges={...capacity},ready=Object.fromEntries(ids.map(id=>[id,Infinity])),last={},uses=Object.fromEntries(ids.map(id=>[id,0])),recasts=Object.fromEntries(ids.map(id=>[id,0]));
+ // A recording can begin mid-fight: accept observed cooldown/charge state rather than pretending every skill is ready.
+ const initial=data.combatInitialState;
+ if(initial){
+  for(const [id,state] of Object.entries(initial.skills||{})){
+   if(!ids.includes(id)||!Number.isInteger(state.charges)||state.charges<0||state.charges>capacity[id]||!Number.isFinite(state.cooldownRemaining)||state.cooldownRemaining<0)throw Error('관측 초기 쿨타임/충전 상태 오류');
+   if(state.charges===capacity[id]&&state.cooldownRemaining!==0)throw Error('완충 도술에는 재충전 대기가 없어야 합니다.');
+   charges[id]=state.charges;ready[id]=state.charges<capacity[id]?state.cooldownRemaining:Infinity;
+  }
+ }
  let now=0,clock=0,guard=0,pam=0,yogi=0,smash=0,pressure=0,dash=0,chain=0,tears=0,locks=0,forms=0,hex=0,snipe=0,arrows=0,hearts=0,armor=0,sturdy=0,exec=0,execStacks=0,execUntil=0,rage=0,rageUntil=0;
  const proc=(family,name,time,description,changes=[],trigger=null)=>{procs.push({family,name,time:round(time),description,changes,...(trigger?{trigger}:{})});};
  const windowOf=(family,name,start,duration)=>{const w={family,name,start:round(start),end:round(start+duration)};windows.push(w);return w;};

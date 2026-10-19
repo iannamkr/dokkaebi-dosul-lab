@@ -38,11 +38,11 @@ assert.equal(new Set([...g.similar,...g.different].map(c=>[...c.ids].sort().join
 const names=search.ultimates.map(i=>D.skills.find(x=>x.id===i).name).sort();assert.deepEqual(names,['대폭발','방패 낙하','암습','개전의 가호','폭주'].sort());
 const ultOf=c=>c.ids.find(i=>D.skills.find(x=>x.id===i).ultimate),counts={};for(const c of g.different){const u=ultOf(c);counts[u]=(counts[u]||0)+1;}
 for(const [u,n] of Object.entries(counts))if(u!=='s010')assert(n<=3,'A switched ultimate fills at most 3 places');
-assert(g.similar.every(c=>ultOf(c)==='s010'),'Similar builds keep the ultimate');
+assert(g.similar.every(c=>c.ids.filter(id=>!single.includes(id)).length<=3),'Similarity is based on changed skills, including ultimate swaps');
 const Q=require('./dist/sequence.js');for(const c of [...g.similar,...g.different])assert.deepEqual(Q.validate({...D,baseSlots:c.baseSlots},c.ids).issues,[],'Grouped builds satisfy their ultimate');
 // Improvements: each lever alone, when applied, makes the failing 043203 build survive on its worst preset.
 const im=O.improvements(D,area,areaBase,{...full,margin:1000},{zones:H.zones});assert(im.deficit>0&&im.regen.to>im.regen.from);
-const worst={...full,margin:1000,profile:im.profile,horizon:im.horizon},roomAt=c=>{const r=O.evaluate(D,area,areaBase,c);return r.perMin-r.need;};
+const worst={...full,margin:1000,profile:im.profile,horizon:im.horizon,scenario:im.scenarioConfig},roomAt=c=>{const r=O.evaluate(D,area,areaBase,c);return r.perMin-r.need;};
 assert(roomAt({...worst,regenPerMin:O.regenPerMin({...stats,regen:im.regen.to})})>=-1,'Regen target works');
 if(im.incomingCut!==null)assert(roomAt({...worst,perMob:perMob*(1-im.incomingCut/100)})>=0,'Incoming cut works');
 if(im.maxHp)assert(roomAt({...worst,stats:{...stats,maxHp:im.maxHp.to}})>=0,'Max HP target works');
