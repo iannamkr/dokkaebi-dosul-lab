@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict'),T=require('./dist/effect-timeline.js');
+const data={skills:[{id:'a',name:'a',buffs:['수호'],debuffs:['파쇄'],conditions:[],timingEffects:{수호:{duration:5},파쇄:{duration:10}}},{id:'b',name:'b',buffs:['미확인'],debuffs:[],conditions:[]}]};
+const sim={ids:['a','b'],events:[{id:'a',start:0,end:1},{id:'a',start:4,end:5},{id:'b',start:2,end:3}]};
+const m=T.model(data,sim);
+assert.equal(T.active(m,3).length,2);
+assert.equal(T.active(m,7).find(x=>x.effect==='수호').remaining,3);
+assert.equal(T.active(m,10).some(x=>x.effect==='수호'),false);
+assert.equal(T.active(m,15).length,0);
+assert.equal(m.unknown.length,1);
+assert.equal(T.model(data,{ids:['a'],events:[{id:'a',start:0,end:1,completed:false}]}).rows.length,0);
+console.log('Effect timeline: accumulation, refresh, expiry boundaries, unknown duration and incomplete casts passed');

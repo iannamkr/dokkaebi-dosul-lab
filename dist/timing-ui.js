@@ -10,17 +10,17 @@ function timingCount(r){return r.sourceTimingUnknown||!r.cycles.length||r.durati
 function timingSummary(x){
  const edges=x.connections.filter(e=>e.type!=='conflict'),m=DosulAuto.motion(x.skill);
  if(!edges.length)return '<div class="timing-strip"><span>기본 동작 '+seconds(m?.total)+' · 명시된 시간 연계 없음</span></div>';
- return '<div class="candidate-time-links" aria-label="모든 선행 효과의 지속시간 판정"><small>후보 첫 사용 · 예상 적중 기준</small>'+edges.map(e=>{
+ return '<details class="candidate-time-links"><summary>연계 시간 '+edges.length+'개</summary>'+edges.map(e=>{
   const r=e.timing||DosulLinkTiming.summarize(timingResult(e)),status=r.status;
   const labels={pass:'유효',partial:'일부 타격만 유효',fail:'만료',absent:'선행 효과 없음',boundary:'종료 경계 · 판정 보류',conditional:'시간 충족 · 추가 조건 확인',blocked:'선행 조건 불충족',unknown:'판정 불가'};
   const margin=r.margin===null||r.margin===undefined?'':r.margin<0?' · '+seconds(-r.margin)+' 초과':' · 첫 타격 '+seconds(r.margin)+' 여유';
   const info=status==='pass'||status==='partial'?r.valid+'/'+r.total+'타 시간 내'+margin:status==='fail'?margin.replace(/^ · /,''):status==='unknown'?(r.duration==null?'지속시간 자료 없음':'적중·부여 시점 미확인'):'';
   return '<div class="timing-strip timing-'+status+'"><span><b>'+esc(byId(e.source).name+' · '+e.effect)+' <span class="link-status">'+labels[status]+'</span></b><small>지속 '+seconds(r.duration)+(info?' · '+esc(info):'')+(r.eligible?'':' · 점수 제외')+'</small></span></div>';
- }).join('')+'</div>';
+ }).join('')+'</details>';
 }
-function timingCandidate(id){const skill=byId(id);if(!skill)return null;const pos=build.includes(id)?build.indexOf(id):step,connections=Q.links(D,E,build,pos,id).filter(e=>types().includes(e.type)&&($('#link-scope').value!=='previous'||e.source===build[pos-1]));return {skill,connections};}
+function timingCandidate(id){const skill=byId(id);if(!skill)return null;const pos=build.includes(id)?build.indexOf(id):step,connections=Q.links(D,E,build,pos,id).filter(e=>types().includes(e.type)&&('all'!=='previous'||e.source===build[pos-1]));return {skill,connections};}
 function focusTiming(id){timingTarget=id;timingEdgeIndex=0;}
-function syncTiming(){const context=JSON.stringify([build,step,insertMode,$('#link-scope').value,types(),$('#candidate-search').value,$('#candidate-family').value,targetFilter,candidatePage]);if(context!==timingContext){timingContext=context;timingEdgeIndex=0;timingTarget=shown.some(x=>x.skill.id===selected)?selected:build.includes(selected)?selected:null;}renderTimingPanel();for(const card of document.querySelectorAll('.candidate-node'))card.classList.toggle('timing-selected',card.id==='to-'+timingTarget);}
+function syncTiming(){const context=JSON.stringify([build,step,insertMode,'all',types(),targetFilter,distanceFilter,candidatePage]);if(context!==timingContext){timingContext=context;timingEdgeIndex=0;timingTarget=shown.some(x=>x.skill.id===selected)?selected:build.includes(selected)?selected:null;}renderTimingPanel();for(const card of document.querySelectorAll('.candidate-node'))card.classList.toggle('timing-selected',card.id==='to-'+timingTarget);}
 function timingStatus(h){return ({blocked:'선행 조건 없음',pass:'시간 내',fail:'시간 초과',absent:'선행 효과 없음',boundary:'경계',conditional:'추가 조건'})[h?.status]||'미확인';}
 // Fixed HTML row dimensions keep text readable; only time tracks stretch with viewport width.
 function segmentChart(sim,edge,result){
@@ -71,7 +71,11 @@ function renderTimingPanel(){
  if(edge)$('#timing-edge').onchange=ev=>{timingEdgeIndex=Number(ev.target.value);renderTimingPanel();};
  if(plan.preview)$('#timing-current').onclick=()=>{timingTarget=null;timingEdgeIndex=0;syncTiming();};
 }
-function previewTiming(ev){const card=ev.target.closest('.candidate-node');if(!card)return;const id=card.id.slice(3);if(timingTarget===id)return;focusTiming(id);syncTiming();}
+function previewTiming(ev){const card=ev.target.closest('.candidate-node');if(!card)return;const id=card.id.slice(3);if(timingTarget===id)return;
+ const regions=['#effect-timeline','#timing-inline'].map(s=>document.querySelector(s)).filter(e=>e&&!e.hidden),scrolls=[...regions,document.querySelector('.graph-work'),document.querySelector('.graph-pane')].filter(Boolean).map(e=>[e,e.scrollTop,e.scrollLeft]);
+ for(const e of regions){if(!e.dataset.previewHeight){e.dataset.previewHeight='true';e.style.height=e.getBoundingClientRect().height+'px';e.style.boxSizing='border-box';e.style.overflow='auto';}}
+ const y=window.scrollY;focusTiming(id);syncTiming();for(const [e,top,left] of scrolls){e.scrollTop=top;e.scrollLeft=left;}window.scrollTo(window.scrollX,y);
+}
 document.addEventListener('pointerover',previewTiming);
 document.addEventListener('focusin',previewTiming);
 

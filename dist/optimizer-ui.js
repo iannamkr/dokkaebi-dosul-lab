@@ -12,7 +12,7 @@ settings.targetMode=settings.targetMode==='single'?'single':'area';delete settin
 settings.primaryFamily=settings.primaryFamily||settings.requiredFamilies?.[0]||'';
 settings.excludedFamilies=(settings.excludedFamilies||[]).filter(f=>f!==settings.primaryFamily);
 if(settings.startMode==='conditions')settings.mode='incoming';else if(settings.mode!=='incoming')settings.mode='measure';delete settings.margin;delete settings.depth;delete settings.single;delete settings.stats.regenPeriod;
-let activeResultGroup=0;
+let activeResultGroup=0,activeResultPick=0;
 let context='',current=null,search=null,timer=0,lastResults=null,resultContext='',searchWorker=null;
 const save=()=>{try{localStorage.setItem(STORE,JSON.stringify(settings));}catch{}};
 const num=v=>v===''||v===null||v===undefined?NaN:Number(v);
@@ -20,20 +20,24 @@ const stats=()=>({attack:num(settings.stats.attack),maxHp:num(settings.stats.max
 const familiesOf=ids=>[...new Set(ids.map(id=>byId(id)?.family).filter(Boolean))];
 const ruleText={Replace:'교체',Stack:'중첩',Impossible:'중복 불가',StackLifeReset:'중첩·시간 초기화',StackLifeExtension:'중첩·시간 연장'};
 
-host.innerHTML=`<div class="opt-heading"><h1>빌드 최적화</h1><span class="opt-caption">조건 선택 → 평가 설정 → 추천 비교</span></div>
-<section class="opt-panel opt-start" aria-label="추천 시작 조건"><h2>01 · 빌드 구성</h2><label>공격 대상<select id="opt-target-mode"><option value="single">단일 사냥 · 범위 피해 제외</option><option value="area">범위 · 여러 마리 기준</option></select></label><label>추천 방식<select id="opt-start-mode"><option value="current">현재 빌드 개선</option><option value="conditions">선택 조건으로 새 빌드 만들기</option></select></label><label><input type="checkbox" id="opt-use-ultimate">궁극기 사용</label><div id="opt-conditions" hidden><p>주력 계열 · 일반 3개 이상</p><div id="opt-required-families" class="opt-families"></div><p>제외할 계열</p><div id="opt-excluded-families" class="opt-families"></div><p id="opt-support-scope" class="opt-caption"></p><details><summary>고급 조건 · 특정 도술 고정</summary><div class="opt-picker-heading"><b>꼭 포함할 도술 <small>선택 사항</small></b><span id="opt-required-count" role="status"></span></div><div id="opt-skill-picker"></div><div id="opt-required-chips" class="opt-families"></div></details><details><summary>신식 개방 조건</summary><label>필수 신식<select id="opt-required-shinsik"><option value="">엔진이 결정</option></select></label></details></div></section>
-<section id="opt-current-scope" class="opt-panel opt-current-scope" aria-labelledby="opt-scope-title"><h2 id="opt-scope-title">탐색 계열</h2>
-<div id="opt-families" class="opt-families"></div>
-
-<p id="opt-ultimate" class="opt-caption"></p></section><details id="opt-preview" class="opt-preview"><summary id="opt-preview-title">현재 빌드</summary><div id="opt-build" class="opt-build"></div><div id="opt-equipment" class="opt-caption"></div><button data-opt-edit data-tab="explore">이 구성 편집</button></details><div id="opt-validation" class="opt-validation" role="alert" hidden></div>
+host.innerHTML=`<div class="opt-heading"><h1>자유 추천</h1><span class="opt-caption">핵심 유지 → 사냥 조건 → 추천 비교</span></div>
+<section class="opt-free-step opt-core-step" aria-labelledby="opt-core-title"><header class="opt-step-heading"><div><small>STEP 01</small><h2 id="opt-core-title">유지할 핵심</h2><p>반드시 남길 도술만 잠그세요. 잠그지 않은 도술과 순서·배치는 엔진이 자유롭게 바꿉니다.</p></div><span id="opt-required-count" role="status"></span></header>
+<div id="opt-core-build" class="opt-core-build" aria-label="현재 빌드 핵심 고정"></div>
+<div class="opt-core-controls"><label><span>신식</span><select id="opt-required-shinsik"><option value="">엔진이 결정</option></select></label><label><span>궁극기</span><select id="opt-ultimate-policy"><option value="auto">엔진이 결정</option><option value="keep">현재 궁극기 유지</option><option value="off">사용하지 않음</option></select></label></div>
+<select id="opt-start-mode" hidden aria-hidden="true"><option value="current">현재 빌드 개선</option><option value="conditions">선택 조건으로 새 빌드 만들기</option></select><input type="checkbox" id="opt-use-ultimate" hidden>
+<details class="opt-advanced opt-build-advanced"><summary>고급 빌드 조건</summary><div id="opt-conditions" hidden><p>주력 계열 <small>선택하지 않으면 엔진이 결정</small></p><div id="opt-required-families" class="opt-families"></div><p>제외할 계열</p><div id="opt-excluded-families" class="opt-families"></div><p id="opt-support-scope" class="opt-caption"></p><div class="opt-picker-heading"><b>추가로 고정할 도술</b></div><div id="opt-skill-picker"></div><div id="opt-required-chips" class="opt-families"></div></div></details></section>
+<section id="opt-current-scope" class="opt-panel opt-current-scope" hidden aria-labelledby="opt-scope-title"><h2 id="opt-scope-title">탐색 계열</h2><div id="opt-families" class="opt-families"></div><p id="opt-ultimate" class="opt-caption"></p></section><details id="opt-preview" class="opt-preview" hidden><summary id="opt-preview-title">현재 빌드</summary><div id="opt-build" class="opt-build"></div><div id="opt-equipment" class="opt-caption"></div><button data-opt-edit data-tab="explore">이 구성 편집</button></details><div id="opt-validation" class="opt-validation" role="alert" hidden></div>
 <div id="opt-empty" hidden><b>먼저 사용할 도술을 배치하세요.</b><button data-tab="explore">도술 배치하기 →</button></div>
 <div id="opt-work">
-<h2 class="opt-step-title">02 · 평가 설정</h2><div class="opt-grid">
+<section class="opt-free-step opt-hunt-step" aria-labelledby="opt-hunt-title"><header class="opt-step-heading"><div><small>STEP 02</small><h2 id="opt-hunt-title">사냥 조건</h2><p>인게임 정보와 사냥터만 정하면 체력 조건은 별도 실행 없이 함께 계산합니다.</p></div></header>
+<div class="opt-condition-summary"><button type="button" class="opt-summary-tile" data-open-opt-advanced><span class="opt-summary-icon" aria-hidden="true">✓</span><span><small>인게임 정보</small><b id="opt-character-summary">정보 입력 필요</b><em>능력치 확인·수정</em></span></button><label class="opt-summary-tile opt-zone-tile"><span class="opt-summary-icon" aria-hidden="true">⌖</span><span><small>사냥터</small><select id="opt-zone-to" aria-label="사냥할 사냥터"></select></span></label><div class="opt-summary-tile"><span class="opt-summary-icon" aria-hidden="true">A</span><span><small>자동 조작</small><b id="opt-auto-summary">현재 설정 유지</b><em>ON/OFF·체력 조건 보존</em></span></div></div>
+<details id="opt-advanced-evaluation" class="opt-advanced opt-evaluation-advanced"><summary>고급 평가 조건</summary><div class="opt-grid">
 <section class="opt-panel" aria-labelledby="opt-stats-title"><h2 id="opt-stats-title">캐릭터 능력치</h2>
 <label>최대 체력<input id="opt-maxhp" type="number" min="0" inputmode="numeric"></label><label>공격력<input id="opt-attack" type="number" min="0" inputmode="numeric"></label>
 <label>체력 자연 회복<input id="opt-regen" type="number" min="0" inputmode="numeric" placeholder="0"></label>
 <p id="opt-stats-note" class="opt-caption"></p></section>
 <section class="opt-panel" aria-labelledby="opt-need-title"><h2 id="opt-need-title">사냥 환경</h2>
+<label>공격 대상<select id="opt-target-mode"><option value="single">단일 사냥 · 범위 피해 제외</option><option value="area">범위 · 여러 마리 기준</option></select></label>
 <div id="opt-damage-modes" class="opt-modes" role="radiogroup" aria-label="받는 피해를 정하는 방법">
 <label><input type="radio" name="opt-mode" value="measure"> 사냥 실측 </label>
 <label><input type="radio" name="opt-mode" value="incoming"> 받는 피해 입력</label></div>
@@ -46,17 +50,13 @@ host.innerHTML=`<div class="opt-heading"><h1>빌드 최적화</h1><span class="o
 <li>측정 내내 전투를 이어 갑니다. 전투가 끊기면 자연 회복이 1초마다 들어와 결과가 달라집니다.</li>
 <li>측정 중에는 빌드·장비를 바꾸지 않습니다. 3~5분이면 충분합니다.</li></ul></details></div>
 <div id="opt-incoming-row" class="opt-inline"><label>1회 받는 피해 · 1마리<input id="opt-hit-damage" type="number" min="0" inputmode="numeric"></label><label>공격 간격 · 초<input id="opt-hit-interval" type="number" min="0.01" step="0.1"></label><label>받는 피해 / 분 · 1마리<input id="opt-incoming" type="number" min="0" inputmode="numeric"></label><span id="opt-hit-rate" class="opt-caption"></span></div>
-<div class="opt-zone"><label>목표 사냥터<select id="opt-zone-to" aria-label="사냥할 사냥터"></select></label><label><span>내 전투력 <small>(선택)</small></span><input id="opt-power" type="number" min="0" inputmode="numeric"></label><p id="opt-zone" class="opt-caption"></p></div>
+<div class="opt-zone"><label><span>내 전투력 <small>(선택)</small></span><input id="opt-power" type="number" min="0" inputmode="numeric"></label><p id="opt-zone" class="opt-caption"></p></div>
 <label>사냥 계산 방식<select id="opt-model" aria-label="사냥 계산 방식"><option value="spatial">이동·처치·몬스터 재등장 반영</option><option value="legacy">이동 없이 평균 적중 수로 계산</option></select></label><details class="opt-model-details"><summary>계산 조건</summary><p id="opt-world" class="opt-caption"></p></details><p id="opt-need" class="opt-need" role="status"></p></section>
-
-</div>
-<div class="opt-run"><strong>03 · 추천 탐색</strong><button id="opt-run" class="primary">추천 빌드 찾기</button><button id="opt-cancel" hidden>중지</button><progress id="opt-progress" max="1" value="0" hidden></progress><span id="opt-status" role="status" aria-live="polite"></span></div>
+</div></details>
+<div class="opt-run"><button id="opt-run" class="primary">새 빌드 추천</button><button id="opt-cancel" hidden>중지</button><progress id="opt-progress" max="1" value="0" hidden></progress><span id="opt-status" role="status" aria-live="polite"></span></div></section>
 <section id="opt-live" hidden aria-live="polite"><h2>탐색 중 후보 <small>최종 검증 전</small></h2><div id="opt-live-builds"></div></section><section id="opt-results" hidden aria-label="최적화 결과"><p id="opt-stale" class="opt-warning" hidden>빌드나 입력이 바뀌었습니다. 아래 결과는 이전 기준입니다.</p>
-<h2 class="opt-step-title">04 · 비교 및 적용</h2><div id="opt-card" class="opt-card"></div>
-<p id="opt-found" class="opt-caption"></p><details><summary>탐색 기록</summary><div id="opt-diagnostics"></div></details>
-<div class="opt-export"><button id="opt-export-md">분석용 내보내기 (.md)</button><button id="opt-export-copy">분석용 텍스트 복사</button><span id="opt-export-status" role="status" aria-live="polite"></span></div>
-<section id="opt-mechanism-groups"></section><details id="opt-similar" class="opt-more"><summary>비슷한 빌드 보기 <span id="opt-similar-count"></span></summary><div id="opt-similar-body" class="opt-alts"></div></details>
-<details id="opt-different" class="opt-more"><summary>다른 도술 조합 보기 <span id="opt-different-count"></span></summary><div id="opt-different-body" class="opt-alts"></div></details></section>
+<header class="opt-step-heading"><div><small>STEP 03</small><h2>추천 결과</h2><p>목표가 다른 세 가지 빌드를 비교한 뒤 하나를 선택해 적용하세요.</p></div><span id="opt-found" class="opt-caption"></span></header><div id="opt-direction-cards" class="opt-direction-cards"></div><div id="opt-result-comparison" class="opt-result-comparison"></div>
+<details class="opt-result-details"><summary>상세 비교와 다른 후보</summary><div id="opt-card" class="opt-card"></div><details><summary>탐색 기록</summary><div id="opt-diagnostics"></div></details><div class="opt-export"><button id="opt-export-md">분석용 내보내기 (.md)</button><button id="opt-export-copy">분석용 텍스트 복사</button><span id="opt-export-status" role="status" aria-live="polite"></span></div><section id="opt-mechanism-groups"></section><details id="opt-similar" class="opt-more"><summary>비슷한 빌드 보기 <span id="opt-similar-count"></span></summary><div id="opt-similar-body" class="opt-alts"></div></details><details id="opt-different" class="opt-more"><summary>다른 도술 조합 보기 <span id="opt-different-count"></span></summary><div id="opt-different-body" class="opt-alts"></div></details></details></section>
 <details id="opt-basis" class="opt-assumptions"><summary>계산 근거 보기</summary>
 <div id="opt-data" class="opt-data"><span id="opt-data-text"></span><button id="opt-sync">깨비지지 동기화</button><span id="opt-sync-status" role="status" aria-live="polite"></span></div>
 <div class="opt-section-title"><h2>현재 빌드의 회복·보호막</h2><span id="opt-current-total"></span></div>
@@ -82,24 +82,34 @@ host.innerHTML=`<div class="opt-heading"><h1>빌드 최적화</h1><span class="o
 // zone's attack ratio and each candidate's pull scale it back up.
 function searchFamilies(){return (settings.startMode==='conditions'?FAMILIES:settings.families||familiesOf(build)).filter(f=>!(settings.excludedFamilies||[]).includes(f));}
 function conditions(){return {useUltimate:settings.useUltimate!==false,targetMode:settings.targetMode,requiredSkills:settings.requiredSkills||[],primaryFamily:settings.primaryFamily,excludedFamilies:settings.excludedFamilies||[],requiredShinsik:settings.requiredShinsik||[]};}
-function startState(){if(settings.startMode==='conditions'&&!settings.primaryFamily)throw Error('주력 계열을 먼저 선택하세요.');return settings.startMode==='conditions'?O.conditionSeed(D,conditions(),searchFamilies()):{ids:[...build],baseSlots:[...D.baseSlots]};}
+function startState(){return settings.startMode==='conditions'?O.conditionSeed(D,conditions(),searchFamilies(),build):{ids:[...build],baseSlots:[...D.baseSlots]};}
+const lockIcon=locked=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2h1.2A1.8 1.8 0 0 1 20 11.8v7.4a1.8 1.8 0 0 1-1.8 1.8H5.8A1.8 1.8 0 0 1 4 19.2v-7.4A1.8 1.8 0 0 1 5.8 10H7Zm2 0h6V8a3 3 0 0 0-6 0v2Z"/></svg><span>${locked?'고정':'자유'}</span>`;
+function renderFreeSummary(){
+ const st=stats(),ready=st.attack>0&&st.maxHp>0,policy=window.DosulAutoControl?.snapshot?.()||D.executionPolicy||{},disabled=(policy.disabled||[]).filter(id=>build.includes(id)).length,hp=Object.keys(policy.hpBelow||{}).filter(id=>build.includes(id)).length;
+ q('#opt-character-summary').textContent=ready?`공격력 ${f(st.attack)} · 체력 ${f(st.maxHp)}`:'정보 입력 필요';
+ q('#opt-auto-summary').textContent=disabled||hp?`자동 OFF ${disabled}개 · 체력 조건 ${hp}개`:'모든 도술 자동 ON';
+ window.updateFreeRecommendStatus?.();
+}
 function renderConditions(){
  q('#opt-preview-title').textContent=settings.startMode==='conditions'?'자동 생성 시작안 · 최적화 전':'현재 빌드';q('#opt-current-scope').hidden=settings.startMode==='conditions';q('#opt-damage-modes').hidden=settings.startMode==='conditions';q('#opt-start-mode').value=settings.startMode;q('#opt-conditions').hidden=settings.startMode!=='conditions';
  q('#opt-use-ultimate').checked=settings.useUltimate!==false;
- q('#opt-required-families').innerHTML=FAMILIES.map(f=>`<label><input type="radio" name="opt-primary-family" data-required-family="${f}" ${settings.primaryFamily===f?'checked':''}>${f}</label>`).join('');
+ q('#opt-required-families').innerHTML=`<label><input type="radio" name="opt-primary-family" data-primary-auto ${settings.primaryFamily?'':'checked'}>엔진이 결정</label>`+FAMILIES.map(f=>`<label><input type="radio" name="opt-primary-family" data-required-family="${f}" ${settings.primaryFamily===f?'checked':''}>${f}</label>`).join('');
  q('#opt-excluded-families').innerHTML=FAMILIES.map(f=>`<label><input type="checkbox" data-excluded-family="${f}" ${(settings.excludedFamilies||[]).includes(f)?'checked':''} ${f===settings.primaryFamily?'disabled':''}>${f}</label>`).join('');
  q('#opt-support-scope').textContent=`보조 도술 · 제외 계열 외 ${searchFamilies().length}개 계열에서 자동 탐색`;
  const chosen=searchFamilies(),fixed=settings.requiredSkills||[];
- q('#opt-required-count').textContent=`${fixed.length}개 필수 포함`;
- q('#opt-skill-picker').innerHTML=chosen.length?chosen.map(f=>`<section class="opt-skill-family"><h3>${esc(f)}</h3><div class="opt-skill-grid">${D.skills.filter(s=>s.family===f&&(!s.ultimate||settings.useUltimate!==false&&s.family===settings.primaryFamily)).map(s=>`<button type="button" class="opt-skill-choice" data-toggle-required="${s.id}" aria-pressed="${fixed.includes(s.id)}" title="${esc(s.name)} 필수 포함 전환">${icon(s)}<span><b>${esc(s.name)}</b><small>${s.ultimate?'궁극기':esc(s.targeting?.kind==='single'?'단일':s.targeting?.kind==='self'?'자신':'범위·기타')}</small></span><span class="opt-choice-mark" aria-hidden="true">${fixed.includes(s.id)?'✓':'+'}</span></button>`).join('')}</div></section>`).join(''):'<p class="opt-caption">계열을 먼저 선택하세요.</p>';
+ q('#opt-required-count').textContent=`핵심 ${fixed.length}개 고정`;
+ q('#opt-core-build').innerHTML=build.length?build.map((id,i)=>{const s=byId(id),locked=fixed.includes(id),off=D.executionPolicy?.disabled?.includes(id);return `<button type="button" class="opt-core-skill ${locked?'is-locked':''} ${off?'is-auto-off':''} ${s?.ultimate?'is-ultimate':''}" data-toggle-required="${esc(id)}" aria-pressed="${locked}" aria-label="${esc(s.name)} ${locked?'고정 해제':'핵심으로 고정'}"><small>${s.ultimate?'궁극기':String(i+1).padStart(2,'0')}</small><span class="opt-core-lock">${lockIcon(locked)}</span>${icon(s)}<b>${esc(s.name)}</b>${styleBadge(s)}${off?'<em>자동 OFF</em>':''}</button>`;}).join(''):'<p class="opt-core-empty">현재 빌드가 비어 있습니다. 핵심을 고정하지 않아도 새 빌드를 탐색할 수 있습니다.</p>';
+ q('#opt-skill-picker').innerHTML=chosen.length?chosen.map(f=>`<section class="opt-skill-family"><h3>${esc(f)}</h3><div class="opt-skill-grid">${D.skills.filter(s=>s.family===f&&!s.ultimate).map(s=>`<button type="button" class="opt-skill-choice" data-toggle-required="${s.id}" aria-pressed="${fixed.includes(s.id)}" title="${esc(s.name)} 필수 포함 전환">${icon(s)}<span><b>${esc(s.name)}</b><small>${esc(s.targeting?.kind==='single'?'단일':s.targeting?.kind==='self'?'자신':'범위·기타')}</small></span><span class="opt-choice-mark" aria-hidden="true">${fixed.includes(s.id)?'✓':'+'}</span></button>`).join('')}</div></section>`).join(''):'<p class="opt-caption">사용 가능한 계열이 없습니다.</p>';
  q('#opt-required-chips').innerHTML='';
- q('#opt-required-shinsik').innerHTML='<option value="">엔진이 결정</option>'+chosen.map(f=>`<option>${f}</option>`).join('');q('#opt-required-shinsik').value=settings.requiredShinsik?.[0]||'';
+ q('#opt-required-shinsik').innerHTML='<option value="">엔진이 결정</option>'+chosen.map(f=>`<option value="${f}">${esc(window.DosulCombat?.rules?.[f]?.name||f)} · ${f}</option>`).join('');q('#opt-required-shinsik').value=settings.requiredShinsik?.[0]||'';
+ const currentUlt=build.map(byId).find(s=>s?.ultimate),ultimatePolicy=q('#opt-ultimate-policy');ultimatePolicy.querySelector?.('option[value="keep"]')?.toggleAttribute?.('disabled',!currentUlt);ultimatePolicy.value=settings.useUltimate===false?'off':currentUlt&&fixed.includes(currentUlt.id)?'keep':'auto';
+ renderFreeSummary();
 }
 function evalCurrent(){
  let initial;try{initial=startState();}catch(e){return {valid:false,issue:e.message};}
  const evalIds=initial.ids,evalBase=initial.baseSlots;
 
- const ctx={targetMode:settings.targetMode,encounter:settings.encounter===true,stats:stats(),overrides:settings.overrides,profile:SEARCH_PROFILE,horizon:180};
+ const ctx={targetMode:settings.targetMode,encounter:settings.encounter===true,executionPolicy:D.executionPolicy||{},stats:stats(),overrides:settings.overrides,profile:SEARCH_PROFILE,horizon:180};
  const generating=settings.startMode==='conditions',measuring=!generating&&settings.mode==='measure',from=measuring?zoneById(settings.zoneFrom):null,to=zoneById(settings.zoneTo)||from;
  const base=O.evaluate(D,evalIds,evalBase,{...ctx,zone:from||to,keepRun:true});if(!base.valid)return {valid:false,issue:base.issue};
  let measured=null,perMob=null,how=null,error=null;
@@ -165,6 +175,7 @@ function renderInputs(){
  q('#opt-incoming-row').hidden=settings.mode!=='incoming';q('#opt-measure-row').hidden=settings.mode!=='measure';
  const fams=searchFamilies();
  q('#opt-families').innerHTML=FAMILIES.map(x=>`<label><input type="checkbox" data-opt-family="${x}" ${fams.includes(x)?'checked':''}>${styleBadge({family:x})}</label>`).join('');
+ renderFreeSummary();
 }
 function lifeText(r){
  if(r.life===null)return r.link?.ambiguous?'후보 '+r.link.lives.map(l=>Number.isFinite(l)?l+'초':'무한').join('/'):'사전 없음';
@@ -203,8 +214,9 @@ function renderNeed(){
  const ult=build.map(byId).find(s=>s?.ultimate);q('#opt-ultimate').textContent=ult?`현재 궁극기 · ${ult.name}`:'궁극기 미배치';
  q('#opt-run').disabled=!!search||!current?.valid||(n.value===null&&!n.unassessed)||miss.length>0;
  if(lastResults)q('#opt-stale').hidden=resultContext===key();
+ renderFreeSummary();
 }
-function key(){return JSON.stringify([build,D.baseSlots,settings]);}
+function key(){return JSON.stringify([build,D.baseSlots,settings,D.executionPolicy||{}]);}
 function sync(force){
  renderConditions();const empty=!build.length&&settings.startMode!=='conditions';q('#opt-empty').hidden=!empty;q('#opt-work').hidden=empty;renderData();
  let preview;try{preview=startState();}catch{preview={ids:[],baseSlots:[]};}q('#opt-build').innerHTML=strip(preview.ids);
@@ -392,11 +404,34 @@ function noneCard(){
  if(!best)return head+why;
  return head+why+improve+`<h3 class="opt-closest-title">가장 근접한 빌드</h3><p class="opt-summary">${esc(summary(best))}</p><div class="opt-build opt-card-build">${tiles(best)}</div><p class="opt-caption">${changeText(best)} · 분당 처치 ${kills(best.verification.minPower)} · 몹 평균 ${best.verification.attackers.toFixed(2)}마리 · 기본 장착: ${best.baseSlots.map(id=>esc(byId(id).name)).join(' · ')}</p>`;
 }
+function linkStats(c,currentBuild=false){
+ const ids=currentBuild?(lastResults.start.startIds||build):c.ids,base=currentBuild?(lastResults.start.startBase||D.baseSlots):c.baseSlots;
+ try{
+  if(typeof DosulLinkTiming!=='undefined'&&typeof E!=='undefined'&&Array.isArray(E.connections)){const rows=DosulLinkTiming.evaluate({...D,executionPolicy:D.executionPolicy||{}},ids,base,E.connections),passed=rows.reduce((n,x)=>n+(x.timing?.valid||0),0),total=rows.reduce((n,x)=>n+(x.timing?.total||0),0);return {passed,total};}
+ }catch{}
+ const evaluated=currentBuild?lastResults.start:detail(c),rows=(evaluated.rows||[]).filter(x=>x.condition);return {passed:rows.reduce((n,x)=>n+(x.triggers||0),0),total:rows.reduce((n,x)=>n+(x.triggers||0),0)};
+}
+function freeDirections(list){
+ if(!list.length)return [];
+ const scored=list.map((x,i)=>({...x,i,detail:detail(x.c),room:left(x.c),links:linkStats(x.c)})),used=new Set(),pick=sort=>{const ranked=[...scored].sort(sort),found=ranked.find(x=>!used.has(x.i))||ranked[0];used.add(found.i);return found;};
+ const fast=pick((a,b)=>b.c.verification.minPower-a.c.verification.minPower||b.detail.casts-a.detail.casts),stable=pick((a,b)=>(b.room??-Infinity)-(a.room??-Infinity)||b.c.verification.minPerMin-a.c.verification.minPerMin),linked=pick((a,b)=>b.links.passed-a.links.passed||a.detail.idle-b.detail.idle);
+ return [{id:'fast',title:'빠른 사냥',eyebrow:'처치 속도 우선',entry:fast,reason:`예상 분당 처치 수를 ${kills(lastResults.start.verification.minPower)}에서 ${kills(fast.c.verification.minPower)}로 높이는 구성을 우선했습니다.`},{id:'stable',title:'안정 사냥',eyebrow:'회복 여유 우선',entry:stable,reason:stable.room===null?'받는 피해가 없어 생존 여유는 평가하지 않고 회복·보호막 생성량이 큰 구성을 골랐습니다.':`자연 회복을 포함한 회복·보호막 여유를 분당 ${signed(stable.room)} 확보하는 구성을 우선했습니다.`},{id:'links',title:'연계 중심',eyebrow:'조건 적중 우선',entry:linked,reason:linked.links.passed>0?`60초 반복 흐름에서 조건 연계 적중 ${linked.links.passed}회를 확인한 구성을 우선했습니다.`:'현재 조건에서 확인된 연계 적중 후보가 없어, 평타 대기가 가장 짧은 대안을 표시했습니다.'}];
+}
+function compactStrip(ids){return ids.map((id,i)=>{const s=byId(id);return `<span class="${s?.ultimate?'is-ultimate':''}"><small>${s?.ultimate?'궁극기':String(i+1).padStart(2,'0')}</small>${icon(s)}<b>${esc(s.name)}</b></span>`;}).join('');}
+function renderFreeResults(list){
+ const directions=freeDirections(list),available=new Set(directions.map(x=>x.entry.i));if(!available.has(activeResultPick))activeResultPick=directions[0]?.entry.i??0;
+ q('#opt-direction-cards').innerHTML=directions.length?directions.map(x=>{const c=x.entry.c,d=x.entry.detail,selected=x.entry.i===activeResultPick,l=x.entry.links,wait=Number.isFinite(d.idle)?d.idle:null;return `<article class="opt-direction-card ${selected?'is-selected':''}" data-direction="${x.id}"><header><span><small>${esc(x.eyebrow)}</small><h3>${esc(x.title)}</h3></span><button type="button" data-opt-select-result="${x.entry.i}" aria-pressed="${selected}">${selected?'선택됨':'이 결과 보기'}</button></header><div class="opt-direction-strip">${compactStrip(c.ids)}</div><dl><div><dt>분당 처치</dt><dd>${kills(c.verification.minPower)} <em>${pct(power(c))}</em></dd></div><div><dt>평타 대기</dt><dd>${wait===null?'—':wait.toFixed(1)+'초'}</dd></div><div><dt>연계 적중</dt><dd>${l.passed}회</dd></div><div><dt>생존 여유</dt><dd>${x.entry.room===null?'미평가':'분당 '+signed(x.entry.room)}</dd></div></dl><p>${esc(x.reason)}</p></article>`;}).join(''):'<div class="opt-no-direction">조건을 만족하는 추천 빌드를 찾지 못했습니다.</div>';
+ const selected=list[activeResultPick]||list[0];if(!selected){q('#opt-result-comparison').innerHTML=noneCard();return;}
+ const c=selected.c,baseIds=lastResults.start.startIds||build,baseLinks=linkStats(null,true),nextLinks=linkStats(c),selectedDirection=directions.find(x=>x.entry.i===activeResultPick);
+ const linkDelta=nextLinks.passed-baseLinks.passed,linkChange=linkDelta>0?`${linkDelta}회 늘어납니다`:linkDelta<0?`${Math.abs(linkDelta)}회 줄어듭니다`:'같습니다';
+ q('#opt-result-comparison').innerHTML=`<div class="opt-comparison-heading"><div><small>${esc(selectedDirection?.title||'추천')} 선택</small><h3>현재 빌드와 추천 빌드 비교</h3></div><div class="opt-comparison-actions"><button type="button" data-opt-next-direction>다른 추천</button><button type="button" class="primary" data-opt-apply="${activeResultPick}">추천 적용</button></div></div><div class="opt-comparison-builds"><section><h4>현재 빌드</h4><div class="opt-direction-strip">${compactStrip(baseIds)}</div></section><span aria-hidden="true">→</span><section class="recommended"><h4>추천 빌드</h4><div class="opt-direction-strip">${compactStrip(c.ids)}</div></section></div><p class="opt-comparison-summary">${esc(summary(c))} 조건 연계 적중은 ${baseLinks.passed}회에서 ${nextLinks.passed}회로 ${linkChange}.</p>`;
+}
 function renderResults(){
  q('#opt-results').hidden=false;q('#opt-stale').hidden=true;
  const list=picks(),rest=list.slice(1);
  q('#opt-card').innerHTML=list.length?card(list[0].c):noneCard();
  q('#opt-card').classList.toggle('opt-card-empty',!list.length);
+ renderFreeResults(list);
  // Similar builds (few skills changed) and different combinations are separate sections, each ranked on its own.
  const r=lastResults;const diag=r.diagnostics;q('#opt-diagnostics').textContent=diag?`계산 ${diag.evaluated} · 유효 ${diag.valid} · 신식을 함께 활용하는 조합 ${diag.bundleProposals} · 서로 다른 후보 ${diag.diversity?.occupied||0}개 유지${diag.selection?` · 몬스터 이동 반영 재계산 ${diag.selection.spatialEvaluations}회 · 합계 ${diag.selection.totalEvaluations}회`:""}. 탈락: ${Object.entries(diag.invalidReasons).map(([k,v])=>k+' '+v+'회').join(' / ')||'없음'}. 궁극기별 유효/계산: ${Object.entries(diag.byUltimate).map(([id,x])=>(byId(id)?.name||id)+' '+x.valid+'/'+x.evaluated).join(' · ')}`:'진단 기록 없음';q('#opt-found').textContent=list.length?`${current?.unassessed?'계산 가능한 구성':'버티는 구성'} ${f(r.feasible)}개 · 도술 조합 ${f(r.sets)}가지 중 그룹별 상위 ${GROUP_SIZE}개를 보여 줍니다.`:'';
  const groups=displayGroups();
@@ -500,12 +535,14 @@ host.addEventListener('input',e=>{
 });
 host.addEventListener('change',e=>{
  const t=e.target;
+ if(t.id==='opt-ultimate-policy'){if(search)stop('궁극기 조건 변경');const currentUlt=build.map(byId).find(s=>s?.ultimate);settings.useUltimate=t.value!=='off';settings.requiredSkills=(settings.requiredSkills||[]).filter(id=>!byId(id)?.ultimate);if(t.value==='keep'&&currentUlt)settings.requiredSkills.push(currentUlt.id);lastResults=null;q('#opt-results').hidden=true;q('#opt-live').hidden=true;save();context='';sync(true);return;}
  if(t.id==='opt-use-ultimate'){if(search)stop('궁극기 조건 변경');settings.useUltimate=t.checked;if(!t.checked)settings.requiredSkills=(settings.requiredSkills||[]).filter(id=>!byId(id)?.ultimate);lastResults=null;q('#opt-results').hidden=true;q('#opt-live').hidden=true;save();context='';sync(true);return;}
  if(t.id==='opt-hp-capped'){if(search)stop('측정 조건 변경');settings.measure.hpCapped=t.checked;lastResults=null;q('#opt-results').hidden=true;save();sync(true);return;}
  if(t.id==='opt-target-mode'){if(search)stop('공격 대상 변경');lastResults=null;q('#opt-results').hidden=true;q('#opt-live').hidden=true;settings.targetMode=t.value==='single'?'single':'area';save();context='';sync(true);return;}
- if(t.id==='opt-start-mode'||t.dataset.requiredFamily||t.dataset.excludedFamily||t.id==='opt-required-skill'||t.id==='opt-required-shinsik'){
+ if(t.id==='opt-start-mode'||t.dataset.primaryAuto!==undefined||t.dataset.requiredFamily||t.dataset.excludedFamily||t.id==='opt-required-skill'||t.id==='opt-required-shinsik'){
   if(search)stop('조건이 바뀌어 탐색을 중지했습니다.');
   if(t.id==='opt-start-mode'){settings.startMode=t.value;if(t.value==='conditions')settings.mode='incoming';}
+  if(t.dataset.primaryAuto!==undefined){settings.primaryFamily='';settings.requiredFamilies=[];}
   if(t.dataset.requiredFamily){settings.primaryFamily=t.dataset.requiredFamily;settings.excludedFamilies=(settings.excludedFamilies||[]).filter(f=>f!==settings.primaryFamily);settings.requiredFamilies=[];settings.requiredSkills=(settings.requiredSkills||[]).filter(id=>!byId(id)?.ultimate||byId(id).family===settings.primaryFamily);settings.requiredShinsik=(settings.requiredShinsik||[]).filter(f=>f===settings.primaryFamily);}
   if(t.dataset.excludedFamily){const f=t.dataset.excludedFamily;if(f===settings.primaryFamily)return;settings.excludedFamilies=[...new Set([...(settings.excludedFamilies||[]).filter(x=>x!==f),...(t.checked?[f]:[])])];settings.requiredSkills=(settings.requiredSkills||[]).filter(id=>!settings.excludedFamilies.includes(byId(id)?.family));settings.requiredShinsik=(settings.requiredShinsik||[]).filter(f=>!settings.excludedFamilies.includes(f));}
   if(t.id==='opt-required-skill'&&t.value)settings.requiredSkills=[...new Set([...(settings.requiredSkills||[]),t.value])];
@@ -522,6 +559,9 @@ host.addEventListener('change',e=>{
  save();if(settings.startMode==='conditions')recalc();else renderNeed();
 });
 host.addEventListener('click',e=>{
+ const openAdvanced=e.target.closest('[data-open-opt-advanced]');if(openAdvanced){const details=q('#opt-advanced-evaluation');details.open=true;details.scrollIntoView?.({block:'nearest',behavior:'smooth'});return;}
+ const selectResult=e.target.closest('[data-opt-select-result]');if(selectResult&&lastResults){activeResultPick=Number(selectResult.dataset.optSelectResult);renderFreeResults(picks());return;}
+ if(e.target.closest('[data-opt-next-direction]')&&lastResults){const choices=freeDirections(picks()),at=choices.findIndex(x=>x.entry.i===activeResultPick),next=choices[(at+1+choices.length)%choices.length];if(next){activeResultPick=next.entry.i;renderFreeResults(picks());}return;}
  const groupButton=e.target.closest('[data-opt-group]');if(groupButton){activeResultGroup=Number(groupButton.dataset.optGroup);renderResults();return;}
  const toggle=e.target.closest('[data-toggle-required]');if(toggle){if(search)stop('조건 변경');const id=toggle.dataset.toggleRequired,old=settings.requiredSkills||[];settings.requiredSkills=old.includes(id)?old.filter(x=>x!==id):[...old,id];save();sync(true);return;}
  if(e.target.closest('[data-opt-edit]')){try{const initial=startState();if(search)stop('순서 편집');if(settings.startMode==='conditions'){remember();commit([...initial.ids],0,[...initial.baseSlots]);settings.startMode='current';save();context='';toast('표시된 구성을 순서 구성에 적용했습니다. 되돌릴 수 있습니다.');}}catch(error){e.stopPropagation?.();toast(error.message);}return;}

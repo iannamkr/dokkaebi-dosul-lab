@@ -4,7 +4,7 @@ const previous=new WeakMap(),lists=new WeakMap();let imageInstance=0;
 function imageKey(img){return [img.getAttribute('src'),img.className,img.getAttribute('width'),img.getAttribute('height')].join('|');}
 function reconcile(host,nodes){const wanted=new Set(nodes);for(const child of [...host.children])if(!wanted.has(child))child.remove();let cursor=host.firstChild;for(const node of nodes){if(node!==cursor)host.insertBefore(node,cursor);cursor=node.nextSibling;}}
 function update(host,html){
- if(previous.get(host)===html)return false;
+ if(previous.get(host)===html&&(html===''||host.hasChildNodes()))return false;
  const template=document.createElement('template');template.innerHTML=html;
  if(host.id==='skill-list'){
   let cache=lists.get(host);if(!cache){cache=new Map();lists.set(host,cache);}

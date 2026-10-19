@@ -13,3 +13,12 @@ const sums=T.summary(D.skills);assert.equal(Object.values(sums).reduce((a,b)=>a+
 assert.equal(T.summary([s('크게 베기'),s('찌르기')]).area,1);
 assert.equal(D.skills.filter(s=>s.family==='강타'&&T.get(s).kind==='unknown').length,0);
 console.log('Passed: target type/count separation, provenance, filtering, totals and all smash types.',sums);
+
+assert.equal(T.distance(s("방패 치기")),"melee");
+assert.equal(T.distance(s("일점 저격")),"ranged");
+assert.equal(T.distance(s("생명의 흐름")),"unknown");
+assert.equal(T.distance({basic:{range:3,target:"단일"}}),"melee");
+assert.equal(T.distance({basic:{range:3.1,target:"단일"}}),"ranged");
+assert.equal(T.matchesDistance({basic:{}},"melee"),false);
+assert.equal(T.matchesDistance(s("생명의 흐름"),"all"),true);
+assert(D.skills.filter(x=>T.matches(x,"single")&&T.matchesDistance(x,"melee")).some(x=>x.name==="방패 치기"));

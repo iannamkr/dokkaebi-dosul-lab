@@ -23,6 +23,7 @@ function apply(data,snap){
 
   }
   s.referenceDetail=s.referenceDetail||{buffs:[],debuffs:[]};
+  if(k.d&&s.referenceDetail.description!==k.d){report.changes.push({id:s.id,name:s.name,field:'도술 설명',before:s.referenceDetail.description||null,after:k.d});s.referenceDetail.description=k.d;}
   for(const h of k.hit||[]){
    const list=h.t==='강화'?(s.referenceDetail.buffs=s.referenceDetail.buffs||[]):h.t==='약화'?(s.referenceDetail.debuffs=s.referenceDetail.debuffs||[]):null;if(!list||!h.n)continue;
    const description=(h.l||[]).join(' '),entry=list.find(b=>b.name===h.n);

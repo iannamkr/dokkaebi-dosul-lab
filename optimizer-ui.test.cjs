@@ -91,7 +91,7 @@ console.log('Optimizer UI: stats gate, measured need, persistence, run, JSON exp
 
 const modelInput=el('#opt-model');modelInput.value='spatial';hostListeners.change({target:modelInput});assert.match(el('#opt-world').textContent,/예상: 분당 처치/);assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).encounter,true);
 
-ctx.build=[];ctx.syncBuildOptimizer();const mode=el('#opt-start-mode');mode.value='conditions';hostListeners.change({target:mode});assert.equal(el('#opt-work').hidden,false);assert.match(el('#opt-validation').innerHTML,/주력 계열을 먼저/);assert.equal(ctx.build.length,0);
+ctx.build=[];ctx.syncBuildOptimizer();const mode=el('#opt-start-mode');mode.value='conditions';hostListeners.change({target:mode});assert.equal(el('#opt-work').hidden,false);assert.equal(el('#opt-validation').hidden,true,'No primary family is a valid engine-decides state');assert.match(el('#opt-required-families').innerHTML,/엔진이 결정/);assert.equal(ctx.build.length,0);
 let selectedFamilies=['강타','연타'];host.querySelectorAll=sel=>sel==='[data-required-family]:checked'?selectedFamilies.map(f=>({dataset:{requiredFamily:f}})):[];
 hostListeners.change({target:{dataset:{requiredFamily:'강타'}}});assert.match(el('#opt-equipment').textContent,/비교용/);assert.match(el('#opt-skill-picker').innerHTML,/회전 난격/);assert(el('#opt-skill-picker').innerHTML.includes('도약 찌르기'),'Supporting skills remain available across families');
 const requiredId=D.skills.find(s=>s.name==='회전 난격').id;click('[data-toggle-required]',{toggleRequired:requiredId});assert.match(el('#opt-skill-picker').innerHTML,/aria-pressed="true"/);assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).requiredSkills[0],requiredId);assert.equal(ctx.build.length,0);

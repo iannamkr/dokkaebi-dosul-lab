@@ -20,10 +20,11 @@ function evaluate(data,ids,baseSlots,connections){
  if(!connections.length)return [];
  const A=typeof module!=='undefined'?require('./timing-auto.js'):root.DosulAuto,C=typeof module!=='undefined'?require('./combat.js'):root.DosulCombat;
  let memo=cache.get(data);if(!memo){memo=new Map();cache.set(data,memo);}
- const key=JSON.stringify([ids,baseSlots]);
+ const key=JSON.stringify([ids,baseSlots,data.executionPolicy]);
  if(!memo.has(key)){if(memo.size>240)memo.clear();memo.set(key,C.run({...data,baseSlots},ids,60,true));}
  const sim=memo.get(key);
  return connections.map(e=>({...e,timing:e.type==='resource'?{status:'unknown',eligible:false,ratio:0,duration:null,total:0,valid:0}:summarize(A.assess(data,sim,e))}));
 }
 const api={summarize,evaluate};if(typeof module!=='undefined')module.exports=api;else root.DosulLinkTiming=api;
 })(typeof window==='undefined'?globalThis:window);
+
