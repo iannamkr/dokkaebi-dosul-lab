@@ -337,7 +337,9 @@ function conditionSeed(data,conditions={},allowedFamilies=Object.keys(data.famil
   const core=family?order.filter(id=>by.get(id).family===family).slice(0,3):[];
   return {ids:order,baseSlots:[...core,...order.filter(id=>!core.includes(id))].slice(0,5)};
  }
- const ultimates=data.skills.filter(s=>(!strict||singleTargetSafe(s))&&s.ultimate&&(!primaries.length||primaries.includes(s.family))&&allowedFamilies.includes(s.family)&&(!lockedUlt.length||lockedUlt.includes(s.id))&&(!forced.length||forced.includes(s.family))).sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id)));
+ // A user-locked ultimate is an explicit keep-current decision. It takes precedence over
+ // the optional primary-family search filter, while exclusions and target safety still apply.
+ const ultimates=data.skills.filter(s=>(!strict||singleTargetSafe(s))&&s.ultimate&&(!primaries.length||primaries.includes(s.family)||lockedUlt.includes(s.id))&&allowedFamilies.includes(s.family)&&(!lockedUlt.length||lockedUlt.includes(s.id))&&(!forced.length||forced.includes(s.family))).sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id)));
  const ordered=[...normals].sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id))||a.basic.cooldown-b.basic.cooldown);
  for(const u of ultimates){const ids=fixed.filter(id=>!by.get(id).ultimate);const add=id=>{if(!ids.includes(id))ids.push(id);};
   for(const s of ordered.filter(s=>s.family===u.family)){if(ids.filter(id=>by.get(id).family===u.family).length>=3)break;add(s.id);}

@@ -16,7 +16,11 @@ while(!search.step(1000).finished){}const result=search.grouped();
 const candidates=[...result.similar,...result.different];assert(candidates.length);
 for(const c of candidates){assert(c.ids.includes(support));assert.equal(by(c.ids.find(id=>by(id).ultimate)).family,'연타');assert(c.ids.filter(id=>!by(id).ultimate&&by(id).family==='연타').length>=3);assert(Q.validate({...D,baseSlots:c.baseSlots},c.ids).complete);}
 const otherUlt=D.skills.find(s=>s.ultimate&&s.family==='강타').id;
-assert.throws(()=>O.conditionSeed(D,{primaryFamily:'연타',requiredSkills:[otherUlt]},families));
+const lockedOutsidePrimary=O.conditionSeed(D,{primaryFamily:'연타',requiredSkills:[otherUlt]},families);
+assert(lockedOutsidePrimary.ids.includes(otherUlt));
+assert.equal(by(lockedOutsidePrimary.ids.find(id=>by(id).ultimate)).family,'강타');
+assert(lockedOutsidePrimary.ids.filter(id=>!by(id).ultimate&&by(id).family==='강타').length>=3);
+assert(Q.validate({...D,baseSlots:lockedOutsidePrimary.baseSlots},lockedOutsidePrimary.ids).complete);
 assert.throws(()=>O.conditionSeed(D,{primaryFamily:'없는계열'},families));
 console.log('Primary family: all 12 family seeds, ultimate lock, 3+ normal skills, open supporting pool, optional skill, equipment and final candidates passed.');
 

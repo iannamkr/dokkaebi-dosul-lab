@@ -8,6 +8,8 @@ const css = fs.readFileSync(path.join(root, 'dist/builder-workspace.css'), 'utf8
 const workspace = fs.readFileSync(path.join(root, 'dist/builder-workspace.js'), 'utf8');
 const optimizerUi = fs.readFileSync(path.join(root, 'dist/optimizer-ui.js'), 'utf8');
 const html = fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8');
+const appCssFiles = ['style.css', 'compact.css', 'redesign.css', 'game-ui.css', 'timing-auto.css'];
+const appCss = appCssFiles.map(file => [file, fs.readFileSync(path.join(root, 'dist', file), 'utf8')]);
 const data = JSON.parse(fs.readFileSync(path.join(root, 'dist/data.json'), 'utf8'));
 const context = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(root, 'dist/effect-icons.js'), 'utf8'), context);
@@ -64,17 +66,44 @@ check(/spanWidth=\(start,finish,min\)=>Math\.min\(100-pct\(start\)/.test(workspa
 check(/#optimizer\.active\{padding:10px/.test(css) && /\.recommend-mode-bar\{display:grid/.test(css) && /\.recommend-mode-tabs\{display:grid;grid-template-columns:repeat\(3,112px\) 142px;width:auto/.test(css), '빌드 추천은 10px 바깥 여백과 한 줄의 컴팩트한 추천 방식 조작군을 사용해야 합니다.');
 check(/tabLabel:'자유 추천 \(개발 중\)'/.test(workspace) && /x\.tabLabel\|\|x\.label/.test(workspace), '자유 추천 탭에는 개발 중 상태를 명시해야 합니다.');
 check(/유지할 핵심/.test(optimizerUi) && /사냥 조건/.test(optimizerUi) && /추천 결과/.test(optimizerUi), '자유 추천은 핵심 고정, 사냥 조건, 추천 결과의 3단계 구조를 사용해야 합니다.');
+check(/설정 순서/.test(optimizerUi) && /캐릭터 정보/.test(optimizerUi) && /사냥터 선택/.test(optimizerUi) && /적용 기준/.test(optimizerUi) && /체력 조건 자동 계산/.test(optimizerUi), 'STEP 02는 캐릭터 정보, 사냥터, 적용 기준의 순서와 목적을 보여줘야 합니다.');
+check(/\.opt-condition-flow-heading\{display:flex/.test(css) && /\.opt-summary-result\{[^}]*background:#f1f8f3/.test(css) && /\.opt-panel-heading\{display:grid/.test(css), '사냥 조건의 입력 흐름과 상세 확인 영역은 시각적으로 구분해야 합니다.');
+check(/\.opt-evaluation-advanced>\.opt-grid\{grid-template-columns:1fr/.test(css) && /opt-character-panel\{display:grid;grid-template-columns:repeat\(3/.test(css), 'STEP 02 상세 영역은 전체 폭을 사용하고 능력치 그룹을 3열로 배치해 빈 공간을 만들면 안 됩니다.');
+check(/공격 보정 · 기록/.test(optimizerUi) && /방어 보정 · 기록/.test(optimizerUi) && /\.opt-stat-group:not\(\.opt-stat-required\)\{grid-template-columns:repeat\(3/.test(css), '캐릭터 능력치는 핵심·공격·방어 그룹으로 균형 있게 배치해야 합니다.');
 check(/\.opt-core-build\{display:grid;grid-template-columns:repeat\(9/.test(css) && /\.opt-condition-summary\{display:grid;grid-template-columns:/.test(css) && /\.opt-direction-cards\{display:grid;grid-template-columns:repeat\(3/.test(css), '자유 추천은 9칸 핵심 카드, 3개 조건 요약, 3개 추천 방향을 한눈에 비교해야 합니다.');
-check(/data-open-opt-advanced/.test(optimizerUi) && /고급 빌드 조건/.test(optimizerUi) && /고급 평가 조건/.test(optimizerUi), '원시 능력치와 세부 제약은 고급 조건에서만 노출해야 합니다.');
+check(/data-open-opt-advanced/.test(optimizerUi) && /고급 빌드 조건/.test(optimizerUi) && /세부 정보 확인·수정/.test(optimizerUi), '원시 능력치와 세부 제약은 확인·수정 영역에서만 노출해야 합니다.');
 check(/최대 2개 · 미선택 시 엔진이 결정/.test(optimizerUi) && /primaryFamilies/.test(optimizerUi) && /opt-primary-family-count/.test(optimizerUi), '자유 추천의 주력 계열은 최대 2개 선택과 선택 수를 명시해야 합니다.');
+check(/opt-target-picker/.test(optimizerUi) && /data-opt-target-mode="single"/.test(optimizerUi) && /data-opt-target-mode="area"/.test(optimizerUi) && /한 마리 집중 · 범위 피해 도술 제외/.test(optimizerUi), 'STEP 01에서 단일·범위 사냥 대상을 설명과 함께 직접 선택할 수 있어야 합니다.');
+check(/\.opt-target-options button\[aria-pressed="true"\]/.test(css), '선택한 빌드 대상은 STEP 01에서 시각적으로 구분되어야 합니다.');
 check(/인게임 정보 이미지 첨부/.test(optimizerUi) && /id="opt-stat-images"/.test(optimizerUi) && /recognizeStatImages/.test(optimizerUi) && /createWorker\('kor\+eng'/.test(optimizerUi), '공격·방어·체력 상세 화면을 한글 OCR로 읽는 이미지 첨부 입력이 필요합니다.');
-check(/이미지는 서버로 전송하지 않습니다/.test(optimizerUi) && /텍스트로 직접 입력/.test(optimizerUi), 'OCR 이미지의 브라우저 처리 안내와 실패 시 직접 입력 보조 수단이 필요합니다.');
-check(/정확도·회피·치명·방어의 환산식은 공개 확인되지 않아 저장만/.test(optimizerUi), '공식 미확인 능력치는 임의 계산하지 않는다는 한계를 표시해야 합니다.');
+check(!/이미지는 서버로 전송하지 않습니다|텍스트로 직접 입력|id="opt-stat-paste"/.test(optimizerUi), '이미지 첨부 영역에 삭제한 안내와 직접 텍스트 입력 기능이 남으면 안 됩니다.');
+check(!/정확도·회피·치명·방어의 환산식은 공개 확인되지 않아 저장만|사냥터의 권장 전투력·몬스터 체력·공격력은/.test(optimizerUi), '삭제한 능력치·사냥터 안내 문구가 남으면 안 됩니다.');
+check(!/id="opt-hit-interval"|id="opt-model"|>계산 조건</.test(optimizerUi) && /settings\.hitInterval=1\.5/.test(optimizerUi) && /settings\.encounter=true/.test(optimizerUi), '공격 간격과 사냥 계산 방식은 화면에서 선택하지 않고 각각 1.5초와 공간 사냥 모델로 고정해야 합니다.');
+check(/id="opt-incoming"[^>]*readonly[^>]*aria-readonly="true"/.test(optimizerUi), '분당 받는 피해 값은 자동 계산되는 읽기 전용 입력이어야 합니다.');
+check(/#opt-incoming\[readonly\]\{[^}]*background:#f1f4ef;[^}]*cursor:default/.test(css), '읽기 전용 분당 피해 값은 편집 입력과 시각적으로 구분해야 합니다.');
 check(/\.opt-stat-group\{display:grid/.test(css) && /\.opt-stat-import\{display:grid/.test(css), '캐릭터 능력치 입력은 겹치지 않는 반응형 그룹 레이아웃을 사용해야 합니다.');
 check(/빠른 사냥/.test(optimizerUi) && /안정 사냥/.test(optimizerUi) && /연계 중심/.test(optimizerUi) && /opt-result-comparison/.test(optimizerUi), '자유 추천 결과는 빠른 사냥, 안정 사냥, 연계 중심과 현재·추천 비교를 제공해야 합니다.');
 check(/executionPolicy:D\.executionPolicy\|\|\{\}/.test(optimizerUi), '자유 추천은 사용자가 지정한 자동 조작과 체력 조건을 계산 입력으로 유지해야 합니다.');
 check(/#catalog\.active\{display:flex;[^}]*overflow:hidden/.test(css) && /#catalog>\.table-wrap\{[^}]*flex:1;overflow:auto/.test(css), '도감은 헤더와 검색을 유지하고 표만 스크롤해야 합니다.');
 check(/build-recommend-hub:has\(\.order-recommend-empty\) #recommend-refresh\{display:none\}/.test(css), '비교할 도술이 부족한 빈 상태에서 다시 계산 버튼을 노출하면 안 됩니다.');
+check(/Button-content safety/.test(css) && /grid-template-rows:24px 42px 20px 16px/.test(css), '사용 순서와 스킬 배치 버튼은 번호·아이콘·이름·배지에 실제 높이의 독립 행을 제공해야 합니다.');
+check(/equipment-auto-toggle,[^]*min-height:24px!important;[^]*max-height:24px!important/.test(css), '자동 조작 원형 버튼은 공통 버튼 최소 높이에 의해 커지면 안 됩니다.');
+check(/opt-core-skill\{[^}]*grid-template-rows:20px 40px 19px 16px;[^}]*height:114px/.test(css) && /opt-core-skill>\.style-badge\{[^}]*height:16px;[^}]*padding:0 4px!important/.test(css), '자유 추천 핵심 카드의 스킬명과 계열 배지는 서로 겹치지 않는 행과 높이를 사용해야 합니다.');
+check(/order-pick>small \.preview-label\{[^}]*max-width:42px;[^}]*font-size:8px/.test(css) && /preview-label">미리보기/.test(workspace), '좁은 사용 순서 카드의 미리보기 배지는 슬롯 번호와 함께 버튼 폭 안에 들어와야 합니다.');
+check(/opt-primary-family-count[^>]*hidden/.test(optimizerUi) && /opt-support-scope[^>]*hidden/.test(optimizerUi), '자유 추천에서 선택 개수와 보조 도술 자동 탐색 설명을 노출하면 안 됩니다.');
+check(/opt-picker-heading[^>]*hidden/.test(optimizerUi) && /opt-skill-picker[^>]*hidden/.test(optimizerUi), '자유 추천의 추가 고정 도술 선택 영역은 숨겨야 합니다.');
+check(!/선택한 계열 중 더 나은 신식·궁극기 탐색|보조 도술 · 제외 계열 외/.test(optimizerUi), '삭제한 자유 추천 설명 문구를 생성 코드에 남기면 안 됩니다.');
+check(!/계산 근거 보기|id="opt-basis"/.test(optimizerUi), '자유 추천 화면에 삭제한 계산 근거 영역을 남기면 안 됩니다.');
+check(!/상세 비교와 다른 후보|class="opt-result-details"/.test(optimizerUi), '자유 추천 결과에 삭제한 상세 후보 영역을 남기면 안 됩니다.');
+check(/id="opt-result-timeline"/.test(optimizerUi) && /DosulRecommendationView/.test(optimizerUi) && /data-opt-free-timeline-zoom/.test(optimizerUi), '자유 추천 결과는 선택한 빌드의 확대·축소 가능한 스킬 타임라인을 제공해야 합니다.');
+check(/window\.DosulRecommendationView=\{/.test(workspace) && /overlayTimeline:recommendOverlayTimeline/.test(workspace), '자유 추천과 순서 추천은 같은 오버레이 타임라인 렌더러를 공유해야 합니다.');
+check(/\.free-recommend-workspace #opt-results\{display:grid;gap:12px\}/.test(css) && /\.opt-free-timeline\{margin-top:0;/.test(css), '자유 추천 결과 카드·비교 패널·타임라인은 같은 12px 세로 간격을 사용해야 합니다.');
+check(/\.opt-step-heading\{[^}]*height:auto!important;[^}]*padding:0;[^}]*border:0/.test(css), '자유 추천 단계 제목은 전역 header 스타일의 높이·패딩·테두리를 차단해야 합니다.');
+check(/#opt-required-families label,[^}]*#opt-excluded-families label\{[^}]*display:inline-flex!important;[^}]*align-items:center!important;[^}]*height:30px;[^}]*padding:0 8px/.test(css), '주력·제외 계열 버튼은 동일한 높이와 좌우 여백으로 체크박스와 글자를 수직 정렬해야 합니다.');
+check(/#opt-required-families input,[^}]*#opt-excluded-families input\{[^}]*width:14px;[^}]*height:14px;[^}]*margin:0/.test(css), '계열 체크박스는 기본 브라우저 여백 때문에 글자 정렬이 흔들리지 않아야 합니다.');
+for (const [file, source] of appCss) {
+  check(!/(^|})header\{/.test(source), `${file}의 전역 header 규칙이 내부 섹션 헤더까지 고정 높이와 구분선을 적용합니다.`);
+}
 
 const used = new Set();
 const add = value => { if (typeof value === 'string' && value.trim()) used.add(value.trim()); };
