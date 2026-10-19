@@ -64,6 +64,10 @@ assert(a.r.best[0].verification.minCoefficient>=measured.coefficient,'The best r
 const keys=a.r.best.map(c=>[...c.ids].sort().join()+c.coefficient+c.perMin);assert.equal(new Set(keys).size,keys.length,'Identical outcomes are listed once');
 const impossible=O.createSearch(D,{ids,baseSlots:base},{...opts,need:1e9,iterations:40});while(!impossible.step(1e6).finished);
 assert.equal(impossible.results(3).best.length,0,'Unreachable needs return no fake winner');
+const dualPrimary=O.conditionSeed(D,{primaryFamilies:['강타','연타']},Object.keys(D.families));
+const dualUltimate=D.skills.find(s=>s.id===dualPrimary.ids.find(id=>D.skills.find(x=>x.id===id)?.ultimate));
+assert(['강타','연타'].includes(dualUltimate.family),'Two primary families constrain the chosen ultimate to either candidate');
+assert.throws(()=>O.conditionSeed(D,{primaryFamilies:['강타','연타','절명']},Object.keys(D.families)),/최대 2개/);
 console.log('Optimizer: sustain parsing, measured calibration, single-target pool, constrained deterministic search passed.');
 
 // Buff dictionary snapshot: durations, overwrite rules and the shield/reduction timeline.

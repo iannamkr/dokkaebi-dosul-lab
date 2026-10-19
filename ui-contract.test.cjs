@@ -66,6 +66,11 @@ check(/tabLabel:'자유 추천 \(개발 중\)'/.test(workspace) && /x\.tabLabel\
 check(/유지할 핵심/.test(optimizerUi) && /사냥 조건/.test(optimizerUi) && /추천 결과/.test(optimizerUi), '자유 추천은 핵심 고정, 사냥 조건, 추천 결과의 3단계 구조를 사용해야 합니다.');
 check(/\.opt-core-build\{display:grid;grid-template-columns:repeat\(9/.test(css) && /\.opt-condition-summary\{display:grid;grid-template-columns:/.test(css) && /\.opt-direction-cards\{display:grid;grid-template-columns:repeat\(3/.test(css), '자유 추천은 9칸 핵심 카드, 3개 조건 요약, 3개 추천 방향을 한눈에 비교해야 합니다.');
 check(/data-open-opt-advanced/.test(optimizerUi) && /고급 빌드 조건/.test(optimizerUi) && /고급 평가 조건/.test(optimizerUi), '원시 능력치와 세부 제약은 고급 조건에서만 노출해야 합니다.');
+check(/최대 2개 · 미선택 시 엔진이 결정/.test(optimizerUi) && /primaryFamilies/.test(optimizerUi) && /opt-primary-family-count/.test(optimizerUi), '자유 추천의 주력 계열은 최대 2개 선택과 선택 수를 명시해야 합니다.');
+check(/인게임 정보 이미지 첨부/.test(optimizerUi) && /id="opt-stat-images"/.test(optimizerUi) && /recognizeStatImages/.test(optimizerUi) && /createWorker\('kor\+eng'/.test(optimizerUi), '공격·방어·체력 상세 화면을 한글 OCR로 읽는 이미지 첨부 입력이 필요합니다.');
+check(/이미지는 서버로 전송하지 않습니다/.test(optimizerUi) && /텍스트로 직접 입력/.test(optimizerUi), 'OCR 이미지의 브라우저 처리 안내와 실패 시 직접 입력 보조 수단이 필요합니다.');
+check(/정확도·회피·치명·방어의 환산식은 공개 확인되지 않아 저장만/.test(optimizerUi), '공식 미확인 능력치는 임의 계산하지 않는다는 한계를 표시해야 합니다.');
+check(/\.opt-stat-group\{display:grid/.test(css) && /\.opt-stat-import\{display:grid/.test(css), '캐릭터 능력치 입력은 겹치지 않는 반응형 그룹 레이아웃을 사용해야 합니다.');
 check(/빠른 사냥/.test(optimizerUi) && /안정 사냥/.test(optimizerUi) && /연계 중심/.test(optimizerUi) && /opt-result-comparison/.test(optimizerUi), '자유 추천 결과는 빠른 사냥, 안정 사냥, 연계 중심과 현재·추천 비교를 제공해야 합니다.');
 check(/executionPolicy:D\.executionPolicy\|\|\{\}/.test(optimizerUi), '자유 추천은 사용자가 지정한 자동 조작과 체력 조건을 계산 입력으로 유지해야 합니다.');
 check(/#catalog\.active\{display:flex;[^}]*overflow:hidden/.test(css) && /#catalog>\.table-wrap\{[^}]*flex:1;overflow:auto/.test(css), '도감은 헤더와 검색을 유지하고 표만 스크롤해야 합니다.');

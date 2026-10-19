@@ -22,11 +22,13 @@ assert.match(el('#opt-sources').innerHTML,/생명의 흐름/,'Current sustain so
 assert.match(el('#opt-sources').innerHTML,/1,460/,'Flat shields need no stats');
 assert.equal(el('#opt-run').disabled,true,'Attack and max HP are required');assert.match(el('#opt-stats-note').textContent,/최대 체력·공격력/);
 input('opt-attack',20497);input('opt-maxhp',100029);input('opt-regen',2744);
+const pasted=el('#opt-stat-paste');pasted.value='공격력 20,497\n공격 정확도 951\n치명타 적중 1,807\n치명타 피해 증가 20%\n방어력 19,583\n기본 공격 회피 2,053\n도술 막기 2,266\n치명타 저항 727\n도술 공격 피해 감소 2.19%\n체력\n100506\n체력 자연 회복\n2.744';hostListeners.input({target:pasted});
+assert.equal(el('#opt-defense').value,'19583');assert.equal(el('#opt-critical-damage').value,'20');assert.equal(el('#opt-maxhp').value,'100506');assert.equal(el('#opt-regen').value,'2744');assert.match(el('#opt-stat-import-status').textContent,/11개 능력치/);
 assert.match(el('#opt-current-total').textContent,/직접 피해 계수/);assert.equal(el('#opt-measure-row').hidden,false,'Measurement is the default');assert.equal(el('#opt-incoming-row').hidden,true);
 assert.equal(el('#opt-run').disabled,true,'A measured zone is required');assert.match(el('#opt-need').textContent,/측정 사냥터를 고르세요/);
 const pick=(id,v)=>{const s=el('#'+id);s.value=v;hostListeners.change({target:s});};
 pick('opt-zone-from','101011');assert.match(el('#opt-need').textContent,/시작 HP/);
-el('#opt-hp-start').value='';input('opt-hp-start',66606);input('opt-hp-end',100029);input('opt-seconds',265);assert.match(el('#opt-need').textContent,/최대 체력에 닿아/,'Capped HP cannot be calibrated');
+el('#opt-hp-start').value='';input('opt-hp-start',66606);input('opt-hp-end',Number(el('#opt-maxhp').value));input('opt-seconds',265);assert.match(el('#opt-need').textContent,/최대 체력에 닿아/,'Capped HP cannot be calibrated');
 input('opt-hp-end',89632);const override={value:'542',dataset:{optOverride:'s085:0'}};el('#x').dataset=override.dataset;hostListeners.input({target:override});hostListeners.change({target:override});
 // A single-target build always fights exactly one monster, so the measurement is already per monster.
 const measurement=/1마리당 받는 피해 분당 ([\d,]+) \(실측 ([\d,]+) ÷ 평균 1.00마리\)/.exec(el('#opt-need').textContent);
@@ -92,13 +94,13 @@ console.log('Optimizer UI: stats gate, measured need, persistence, run, JSON exp
 const modelInput=el('#opt-model');modelInput.value='spatial';hostListeners.change({target:modelInput});assert.match(el('#opt-world').textContent,/예상: 분당 처치/);assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).encounter,true);
 
 ctx.build=[];ctx.syncBuildOptimizer();const mode=el('#opt-start-mode');mode.value='conditions';hostListeners.change({target:mode});assert.equal(el('#opt-work').hidden,false);assert.equal(el('#opt-validation').hidden,true,'No primary family is a valid engine-decides state');assert.match(el('#opt-required-families').innerHTML,/엔진이 결정/);assert.equal(ctx.build.length,0);
-let selectedFamilies=['강타','연타'];host.querySelectorAll=sel=>sel==='[data-required-family]:checked'?selectedFamilies.map(f=>({dataset:{requiredFamily:f}})):[];
-hostListeners.change({target:{dataset:{requiredFamily:'강타'}}});assert.match(el('#opt-equipment').textContent,/비교용/);assert.match(el('#opt-skill-picker').innerHTML,/회전 난격/);assert(el('#opt-skill-picker').innerHTML.includes('도약 찌르기'),'Supporting skills remain available across families');
+hostListeners.change({target:{dataset:{requiredFamily:'강타'},checked:true}});assert.match(el('#opt-equipment').textContent,/비교용/);assert.match(el('#opt-skill-picker').innerHTML,/회전 난격/);assert(el('#opt-skill-picker').innerHTML.includes('도약 찌르기'),'Supporting skills remain available across families');
+hostListeners.change({target:{dataset:{requiredFamily:'연타'},checked:true}});let twoPrimary=JSON.parse(storage.get('dosul-optimizer-v1'));assert.deepEqual(twoPrimary.primaryFamilies,['강타','연타']);assert.match(el('#opt-primary-family-count').textContent,/2\/2 선택/);assert.match(el('#opt-required-families').innerHTML,/data-required-family="절명"[^>]*disabled/);
 const requiredId=D.skills.find(s=>s.name==='회전 난격').id;click('[data-toggle-required]',{toggleRequired:requiredId});assert.match(el('#opt-skill-picker').innerHTML,/aria-pressed="true"/);assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).requiredSkills[0],requiredId);assert.equal(ctx.build.length,0);
 click('[data-toggle-required]',{toggleRequired:requiredId});assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).requiredSkills.length,0,'Second click deselects');click('[data-toggle-required]',{toggleRequired:requiredId});
-const expected=O.conditionSeed(D,{primaryFamily:'강타',requiredSkills:[requiredId]},Object.keys(D.families));click('[data-opt-edit]');assert.deepEqual([...applied.next],expected.ids,'Editing transfers exactly the preview order');assert.deepEqual([...applied.base],expected.baseSlots);assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).startMode,'current');
-mode.value='conditions';hostListeners.change({target:mode});selectedFamilies=['강타'];hostListeners.change({target:{dataset:{requiredFamily:'연타'}}});assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).requiredSkills.length,1,'Changing primary family preserves optional supporting skills');
-console.log('Condition UI: primary family and unrestricted support cards, optional toggles, deselection cleanup and exact preview-to-planner transfer passed.');
+const expected=O.conditionSeed(D,{primaryFamilies:['강타','연타'],requiredSkills:[requiredId]},Object.keys(D.families));click('[data-opt-edit]');assert.deepEqual([...applied.next],expected.ids,'Editing transfers exactly the preview order');assert.deepEqual([...applied.base],expected.baseSlots);assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).startMode,'current');
+mode.value='conditions';hostListeners.change({target:mode});hostListeners.change({target:{dataset:{requiredFamily:'연타'},checked:false}});assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).requiredSkills.length,1,'Changing primary family preserves optional supporting skills');
+console.log('Condition UI: up to two primary families, unrestricted support cards, optional toggles and exact preview-to-planner transfer passed.');
 
 // New-build recommendations must work without guessed incoming damage or a target zone.
 input('opt-incoming','');pick('opt-zone-to','');
@@ -139,7 +141,7 @@ console.log('Workflow layout: explicit preview labels and mode-specific controls
 const workers=[];ctx.Worker=class{constructor(url){this.url=url;workers.push(this);}postMessage(message){this.message=message;}terminate(){this.terminated=true;}};
 mode.value='conditions';hostListeners.change({target:mode});input('opt-incoming','');
 const beforeWorkers=searches.length;click('#opt-run');const firstWorker=workers.at(-1);
-assert.equal(searches.length,beforeWorkers,'No main-thread engine search');assert.equal(firstWorker.message.options.totalEvaluationBudget,4000);assert.equal(firstWorker.message.options.boundedSelection,true);assert.equal(firstWorker.message.options.families.length,Object.keys(D.families).length);assert.equal(firstWorker.message.options.conditions.primaryFamily,'연타');
+assert.equal(searches.length,beforeWorkers,'No main-thread engine search');assert.equal(firstWorker.message.options.totalEvaluationBudget,4000);assert.equal(firstWorker.message.options.boundedSelection,true);assert.equal(firstWorker.message.options.families.length,Object.keys(D.families).length);assert.deepEqual(Array.from(firstWorker.message.options.conditions.primaryFamilies),['강타']);
 firstWorker.onmessage({data:{type:'progress',progress:{evaluated:12},elapsedMs:1000,preview:[{ids:expected.ids}]}});
 assert.equal(el('#opt-live').hidden,false);assert.match(el('#opt-live-builds').innerHTML,/후보 1/);
 click('#opt-cancel');assert(firstWorker.terminated);const stopped=el('#opt-status').textContent;
@@ -201,7 +203,7 @@ let savedSettings=JSON.parse(storage.get('dosul-optimizer-v1'));
 assert(savedSettings.excludedFamilies.includes('기만'));assert(!savedSettings.requiredSkills.includes(excludedId));
 assert(!el('#opt-skill-picker').innerHTML.includes('data-toggle-required="'+excludedId+'"'));
 click('#opt-run');assert(!workers.at(-1).message.options.families.includes('기만'));
-hostListeners.change({target:{dataset:{requiredFamily:'기만'}}});
+hostListeners.change({target:{dataset:{requiredFamily:'기만'},checked:true}});
 assert(workers.at(-1).terminated);assert(!JSON.parse(storage.get('dosul-optimizer-v1')).excludedFamilies.includes('기만'));
 assert.match(el('#opt-excluded-families').innerHTML,/data-excluded-family="기만"[^>]*disabled/);
 console.log('Excluded family UI: persistence, fixed-skill cleanup, worker filtering, cancellation and primary conflict handling passed.');
@@ -211,7 +213,7 @@ pick('opt-target-mode','single');
 assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).targetMode,'single');
 assert.equal(el('#opt-results').hidden,true);
 assert.equal(el('#opt-run').disabled,true,'A primary family with an area ultimate cannot satisfy single hunting');
-hostListeners.change({target:{dataset:{requiredFamily:'절명'}}});
+hostListeners.change({target:{dataset:{primaryAuto:''},checked:true}});hostListeners.change({target:{dataset:{requiredFamily:'절명'},checked:true}});
 assert.equal(el('#opt-run').disabled,true,'Fixed 회전 난격 remains incompatible with single hunting');
 click('[data-toggle-required]',{toggleRequired:requiredId});
 assert.equal(el('#opt-run').disabled,false);
@@ -231,7 +233,7 @@ assert.match(el('#opt-need').textContent,/역산 불가/);
 assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).measure.hpCapped,true);
 console.log('Measurement UI: invalid HP rejected; capped observation retained without inventing incoming damage.');
 
-pick('opt-start-mode','conditions');pick('opt-target-mode','single');hostListeners.change({target:{dataset:{requiredFamily:'연타'}}});
+pick('opt-start-mode','conditions');pick('opt-target-mode','single');hostListeners.change({target:{dataset:{primaryAuto:''},checked:true}});hostListeners.change({target:{dataset:{requiredFamily:'연타'},checked:true}});
 assert.equal(el('#opt-run').disabled,true);
 hostListeners.change({target:{id:'opt-use-ultimate',checked:false,dataset:{}}});
 assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).useUltimate,false);

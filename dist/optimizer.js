@@ -311,8 +311,9 @@ function createBehaviorArchive(bins=6){
 }
 function conditionSeed(data,conditions={},allowedFamilies=Object.keys(data.families),preferred=[]){
  allowedFamilies=allowedFamilies.filter(f=>!(conditions.excludedFamilies||[]).includes(f));
- const primary=conditions.primaryFamily||null,strict=conditions.targetMode==='single'||conditions.singleOnly===true;
- if(primary&&(!data.families[primary]||!allowedFamilies.includes(primary)))throw Error('사용 가능한 주력 계열을 선택하세요.');
+ const primaries=[...new Set((conditions.primaryFamilies?.length?conditions.primaryFamilies:[conditions.primaryFamily]).filter(Boolean))],primary=primaries[0]||null,strict=conditions.targetMode==='single'||conditions.singleOnly===true;
+ if(primaries.length>2)throw Error('주력 계열은 최대 2개까지 선택할 수 있습니다.');
+ if(primaries.some(f=>!data.families[f]||!allowedFamilies.includes(f)))throw Error('사용 가능한 주력 계열을 선택하세요.');
  const fixed=[...new Set(conditions.requiredSkills||[])],families=[...new Set(conditions.requiredFamilies||[])],forced=[...new Set(conditions.requiredShinsik||[])],by=new Map(data.skills.map(s=>[s.id,s]));
  if(forced.length>1)throw Error('기본 장착 5칸으로 두 계열 신식을 동시에 개방할 수 없습니다.');
  for(const id of fixed)if(!by.has(id))throw Error('존재하지 않는 필수 도술입니다.');
@@ -336,7 +337,7 @@ function conditionSeed(data,conditions={},allowedFamilies=Object.keys(data.famil
   const core=family?order.filter(id=>by.get(id).family===family).slice(0,3):[];
   return {ids:order,baseSlots:[...core,...order.filter(id=>!core.includes(id))].slice(0,5)};
  }
- const ultimates=data.skills.filter(s=>(!strict||singleTargetSafe(s))&&s.ultimate&&(!primary||s.family===primary)&&allowedFamilies.includes(s.family)&&(!lockedUlt.length||lockedUlt.includes(s.id))&&(!forced.length||forced.includes(s.family))).sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id)));
+ const ultimates=data.skills.filter(s=>(!strict||singleTargetSafe(s))&&s.ultimate&&(!primaries.length||primaries.includes(s.family))&&allowedFamilies.includes(s.family)&&(!lockedUlt.length||lockedUlt.includes(s.id))&&(!forced.length||forced.includes(s.family))).sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id)));
  const ordered=[...normals].sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id))||a.basic.cooldown-b.basic.cooldown);
  for(const u of ultimates){const ids=fixed.filter(id=>!by.get(id).ultimate);const add=id=>{if(!ids.includes(id))ids.push(id);};
   for(const s of ordered.filter(s=>s.family===u.family)){if(ids.filter(id=>by.get(id).family===u.family).length>=3)break;add(s.id);}
@@ -370,7 +371,8 @@ function createSearch(data,current,opts){
 
  const candidates=pool(data,current.ids,opts),cache=new Map(),archive=new Map(),random=rng(opts.seed||20261018);
  // Only a build that already has an ultimate may switch it; ultimates of unchecked families (locked) never enter.
- const ultimates=ult?[...new Set([ult,...data.skills.filter(s=>(!opts.singleOnly||singleTargetSafe(s))&&s.ultimate&&(!opts.conditions?.primaryFamily||s.family===opts.conditions.primaryFamily)&&(opts.families||[]).includes(s.family)&&typeof s.basic?.cooldown==='number').map(s=>s.id)])]:[];
+ const primaryChoices=opts.conditions?.primaryFamilies?.length?opts.conditions.primaryFamilies:(opts.conditions?.primaryFamily?[opts.conditions.primaryFamily]:[]);
+ const ultimates=ult?[...new Set([ult,...data.skills.filter(s=>(!opts.singleOnly||singleTargetSafe(s))&&s.ultimate&&(!primaryChoices.length||primaryChoices.includes(s.family))&&(opts.families||[]).includes(s.family)&&typeof s.basic?.cooldown==='number').map(s=>s.id)])]:[];
  // `iterations` is spread over the near chains as before; far chains add the same per-chain budget and must keep
  // at least FAR skills different from the current build, so the "different builds" group is really explored.
  const FAR=4,nearChains=Math.max(1,opts.chains||3),farChains=Math.max(0,opts.farChains??2),perChain=Math.ceil(Math.max(30,opts.iterations||4000)/nearChains),total=perChain*(nearChains+farChains),chains=nearChains+farChains;
