@@ -3,7 +3,7 @@ const D=require('./dist/data.json'),O=require('./dist/optimizer.js');
 const start=O.conditionSeed(D,{requiredFamilies:['연타','강인']},['연타','강인']);
 const boot=`const {parentPort}=require('node:worker_threads'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
 const context=vm.createContext({setTimeout,clearTimeout,console});context.self=context;context.postMessage=m=>parentPort.postMessage(m);
-context.importScripts=(...files)=>files.forEach(f=>vm.runInContext(fs.readFileSync(path.join(${JSON.stringify(path.resolve('dist'))},f),'utf8'),context,{filename:f}));
+context.importScripts=(...files)=>files.forEach(f=>{const file=f.split('?')[0];vm.runInContext(fs.readFileSync(path.join(${JSON.stringify(path.resolve('dist'))},file),'utf8'),context,{filename:f});});
 context.importScripts('optimizer-worker.js');parentPort.on('message',data=>context.onmessage({data}));`;
 async function check(encounter,includeImprovements=false){
  const worker=new Worker(boot,{eval:true}),messages=[];

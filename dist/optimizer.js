@@ -197,7 +197,8 @@ function hunt(run,data,zone,attack,rate=DAMAGE_RATE){
 }
 function evaluate(data,ids,baseSlots,ctx){
  ctx.onEvaluate?.();
- if(ctx.executionPolicy!==undefined)data={...data,executionPolicy:ctx.executionPolicy};
+ const executionPolicy=policyForBuild(ctx.executionPolicy,ids);
+ if(ctx.executionPolicy!==undefined)data={...data,executionPolicy};
  const v=Q.validate({...data,baseSlots},ids);if(v.issues.length)return {valid:false,issue:v.issues.join(' / ')};
  const world=(ctx.encounter===true||ctx.targetMode==='single')&&Encounter;
  const zone=zoneSummary(ctx.zone),points=spawnPoints(ctx.zone),profile=ctx.profile||PROFILES[0];
@@ -207,7 +208,8 @@ function evaluate(data,ids,baseSlots,ctx){
  const run=world?Encounter.run({...data,baseSlots},ids,profile,ctx.horizon||180,{attack:Number(ctx.stats?.attack),hp:zone?.hp,points:localPoints,scenario:ctx.scenario,damageRate:ctx.damageRate??DAMAGE_RATE,trace:!!ctx.trace}):Sim.run({...data,baseSlots},ids,profile,ctx.horizon||180);
  if(run.validation.issues.length||run.schedule.missing.length)return {valid:false,issue:[...run.validation.issues,...run.schedule.missing].join(' / ')};
  const multi=run.impacts.filter(i=>i.targets.length>1).length;
- if(ctx.singleOnly&&ids.some(id=>!singleTargetSafe(data.skills.find(s=>s.id===id))))return {valid:false,issue:'여러 대상 공격 가능 도술 · 단일 사냥 조건 위반'};
+ const disabled=disabledSkills(executionPolicy);
+ if(ctx.singleOnly&&ids.some(id=>!disabled.has(id)&&!singleTargetSafe(data.skills.find(s=>s.id===id))))return {valid:false,issue:'자동 조작 ON인 여러 대상 공격 가능 도술 · 단일 사냥 조건 위반'};
  if(ctx.singleOnly&&multi)return {valid:false,issue:'여러 대상 동시 적중'};
  // With a zone, power is kills per minute and incoming damage grows with the monsters the build pulls.
  const h=run.encounter||(ctx.zone?hunt(run,data,ctx.zone,Number(ctx.stats?.attack)):null),attackers=h?h.attackers:1;
@@ -268,9 +270,20 @@ function singleTargetSafe(s){
  if(s.damage===false||s.referenceNumbers?.nd)return true;
  const g=Sim.geometry(s);return s.targeting?.kind==='single'&&g.kind==='single'&&g.cap===1;
 }
-function pool(data,ids,{families,singleOnly,targetMode}){
+function disabledSkills(policy){return new Set(Array.isArray(policy?.disabled)?policy.disabled:[]);}
+function policyForBuild(policy,ids){
+ if(policy===undefined)return undefined;
+ const mounted=new Set(ids),clean={...policy};
+ clean.disabled=(Array.isArray(policy?.disabled)?policy.disabled:[]).filter(id=>mounted.has(id));
+ if(Array.isArray(policy?.opener))clean.opener=policy.opener.filter(id=>mounted.has(id));
+ if(policy?.hpBelow&&typeof policy.hpBelow==='object')clean.hpBelow=Object.fromEntries(Object.entries(policy.hpBelow).filter(([id])=>mounted.has(id)));
+ return clean;
+}
+function singleTargetEligible(s,disabled){return singleTargetSafe(s)||disabled.has(s?.id);}
+function pool(data,ids,{families,singleOnly,targetMode,executionPolicy}){
  const keep=new Set(ids.filter(id=>!data.skills.find(s=>s.id===id)?.ultimate));
- return data.skills.filter(s=>!s.ultimate&&(!(singleOnly||targetMode==='single')||singleTargetSafe(s))&&families.includes(s.family)&&typeof s.basic?.cooldown==='number').map(s=>s.id);
+ const disabled=disabledSkills(executionPolicy);
+ return data.skills.filter(s=>!s.ultimate&&(!(singleOnly||targetMode==='single')||singleTargetEligible(s,disabled))&&families.includes(s.family)&&typeof s.basic?.cooldown==='number').map(s=>s.id);
 }
 function rng(seed){let x=(seed>>>0)||1;return ()=>((x=(Math.imul(x,1664525)+1013904223)>>>0)/4294967296);}
 // Quality-diversity cells describe observed execution, never skill names or families.
@@ -311,7 +324,7 @@ function createBehaviorArchive(bins=6){
 }
 function conditionSeed(data,conditions={},allowedFamilies=Object.keys(data.families),preferred=[]){
  allowedFamilies=allowedFamilies.filter(f=>!(conditions.excludedFamilies||[]).includes(f));
- const primaries=[...new Set((conditions.primaryFamilies?.length?conditions.primaryFamilies:[conditions.primaryFamily]).filter(Boolean))],primary=primaries[0]||null,strict=conditions.targetMode==='single'||conditions.singleOnly===true;
+ const primaries=[...new Set((conditions.primaryFamilies?.length?conditions.primaryFamilies:[conditions.primaryFamily]).filter(Boolean))],primary=primaries[0]||null,strict=conditions.targetMode==='single'||conditions.singleOnly===true,disabled=disabledSkills(conditions.executionPolicy);
  if(primaries.length>2)throw Error('주력 계열은 최대 2개까지 선택할 수 있습니다.');
  if(primaries.some(f=>!data.families[f]||!allowedFamilies.includes(f)))throw Error('사용 가능한 주력 계열을 선택하세요.');
  const fixed=[...new Set(conditions.requiredSkills||[])],families=[...new Set(conditions.requiredFamilies||[])],forced=[...new Set(conditions.requiredShinsik||[])],by=new Map(data.skills.map(s=>[s.id,s]));
@@ -319,8 +332,8 @@ function conditionSeed(data,conditions={},allowedFamilies=Object.keys(data.famil
  for(const id of fixed)if(!by.has(id))throw Error('존재하지 않는 필수 도술입니다.');
  for(const f of [...families,...forced])if(!data.families[f]||!allowedFamilies.includes(f))throw Error('선택 계열을 사용 가능한 계열에 포함하세요: '+f);
  if(fixed.some(id=>!allowedFamilies.includes(by.get(id).family)))throw Error('필수 도술의 계열이 사용 가능 목록에서 제외되었습니다.');
- if(strict&&fixed.some(id=>!singleTargetSafe(by.get(id))))throw Error('단일 사냥에는 범위 피해 도술을 고정할 수 없습니다.');
- const normals=data.skills.filter(s=>(!strict||singleTargetSafe(s))&&!s.ultimate&&allowedFamilies.includes(s.family)&&Number.isFinite(s.basic?.cooldown));
+ if(strict&&fixed.some(id=>!singleTargetEligible(by.get(id),disabled)))throw Error('단일 사냥에는 자동 조작 ON인 범위 피해 도술을 고정할 수 없습니다.');
+ const normals=data.skills.filter(s=>(!strict||singleTargetEligible(s,disabled))&&!s.ultimate&&allowedFamilies.includes(s.family)&&Number.isFinite(s.basic?.cooldown));
  const lockedUlt=fixed.filter(id=>by.get(id).ultimate);if(lockedUlt.length>1)throw Error('궁극기는 하나만 선택할 수 있습니다.');
  if(conditions.useUltimate===false){
   if(lockedUlt.length)throw Error('궁극기 사용을 끈 상태에서는 궁극기를 고정할 수 없습니다.');
@@ -339,7 +352,7 @@ function conditionSeed(data,conditions={},allowedFamilies=Object.keys(data.famil
  }
  // A user-locked ultimate is an explicit keep-current decision. It takes precedence over
  // the optional primary-family search filter, while exclusions and target safety still apply.
- const ultimates=data.skills.filter(s=>(!strict||singleTargetSafe(s))&&s.ultimate&&(!primaries.length||primaries.includes(s.family)||lockedUlt.includes(s.id))&&allowedFamilies.includes(s.family)&&(!lockedUlt.length||lockedUlt.includes(s.id))&&(!forced.length||forced.includes(s.family))).sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id)));
+ const ultimates=data.skills.filter(s=>(!strict||singleTargetEligible(s,disabled))&&s.ultimate&&(!primaries.length||primaries.includes(s.family)||lockedUlt.includes(s.id))&&allowedFamilies.includes(s.family)&&(!lockedUlt.length||lockedUlt.includes(s.id))&&(!forced.length||forced.includes(s.family))).sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id)));
  const ordered=[...normals].sort((a,b)=>Number(preferred.includes(b.id))-Number(preferred.includes(a.id))||a.basic.cooldown-b.basic.cooldown);
  for(const u of ultimates){const ids=fixed.filter(id=>!by.get(id).ultimate);const add=id=>{if(!ids.includes(id))ids.push(id);};
   for(const s of ordered.filter(s=>s.family===u.family)){if(ids.filter(id=>by.get(id).family===u.family).length>=3)break;add(s.id);}
@@ -353,10 +366,11 @@ function conditionSeed(data,conditions={},allowedFamilies=Object.keys(data.famil
 function createSearch(data,current,opts){
  opts={...opts,singleOnly:opts.singleOnly===true||opts.targetMode==='single'};
  if(opts.useUltimate===false){const ids=current.ids.filter(id=>!data.skills.find(s=>s.id===id)?.ultimate);current={...current,ids,baseSlots:current.baseSlots.filter(id=>ids.includes(id))};if(opts.conditions)opts.conditions={...opts.conditions,useUltimate:false};}
- if(opts.conditions)opts.conditions={...opts.conditions,singleOnly:opts.singleOnly};
+ if(opts.conditions)opts.conditions={...opts.conditions,singleOnly:opts.singleOnly,executionPolicy:opts.conditions.executionPolicy||opts.executionPolicy};
  opts={...opts,families:(opts.families||Object.keys(data.families)).filter(f=>!(opts.excludedFamilies||[]).includes(f))};
  if(opts.conditions?.excludedFamilies?.length)opts={...opts,families:(opts.families||Object.keys(data.families)).filter(f=>!opts.conditions.excludedFamilies.includes(f))};
- if(opts.conditions||current.ids.some(id=>{const s=data.skills.find(s=>s.id===id);return !opts.families.includes(s.family)||opts.singleOnly&&!singleTargetSafe(s);}))current=conditionSeed(data,opts.conditions||{singleOnly:opts.singleOnly,useUltimate:opts.useUltimate!==false&&current.ids.some(id=>data.skills.find(s=>s.id===id)?.ultimate)},opts.families,current.ids);
+ const disabled=disabledSkills(opts.executionPolicy);
+ if(opts.conditions||current.ids.some(id=>{const s=data.skills.find(s=>s.id===id);return !opts.families.includes(s.family)||opts.singleOnly&&!singleTargetEligible(s,disabled);}))current=conditionSeed(data,opts.conditions||{singleOnly:opts.singleOnly,useUltimate:opts.useUltimate!==false&&current.ids.some(id=>data.skills.find(s=>s.id===id)?.ultimate),executionPolicy:opts.executionPolicy},opts.families,current.ids);
  const byId=Object.fromEntries(data.skills.map(s=>[s.id,s])),isUlt=id=>!!byId[id]?.ultimate;
  const ult=current.ids.find(isUlt)||null,normals=current.ids.filter(id=>id!==ult);
  const ctx={targetMode:opts.targetMode,executionPolicy:opts.executionPolicy,stats:opts.stats,overrides:opts.overrides||{},singleOnly:!!opts.singleOnly,profile:opts.profile||'185547',horizon:180,need:opts.need,incoming:opts.incoming,snapshot:opts.snapshot,
@@ -374,7 +388,7 @@ function createSearch(data,current,opts){
  const candidates=pool(data,current.ids,opts),cache=new Map(),archive=new Map(),random=rng(opts.seed||20261018);
  // Only a build that already has an ultimate may switch it; ultimates of unchecked families (locked) never enter.
  const primaryChoices=opts.conditions?.primaryFamilies?.length?opts.conditions.primaryFamilies:(opts.conditions?.primaryFamily?[opts.conditions.primaryFamily]:[]);
- const ultimates=ult?[...new Set([ult,...data.skills.filter(s=>(!opts.singleOnly||singleTargetSafe(s))&&s.ultimate&&(!primaryChoices.length||primaryChoices.includes(s.family))&&(opts.families||[]).includes(s.family)&&typeof s.basic?.cooldown==='number').map(s=>s.id)])]:[];
+ const ultimates=ult?[...new Set([ult,...data.skills.filter(s=>(!opts.singleOnly||singleTargetEligible(s,disabled))&&s.ultimate&&(!primaryChoices.length||primaryChoices.includes(s.family))&&(opts.families||[]).includes(s.family)&&typeof s.basic?.cooldown==='number').map(s=>s.id)])]:[];
  // `iterations` is spread over the near chains as before; far chains add the same per-chain budget and must keep
  // at least FAR skills different from the current build, so the "different builds" group is really explored.
  const FAR=4,nearChains=Math.max(1,opts.chains||3),farChains=Math.max(0,opts.farChains??2),perChain=Math.ceil(Math.max(30,opts.iterations||4000)/nearChains),total=perChain*(nearChains+farChains),chains=nearChains+farChains;

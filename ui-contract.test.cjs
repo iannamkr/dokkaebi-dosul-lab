@@ -63,8 +63,8 @@ check(/recommend-decision-heading h4\{[^}]*font-size:18px/.test(css) && /recomme
 check(/공백을 채움/.test(workspace) && /유지 중 적중/.test(workspace) && /recommend-callout/.test(css), '추천 근거는 개선 지점의 짧은 타임라인 콜아웃으로 표시해야 합니다.');
 check(/remember\(\);commit\(\[\.\.\.candidate\.ids\]/.test(workspace), '추천 적용은 되돌릴 수 있는 commit 경로를 사용해야 합니다.');
 check(/timeline-zoom-controls[^]*timeline-expand/.test(workspace), '시간축 조작 뒤에 크게 보기 동작을 배치해야 합니다.');
-check(/header nav \.tab\{display:flex;align-items:center;justify-content:center\}/.test(css) && !/data-tab="optimizer"[^}]*display:inline-flex!important/.test(css) && /data-tab="catalog"[^}]*font-size:14px!important/.test(css) && /data-tab="catalog"[^}]*:after\{content:none!important/.test(css), '상단 메뉴는 모든 탭의 세로 정렬을 통일하고 도감 105 중복 표기를 제거해야 합니다.');
-check(/빌드 구성/.test(html) && /빌드 추천/.test(html), '메인 메뉴는 빌드 구성과 빌드 추천으로 구분해야 합니다.');
+check(/header nav \.tab\{display:flex;align-items:center;justify-content:center\}/.test(css) && !/data-tab="optimizer"[^}]*display:inline-flex!important/.test(css) && /data-tab="catalog"[^}]*font-size:14px!important/.test(css) && /data-tab="catalog"[^}]*:after\{content:none!important/.test(css), '상단 메뉴는 모든 탭의 세로 정렬을 통일하고 도감 메뉴의 중복 표기를 제거해야 합니다.');
+check(/빌드 구성/.test(html) && /빌드 추천/.test(html) && /data-tab="catalog">도감<\/button>/.test(html) && !/data-tab="catalog">도감 105<\/button>/.test(html), '메인 메뉴는 빌드 구성, 빌드 추천, 도감으로 구분해야 합니다.');
 check(/orderRecommendCache=new Map/.test(workspace) && /저장된 결과/.test(workspace) && /startOrderRecommendation\(orderRecommendMode,true\)/.test(workspace), '추천 결과를 방식별로 캐시하고 다시 계산에서만 강제 갱신해야 합니다.');
 check(/spanWidth=\(start,finish,min\)=>Math\.min\(100-pct\(start\)/.test(workspace), '추천 오버레이 막대가 시간축 오른쪽 경계를 넘지 않도록 폭을 제한해야 합니다.');
 check(/#optimizer\.active\{padding:10px/.test(css) && /\.recommend-mode-bar\{display:grid/.test(css) && /\.recommend-mode-tabs\{display:grid;grid-template-columns:repeat\(3,112px\) 142px;width:auto/.test(css), '빌드 추천은 10px 바깥 여백과 한 줄의 컴팩트한 추천 방식 조작군을 사용해야 합니다.');
@@ -77,7 +77,7 @@ check(/공격 보정 · 기록/.test(optimizerUi) && /방어 보정 · 기록/.t
 check(/\.opt-core-build\{display:grid;grid-template-columns:repeat\(9/.test(css) && /\.opt-condition-summary\{display:grid;grid-template-columns:/.test(css) && /\.opt-direction-cards\{display:grid;grid-template-columns:repeat\(3/.test(css), '자유 추천은 9칸 핵심 카드, 3개 조건 요약, 3개 추천 방향을 한눈에 비교해야 합니다.');
 check(/data-open-opt-advanced/.test(optimizerUi) && /고급 빌드 조건/.test(optimizerUi) && /세부 정보 확인·수정/.test(optimizerUi), '원시 능력치와 세부 제약은 확인·수정 영역에서만 노출해야 합니다.');
 check(/최대 2개 · 미선택 시 엔진이 결정/.test(optimizerUi) && /primaryFamilies/.test(optimizerUi) && /opt-primary-family-count/.test(optimizerUi), '자유 추천의 주력 계열은 최대 2개 선택과 선택 수를 명시해야 합니다.');
-check(/opt-target-picker/.test(optimizerUi) && /data-opt-target-mode="single"/.test(optimizerUi) && /data-opt-target-mode="area"/.test(optimizerUi) && /한 마리 집중 · 범위 피해 도술 제외/.test(optimizerUi), 'STEP 01에서 단일·범위 사냥 대상을 설명과 함께 직접 선택할 수 있어야 합니다.');
+check(/opt-target-picker/.test(optimizerUi) && /data-opt-target-mode="single"/.test(optimizerUi) && /data-opt-target-mode="area"/.test(optimizerUi) && /한 마리 집중 · 자동 ON은 단일 도술만/.test(optimizerUi), 'STEP 01에서 단일·범위 사냥 대상과 자동 OFF 범위 도술 허용 규칙을 직접 확인할 수 있어야 합니다.');
 check(/\.opt-target-options button\[aria-pressed="true"\]/.test(css), '선택한 빌드 대상은 STEP 01에서 시각적으로 구분되어야 합니다.');
 check(/인게임 정보 이미지 첨부/.test(optimizerUi) && /id="opt-stat-images"/.test(optimizerUi) && /recognizeStatImages/.test(optimizerUi) && /createWorker\('kor\+eng'/.test(optimizerUi), '공격·방어·체력 상세 화면을 한글 OCR로 읽는 이미지 첨부 입력이 필요합니다.');
 check(!/이미지는 서버로 전송하지 않습니다|텍스트로 직접 입력|id="opt-stat-paste"/.test(optimizerUi), '이미지 첨부 영역에 삭제한 안내와 직접 텍스트 입력 기능이 남으면 안 됩니다.');
