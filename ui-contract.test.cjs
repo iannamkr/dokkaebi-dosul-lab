@@ -61,7 +61,8 @@ check(/header nav \.tab\{display:flex;align-items:center;justify-content:center\
 check(/빌드 구성/.test(html) && /빌드 추천/.test(html), '메인 메뉴는 빌드 구성과 빌드 추천으로 구분해야 합니다.');
 check(/orderRecommendCache=new Map/.test(workspace) && /저장된 결과/.test(workspace) && /startOrderRecommendation\(orderRecommendMode,true\)/.test(workspace), '추천 결과를 방식별로 캐시하고 다시 계산에서만 강제 갱신해야 합니다.');
 check(/spanWidth=\(start,finish,min\)=>Math\.min\(100-pct\(start\)/.test(workspace), '추천 오버레이 막대가 시간축 오른쪽 경계를 넘지 않도록 폭을 제한해야 합니다.');
-check(/#optimizer\.active\{padding:10px/.test(css) && /\.recommend-mode-bar\{display:grid/.test(css) && /\.recommend-mode-tabs\{display:grid;grid-template-columns:repeat\(4,112px\);width:auto/.test(css), '빌드 추천은 10px 바깥 여백과 한 줄의 컴팩트한 추천 방식 조작군을 사용해야 합니다.');
+check(/#optimizer\.active\{padding:10px/.test(css) && /\.recommend-mode-bar\{display:grid/.test(css) && /\.recommend-mode-tabs\{display:grid;grid-template-columns:repeat\(3,112px\) 142px;width:auto/.test(css), '빌드 추천은 10px 바깥 여백과 한 줄의 컴팩트한 추천 방식 조작군을 사용해야 합니다.');
+check(/tabLabel:'자유 추천 \(개발 중\)'/.test(workspace) && /x\.tabLabel\|\|x\.label/.test(workspace), '자유 추천 탭에는 개발 중 상태를 명시해야 합니다.');
 check(/유지할 핵심/.test(optimizerUi) && /사냥 조건/.test(optimizerUi) && /추천 결과/.test(optimizerUi), '자유 추천은 핵심 고정, 사냥 조건, 추천 결과의 3단계 구조를 사용해야 합니다.');
 check(/\.opt-core-build\{display:grid;grid-template-columns:repeat\(9/.test(css) && /\.opt-condition-summary\{display:grid;grid-template-columns:/.test(css) && /\.opt-direction-cards\{display:grid;grid-template-columns:repeat\(3/.test(css), '자유 추천은 9칸 핵심 카드, 3개 조건 요약, 3개 추천 방향을 한눈에 비교해야 합니다.');
 check(/data-open-opt-advanced/.test(optimizerUi) && /고급 빌드 조건/.test(optimizerUi) && /고급 평가 조건/.test(optimizerUi), '원시 능력치와 세부 제약은 고급 조건에서만 노출해야 합니다.');
