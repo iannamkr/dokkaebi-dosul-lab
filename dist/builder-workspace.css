@@ -168,7 +168,7 @@ body:has(#explore.active)>header nav .tab.active{font-weight:700}
 
 body:has(#explore.active)>header{padding-left:36px;padding-right:18px;gap:40px}
 body:has(#explore.active)>header .brand{display:flex;align-items:center;gap:44px}
-.mock-brand-icon{width:36px;height:44px;flex:none;overflow:hidden}
+.mock-brand-icon{display:block;width:36px;height:44px;flex:none;object-fit:contain;overflow:hidden}
 .mock-header-actions button{display:flex;align-items:center;justify-content:center;gap:12px}
 .header-action-icon{width:24px;height:24px;flex:none;overflow:hidden}
 body:has(#explore.active)>header nav [data-tab="sources"]{display:none}

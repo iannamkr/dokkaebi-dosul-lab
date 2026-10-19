@@ -16,6 +16,10 @@ vm.runInNewContext(fs.readFileSync(path.join(root, 'dist/effect-icons.js'), 'utf
 const effectIcons = context.window.DOSUL_EFFECT_ICONS;
 const effectCatalog = fs.readFileSync(path.join(root, 'dist/effect-icons-catalog.js'), 'utf8');
 
+check(/<title>도깨비 스킬 빌더<\/title>/.test(html) && /class="brand">도깨비 스킬 빌더</.test(html), '브라우저 제목과 상단 브랜드명이 도깨비 스킬 빌더로 일치해야 합니다.');
+check(/rel="icon" href="app-icon\.svg"/.test(html) && /rel="manifest" href="site\.webmanifest"/.test(html), '프로그램 아이콘과 웹 앱 매니페스트가 문서에 연결되어야 합니다.');
+check(['app-icon.svg','favicon.ico','favicon-32.png','apple-touch-icon.png','icon-192.png','icon-512.png','site.webmanifest'].every(file=>fs.existsSync(path.join(root,'dist',file))), '프로그램 아이콘 자산이 빠졌습니다.');
+check(data.meta.title === '도깨비 스킬 빌더', '데이터 메타의 프로그램명이 화면과 일치해야 합니다.');
 check(
   /\.builder-cast-skill[\s\S]{0,500}\.builder-effect-name \.game-status-icon\{width:40px!important;height:40px!important/.test(css),
   '타임라인 스킬 아이콘과 상태 아이콘의 공통 40px 규격이 없습니다.'

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="도깨비 스킬 빌더">
+  <defs>
+    <linearGradient id="leaf-left" x1="12" y1="9" x2="32" y2="54" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#526861"/>
+      <stop offset="1" stop-color="#102f28"/>
+    </linearGradient>
+    <linearGradient id="leaf-right" x1="56" y1="17" x2="31" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#314f45"/>
+      <stop offset="1" stop-color="#0c2822"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#leaf-left)" d="M30.7 39.2C20.8 32.8 17.2 20.2 28.8 5c4.5 11.9 4.4 23.3 1.9 34.2Z"/>
+  <path fill="#173b31" d="M28.7 57.7C17.2 52.8 8.4 41.3 8.6 25.8c12.6 6.7 19.1 17 20.1 31.9Z"/>
+  <path fill="url(#leaf-right)" d="M32 57.8c1.2-18.1 10.3-33.1 25.3-40.6.3 18.2-9.6 34.4-25.3 40.6Z"/>
+  <path fill="#789087" d="M31.2 56.2c-.8-13.7-.4-28.2 2.8-43.8 1.3 15.1.8 30.3-2.8 43.8Z"/>
+</svg>

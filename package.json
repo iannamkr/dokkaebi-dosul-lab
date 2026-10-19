@@ -2,7 +2,7 @@
   "name": "dokkaebi-dosul-lab",
   "version": "1.0.0",
   "private": true,
-  "description": "도깨비의 세계 도술 연계·빌드·영상 기반 전투 비교 도구",
+  "description": "도깨비의 세계 도술 순서·배치·연계를 구성하고 추천하는 스킬 빌더",
   "engines": {
     "node": ">=20"
   },

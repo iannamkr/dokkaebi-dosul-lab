@@ -48,7 +48,7 @@ try {
     if ($startedProcess -and -not $ready) { $startedProcess | Stop-Process -Force -ErrorAction SilentlyContinue }
     if ($NoBrowser) { throw }
     Add-Type -AssemblyName System.Windows.Forms
-    [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, '도술 연계도 실행 오류', 'OK', 'Error') | Out-Null
+    [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, '도깨비 스킬 빌더 실행 오류', 'OK', 'Error') | Out-Null
     exit 1
 } finally {
     if ($locked) { $mutex.ReleaseMutex() }
