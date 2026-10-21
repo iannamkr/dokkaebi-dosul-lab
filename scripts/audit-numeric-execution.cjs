@@ -1,10 +1,11 @@
 'use strict';
 // Strict source-to-execution contracts. Missing consumers are failures, never skips.
 const fs=require('node:fs'),path=require('node:path');
-const ROOT=path.resolve(__dirname,'..'),D=require('../dist/data.json'),raw=require('../dist/kkaebigg/skills.json');
+const ROOT=path.resolve(__dirname,'..'),BASE=require('../dist/data.json'),raw=require('../dist/kkaebigg/skills.json'),buffs=require('../dist/kkaebigg/buffs.json');
 const C=require('../dist/combat.js'),A=require('../dist/timing-auto.js'),H=require('../dist/hit-timing.js'),S=require('../dist/simulation.js'),F=require('../dist/shinsik.js'),O=require('../dist/optimizer.js'),K=require('../dist/kkaebigg.js'),N=require('../dist/numbers.js');
 const clone=x=>structuredClone(x),near=(a,b)=>Number.isFinite(a)&&Math.abs(a-b)<=1e-6*Math.max(1,Math.abs(b));
 function run(){
+ const D=clone(BASE);K.apply(D,{skills:raw,buffs});
  const cases=[],inventory=[];
  function check(id,category,expected,fn){try{const actual=fn();cases.push({id,category,status:(typeof expected==='number'?near(actual,expected):JSON.stringify(actual)===JSON.stringify(expected))?'pass':'fail',expected,actual});}catch(e){cases.push({id,category,status:'fail',expected,error:e.message});}}
  function first(s){return C.run({...D,skills:[s]},[s.id],20,false).events[0];}

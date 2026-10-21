@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict'),http=require('node:http'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{spawn}=require('node:child_process');
-const {sync,extractScript}=require('./scripts/kkaebigg-sync.cjs');
+const {sync,extractScript}=require('./scripts/kkaebigg-sync.cjs'),K=require('./dist/kkaebigg.js');
 // A fake kkaebigg.com built from the committed snapshot, so tests never touch the real site.
 const real=name=>JSON.parse(fs.readFileSync(path.join(__dirname,'dist/kkaebigg',name+'.json'),'utf8'));
 const pages={skills:real('skills'),buffs:real('buffs'),maps:real('maps'),monsters:real('monsters')};
@@ -18,6 +18,13 @@ assert.throws(()=>extractScript('<html></html>','bf-data'),/찾지 못했습니�
   assert.equal(first.meta.counts.skills,105);assert(requests.every(r=>/dokkaebi-dosul-lab/.test(r.ua)),'Identifies itself');
   const script=fs.readFileSync(path.join(out,'snapshot.js'),'utf8');const sandbox={window:{}};new Function('window',script)(sandbox.window);
   assert.equal(sandbox.window.KKAEBIGG_SNAPSHOT.skills.skills.length,105,'snapshot.js loads in the page');assert(!('maps' in sandbox.window.KKAEBIGG_SNAPSHOT),'Maps stay out of the page load');
+  const local={skills:[{id:'s056',name:'번개 폭풍',basic:{cooldown:14},referenceNumbers:{},referenceDetail:{buffs:[],debuffs:[{name:'감전',description:'이전 설명',duration:null},{name:'마비',description:'이전 설명',duration:null}]}}]};
+  const lightning=structuredClone(pages.skills.skills.find(s=>s.n==='번개 폭풍'));
+  const linkedSnapshot={skills:{skills:[lightning]},buffs:{groups:pages.buffs.groups.filter(g=>['감전','마비'].includes(g.n))}};
+  const applied=K.apply(local,linkedSnapshot),effect=Object.fromEntries(local.skills[0].referenceDetail.debuffs.map(e=>[e.name,e]));
+  assert.equal(applied.applied,true);assert.equal(local.skills[0].basic.cooldown,10);
+  assert.equal(effect.감전.duration,10,'감전 지속시간을 효과 사전에서 동기화');assert.equal(effect.마비.duration,1,'마비 지속시간을 효과 사전에서 동기화');
+  assert(applied.changes.some(c=>c.field==='효과 지속시간 · 감전'&&c.after===10));
   // A patch on the site: one cooldown changes.
   pages.skills=structuredClone(pages.skills);pages.skills.skills.find(s=>s.n==='방패 밀기').num.cd=6;
   const second=await sync({base,outDir:out});
@@ -29,7 +36,7 @@ assert.throws(()=>extractScript('<html></html>','bf-data'),/찾지 못했습니�
   assert.equal(fs.readFileSync(path.join(out,'meta.json'),'utf8'),before,'Failed sync keeps the old snapshot');
   assert(!fs.readdirSync(out).some(f=>f.startsWith('.sync-')),'No temp folders left');broken=false;
   // Local server route: POST runs the sync against the fake site; GET is refused.
-  const child=spawn(process.execPath,['scripts/serve.cjs'],{env:{...process.env,PORT:'0',KKAEBIGG_BASE:base,KKAEBIGG_OUT:out},windowsHide:true,stdio:['ignore','pipe','pipe']});
+  const child=spawn(process.execPath,['scripts/serve.cjs'],{env:{...process.env,PORT:'0',KKAEBIGG_BASE:base,KKAEBIGG_OUT:out,KKAEBIGG_SYNC_ONLY:'1'},windowsHide:true,stdio:['ignore','pipe','pipe']});
   try{
    const port=await new Promise((resolve,reject)=>{const t=setTimeout(()=>reject(Error('server start timeout')),10000);child.stdout.on('data',b=>{const m=String(b).match(/127\.0\.0\.1:(\d+)/);if(m){clearTimeout(t);resolve(+m[1]);}});});
    const call=method=>new Promise((resolve,reject)=>{const req=http.request({host:'127.0.0.1',port,path:'/api/kkaebigg/sync',method},r=>{const d=[];r.on('data',x=>d.push(x));r.on('end',()=>resolve({status:r.statusCode,body:Buffer.concat(d).toString()}));});req.on('error',reject);req.end();});

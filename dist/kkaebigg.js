@@ -26,9 +26,16 @@ function apply(data,snap){
   if(k.d&&s.referenceDetail.description!==k.d){report.changes.push({id:s.id,name:s.name,field:'도술 설명',before:s.referenceDetail.description||null,after:k.d});s.referenceDetail.description=k.d;}
   for(const h of k.hit||[]){
    const list=h.t==='강화'?(s.referenceDetail.buffs=s.referenceDetail.buffs||[]):h.t==='약화'?(s.referenceDetail.debuffs=s.referenceDetail.debuffs||[]):null;if(!list||!h.n)continue;
-   const description=(h.l||[]).join(' '),entry=list.find(b=>b.name===h.n);
-   if(!entry){list.push({name:h.n,description,duration:null});report.changes.push({id:s.id,name:s.name,field:'효과 추가',before:null,after:h.n});}
-   else if(entry.description!==description){report.changes.push({id:s.id,name:s.name,field:'효과 설명 · '+h.n,before:entry.description,after:description});entry.description=description;}
+   const description=(h.l||[]).join(' '),entry=list.find(b=>b.name===h.n),linked=link(snap,h.n);
+   // The skill feed carries names/descriptions while the buff dictionary carries lifetimes.
+   // Only copy a single, finite lifetime. Ambiguous candidates stay unconfirmed instead of
+   // being guessed; a later sync can fill them once the source disambiguates the entry.
+   const duration=linked&&!linked.ambiguous&&Number.isFinite(linked.life)&&linked.life>0?linked.life:null;
+   if(!entry){list.push({name:h.n,description,duration});report.changes.push({id:s.id,name:s.name,field:'효과 추가',before:null,after:h.n});if(duration!==null)report.changes.push({id:s.id,name:s.name,field:'효과 지속시간 · '+h.n,before:null,after:duration});}
+   else{
+    if(entry.description!==description){report.changes.push({id:s.id,name:s.name,field:'효과 설명 · '+h.n,before:entry.description,after:description});entry.description=description;}
+    if(duration!==null&&entry.duration!==duration){report.changes.push({id:s.id,name:s.name,field:'효과 지속시간 · '+h.n,before:entry.duration??null,after:duration});entry.duration=duration;}
+   }
   }
  }
  report.applied=true;return report;

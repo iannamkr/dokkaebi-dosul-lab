@@ -37,15 +37,20 @@ function sustainKind(text){
 function sources(skill,snapshot=defaultSnapshot()){
  const out=[],unquantified=[];
  (N.effectRows(skill)?.buffs||[]).forEach((b,i)=>{
-  const text=`${b.name||''} ${b.description||''}`.trim(),kind=sustainKind(text);if(kind==='none')return;
+  const text=`${b.name||''} ${b.description||''}`.trim(),primary=sustainKind(text);if(primary==='none')return;
+  // A single live tooltip can grant a shield and reduce incoming damage while it lasts.
+  // Keep both mechanics instead of letting the reduction classification hide the shield.
+  const kinds=primary==='reduce'&&/보호막/.test(text)&&parseAmount(b.description||text)?['shield','reduce']:[primary];
   const effect=(b.name||'').match(/^(.+?) \(/)?.[1];
   const condition=effect?(skill.conditions||[]).find(c=>c.effect===effect&&/회복|보호막|피해 감소/.test(c.result)):null;
-  const amount=kind==='reduce'?(parseReduction(b.description||text)?{reducePct:parseReduction(b.description||text)}:null):parseAmount(b.description||text);
-  if(!amount){unquantified.push({skillId:skill.id,label:b.name||kind,text:b.description,reason:'수치 미확인'});return;}
-  const link=snapshot&&K?K.link(snapshot,b.name,amount):null;
-  out.push({key:`${skill.id}:${i}`,skillId:skill.id,kind,label:b.name||kind,text:b.description,atkPct:0,hpPct:0,flat:0,times:1,...amount,
-   condition:condition?{effect:condition.effect,result:condition.result,scope:condition.scope}:null,
-   life:link&&!link.ambiguous?link.life:null,dup:link?.dup||null,link:link?{candidates:link.candidates,lives:link.lives,ambiguous:link.ambiguous}:null});
+  for(const kind of kinds){
+   const reduction=parseReduction(b.description||text),amount=kind==='reduce'?(reduction?{reducePct:reduction}:null):parseAmount(b.description||text);
+   if(!amount){unquantified.push({skillId:skill.id,label:b.name||kind,text:b.description,reason:'수치 미확인'});continue;}
+   const link=snapshot&&K?K.link(snapshot,b.name,amount):null;
+   out.push({key:`${skill.id}:${i}${kinds.length>1?':'+kind:''}`,skillId:skill.id,kind,label:b.name||kind,text:b.description,atkPct:0,hpPct:0,flat:0,times:1,...amount,
+    condition:condition?{effect:condition.effect,result:condition.result,scope:condition.scope}:null,
+    life:link&&!link.ambiguous?link.life:null,dup:link?.dup||null,link:link?{candidates:link.candidates,lives:link.lives,ambiguous:link.ambiguous}:null});
+  }
  });
  return {sources:out,unquantified};
 }

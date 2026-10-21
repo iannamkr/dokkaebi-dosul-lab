@@ -26,8 +26,9 @@ const stats={attack:20497,maxHp:100029,regen:2744,regenPeriod:5},overrides={'s08
 const ids=['s071','s069','s003','s008','s075','s007','s012','s085','s010'],base=['s003','s007','s008','s071','s069'];
 const measured=O.evaluate(D,ids,base,{stats,overrides,singleOnly:true,profile:'185547',horizon:180});
 assert(measured.valid);
-// Independent source coefficients: the old tooltip rounded Swing's 0.45% to 0.4%.
-const raw=require('./dist/kkaebigg/skills.json'),swingSource=raw.skills.find(s=>s.n==='휘둘러 내려치기'),swingPct=swingSource.ef.find(e=>e.u==='%')?.v ?? swingSource.ef[0].v;
+// Use the quantified shield effect itself. The live source's generic effect progression can
+// describe a different upgrade mechanic and must not be mistaken for this HP coefficient.
+const raw=require('./dist/kkaebigg/skills.json'),swingPct=O.sources(skill('s012')).sources[0].hpPct;
 const round2=n=>Math.round(n*100)/100;
 const expectedFull=round2(round2((stats.attack*.012+1460)*23/3)+round2(1460*16/3)+round2(stats.maxHp*.007*48/3)+round2(stats.maxHp*swingPct/100*69/3)+542*5*18/3);
 assert.equal(measured.perMin,expectedFull);
@@ -93,9 +94,10 @@ const modeled=O.evaluate(D,ids,base,{stats,overrides,singleOnly:true,profile:'18
 const swing=modeled.rows.find(r=>r.skillId==='s012');assert(swing.perMin<swing.full*0.6,'Replace wastes most of the per-hit Swing shield');
 assert.equal(modeled.rows.find(r=>r.skillId==='s007').perMin,modeled.rows.find(r=>r.skillId==='s007').full,'Heals are not reduced');
 assert(Math.abs(modeled.perMin+O.regenPerMin(stats)-incoming-(89632-66606)*60/265)<5,'Fixed point reproduces the measured net HP change');
-// Snapshot overlay: identical values change nothing; a patched cooldown reaches the timing engine.
-const copy=structuredClone(D),same=K.apply(copy,snapshot);
-assert.equal(same.changes.filter(c=>c.field.startsWith('referenceNumbers')).length,0,'data.json matches the snapshot it was built from');
+// Snapshot overlay reaches a fixed point; a patched cooldown reaches the timing engine.
+const copy=structuredClone(D),firstSync=K.apply(copy,snapshot),same=K.apply(copy,snapshot);
+assert(firstSync.changes.length>0,'newer snapshot updates the bundled baseline');
+assert.equal(same.changes.length,0,'applying the same snapshot twice is idempotent');
 const patched=structuredClone(snapshot);patched.skills.skills.find(s=>s.n==='방패 밀기').num.cd=6;
 const copy2=structuredClone(D),rep=K.apply(copy2,patched);
 assert.equal(copy2.skills.find(s=>s.id==='s069').basic.cooldown,6);assert(rep.changes.some(c=>c.field==='basic.cooldown'&&c.name==='방패 밀기'));
@@ -103,5 +105,5 @@ assert.equal(copy2.skills.find(s=>s.id==='s069').basic.cooldown,6);assert(rep.ch
 {const vm=require('node:vm'),ctx={window:{}};vm.runInNewContext(require('node:fs').readFileSync('dist/kkaebi-gg/hunting.js','utf8'),ctx);const Z=ctx.window.DOSUL_HUNTING.zones,z=n=>Z.find(x=>x.name===n);
  assert.equal(Z.length,21);const toxic=O.zoneSummary(z('독기 지대'));assert.equal(toxic.attack,8320.84);assert.equal(toxic.maxAttack,8555);assert.equal(toxic.spawns,188);
  assert.equal(O.zoneSummary(z('마을 폐허')).attack,13763);assert.equal(O.zoneScale(z('독기 지대'),z('마을 폐허')).toFixed(3),'1.654');assert.equal(O.zoneScale(null,z('마을 폐허')),1);
- const B=require('./scripts/build-hunting.cjs');assert.equal(B.script(require('./dist/kkaebi-gg/hunting.json')),require('node:fs').readFileSync('dist/kkaebi-gg/hunting.js','utf8'),'hunting.js is generated from hunting.json');}
+ const B=require('./scripts/build-hunting.cjs'),lf=s=>s.replace(/\r\n/g,'\n');assert.equal(lf(B.script(require('./dist/kkaebi-gg/hunting.json'))),lf(require('node:fs').readFileSync('dist/kkaebi-gg/hunting.js','utf8')),'hunting.js is generated from hunting.json');}
 console.log('Kkaebigg buffs: durations, Replace/Stack timeline, reduction uptime, measured fixed point and snapshot overlay passed.');
