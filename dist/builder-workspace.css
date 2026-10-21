@@ -768,6 +768,7 @@ body:has(#explore.active)>header nav .tab{font-size:14px;line-height:21px;font-w
 #explore .sequence-actions:has(.save-form:not([hidden]))>#clear,
 #explore .sequence-actions:has(.save-form:not([hidden]))>#save,
 #explore .sequence-actions:has(.save-form:not([hidden]))>.build-menu{display:none!important}
+.kkaebigg-sync-row{display:flex;align-items:center;gap:8px;width:100%;padding-top:8px;margin-top:4px;border-top:1px solid #dbe5dd}.kkaebigg-sync-row button{flex:0 0 auto}.kkaebigg-sync-row span{min-width:0;color:#65766b;font-size:11px;line-height:16px}
 
 /* Expanded timeline must grow with every buff/debuff row and scroll as one canvas. */
 #explore #effect-timeline.timeline-expanded .builder-timeline-viewport{min-height:0;overflow-x:hidden;overflow-y:scroll;scrollbar-gutter:stable;overscroll-behavior:contain}
@@ -1348,3 +1349,13 @@ body>header nav .tab{padding:0 10px;font-size:14px;line-height:21px;font-weight:
  padding:2px 5px;
  box-sizing:border-box;
 }
+/* Build screenshot import */
+.build-image-import-button{height:32px;min-height:32px;padding:0 11px;border:1px solid #aac2b1;border-radius:7px;background:#f1f8f3;color:#155e4d;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;cursor:pointer}
+.build-image-import-button:hover{background:#e2f1e7;border-color:#6c9f81}
+.build-image-import-button:focus-within{outline:3px solid #b79a52;outline-offset:2px}
+.build-image-import-button input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.build-image-import-status{max-width:160px;color:#4d685f;font-size:10px;line-height:1.25;white-space:normal}
+.build-image-import-status:empty{display:none}
+.build-image-import-button.is-busy{pointer-events:none;opacity:.72}
+.build-image-import-button.is-busy span:after{content:' · 분석 중'}
+@media(max-width:900px){.build-image-import-status{max-width:none;flex-basis:100%;order:2}}

@@ -80,6 +80,12 @@ check(/최대 2개 · 미선택 시 엔진이 결정/.test(optimizerUi) && /prim
 check(/opt-target-picker/.test(optimizerUi) && /data-opt-target-mode="single"/.test(optimizerUi) && /data-opt-target-mode="area"/.test(optimizerUi) && /한 마리 집중 · 자동 ON은 단일 도술만/.test(optimizerUi), 'STEP 01에서 단일·범위 사냥 대상과 자동 OFF 범위 도술 허용 규칙을 직접 확인할 수 있어야 합니다.');
 check(/\.opt-target-options button\[aria-pressed="true"\]/.test(css), '선택한 빌드 대상은 STEP 01에서 시각적으로 구분되어야 합니다.');
 check(/인게임 정보 이미지 첨부/.test(optimizerUi) && /id="opt-stat-images"/.test(optimizerUi) && /recognizeStatImages/.test(optimizerUi) && /createWorker\('kor\+eng'/.test(optimizerUi), '공격·방어·체력 상세 화면을 한글 OCR로 읽는 이미지 첨부 입력이 필요합니다.');
+const buildImageImport = fs.readFileSync(path.join(root, 'dist/build-image-import.js'), 'utf8');
+check(/id="build-image-import"/.test(html) && /accept="image\/png,image\/jpeg,image\/webp"/.test(html) && /build-image-import\.js/.test(html), '빌드 구성에 사용 순서 이미지 불러오기 입력과 인식 모듈이 연결되어야 합니다.');
+check(/detectIconBoxes/.test(buildImageImport) && /matchIcons/.test(buildImageImport) && /matchOcr/.test(buildImageImport), '사용 순서 이미지는 도술 아이콘을 우선 판독하고 OCR로 보강해야 합니다.');
+check(/normal\.length===8&&ultimate\.length===1/.test(buildImageImport) && /if\(!result\.complete\)throw Error/.test(buildImageImport), '일반 도술 8개와 궁극기 1개를 모두 확인하기 전에 현재 빌드를 덮어쓰면 안 됩니다.');
+check(/remember\(\);builderEquipmentOrder=nextEquipment;commit/.test(buildImageImport), '이미지에서 불러온 사용 순서는 되돌릴 수 있는 commit 경로로 적용해야 합니다.');
+check(/\.build-image-import-button\{height:32px;min-height:32px/.test(css), '이미지 불러오기 버튼은 상단 조작 버튼과 겹치지 않는 고정 높이를 사용해야 합니다.');
 check(!/이미지는 서버로 전송하지 않습니다|텍스트로 직접 입력|id="opt-stat-paste"/.test(optimizerUi), '이미지 첨부 영역에 삭제한 안내와 직접 텍스트 입력 기능이 남으면 안 됩니다.');
 check(!/정확도·회피·치명·방어의 환산식은 공개 확인되지 않아 저장만|사냥터의 권장 전투력·몬스터 체력·공격력은/.test(optimizerUi), '삭제한 능력치·사냥터 안내 문구가 남으면 안 됩니다.');
 check(!/id="opt-hit-interval"|id="opt-model"|>계산 조건</.test(optimizerUi) && /settings\.hitInterval=1\.5/.test(optimizerUi) && /settings\.encounter=true/.test(optimizerUi), '공격 간격과 사냥 계산 방식은 화면에서 선택하지 않고 각각 1.5초와 공간 사냥 모델로 고정해야 합니다.');

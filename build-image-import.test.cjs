@@ -1,0 +1,17 @@
+'use strict';
+const assert=require('assert');
+const fs=require('fs');
+const Import=require('./dist/build-image-import.js');
+const D=JSON.parse(fs.readFileSync('./dist/data.json','utf8').replace(/^\uFEFF/,''));
+const names=['영혼 소용돌이','요기 폭발','하늘의 심판','화염구','얼음화살','서리의 잔향','낙뢰','연쇄 번개','대폭발'];
+const expected=names.map(name=>D.skills.find(s=>s.name===name).id);
+const exact=Import.validBuild(Import.matchText('사용 순서 설정 '+names.join(' > '),D.skills));
+assert(exact.complete);
+assert.deepEqual(exact.ids,expected);
+const words=[];names.forEach((name,index)=>{const pieces=index===0?['영혼','소용돌','이']:name.split(' ');pieces.forEach((text,line)=>words.push({text,confidence:95,bbox:{x0:20+index*90,x1:72+index*90,y0:90+line*18,y1:106+line*18}}));});
+const columns=Import.validBuild(Import.matchWordColumns(words,780,160,D.skills));
+assert(columns.complete);
+assert.deepEqual(columns.ids,expected);
+assert(Import.similarity('영혼소용돌이','영혼 소용돌이')===1);
+assert(Import.similarity('연쇄번게','연쇄 번개')>.7);
+console.log('Build screenshot import parsing passed.');
