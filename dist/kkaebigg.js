@@ -38,6 +38,7 @@ function apply(data,snap){
    }
   }
  }
+ const B=typeof module!=='undefined'?require('./breakthrough.js'):root.DosulBreakthrough;if(B)B.apply(data,data.legendaryBreakthroughStep??6);
  report.applied=true;return report;
 }
 // Buff dictionary values: ApplyShield [basis, flat, rate in 1/100 %], DamageDown in 1/100 %, life in ms (-1 = until removed).

@@ -5,7 +5,7 @@
 function level(s){const n=s.level??0;if(!Number.isInteger(n)||n<0||n>50)throw Error('강화 레벨 범위: 0~50');return n;}
 function growth(table,n){if(n===0)return 0;const row=(table||[]).find(r=>r.level===n);if(!row)throw Error('강화 레벨 수치 누락: '+n);return row.coefficient;}
 function multiplier(s){return 1+growth(s.referenceNumbers?.lv,level(s));}
-function components(s){const n=s.referenceNumbers||{},dc=n.dc||[];let parts=dc;if(n.cm){const stage=s.chargeStage??dc.length;if(!Number.isInteger(stage)||stage<1||stage>dc.length)throw Error('차지 단계 범위 오류');parts=[dc[stage-1]];}const factor=multiplier(s);return parts.map(p=>({...p,basic_coefficient:p.basic_coefficient*factor}));}
+function components(s){const n=s.referenceNumbers||{},dc=n.dc||[];let parts=dc;if(n.cm){const stage=s.chargeStage??dc.length;if(!Number.isInteger(stage)||stage<1||stage>dc.length)throw Error('차지 단계 범위 오류');parts=[dc[stage-1]];}const factor=multiplier(s)*(s.legendaryBreakthrough?.active?1+(s.legendaryBreakthrough.damagePercent||0)/100:1);return parts.map(p=>({...p,basic_coefficient:p.basic_coefficient*factor}));}
 function coefficient(s,index){for(const p of components(s)){if(index<=p.hits)return p.basic_coefficient;index-=p.hits;}return null;}
 function total(s,event){const dc=components(s);if(event?.hitIndices)return event.hitIndices.reduce((a,i)=>a+(coefficient(s,i)||0),0);return dc.reduce((a,p)=>a+p.basic_coefficient*p.hits,0);}
 function effectValue(effect,s){if(!effect)return null;return effect.m==='factor'?effect.v*(1+growth(effect.fl,level(s))):effect.v;}

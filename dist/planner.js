@@ -20,7 +20,7 @@ function renderTargetControls(){const total=DosulTargets.summary(S),parts=[['all
 function renderEmptyDetail(){renderMarkup('#detail','<p class="detail-eyebrow">도술 정보</p><div class="selection-empty"><b>도술을 선택하세요</b></div>');}
 function source(s){return D.sources.find(x=>x.id===s.source);}
 function chips(items,kind=''){return items.length?items.map(x=>`<span class="chip ${kind}">${esc(x)}</span>`).join(''):'<span class="muted">미기재</span>';}
-function textOf(s){return [s.name,s.family,...s.buffs,...s.debuffs,...s.conditions.flatMap(x=>[x.effect,x.result]),s.notes].join(' ');}
+function textOf(s){return [s.name,s.family,...s.buffs,...s.debuffs,...s.conditions.flatMap(x=>[x.effect,x.result]),s.notes,s.legendaryBreakthrough?.active?s.legendaryBreakthrough.description:''].join(' ');}
 // Plain text searches the whole description; 초성 (ㅅㅁㅇㅎㄹ) searches the name and family.
 function searchMatch(s,q){return DosulHangul.match(q,textOf(s),s.name+' '+s.family);}
 function select(id){if(!byId(id))return;selected=id;if(typeof focusTiming==='function')focusTiming(id);predecessorPage=0;renderList();renderDetail();renderGraph();}

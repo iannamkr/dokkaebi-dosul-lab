@@ -11,7 +11,7 @@ let applied=null,downloaded=null,toasts=[];
 const ctx={D,build:[...ids],byId:id=>D.skills.find(s=>s.id===id),esc:s=>String(s??''),icon:()=>'',styleBadge:s=>s.family,toast:t=>toasts.push(t),remember(){},
  commit(next,step,base){applied={next,base};ctx.build=next;D.baseSlots=base;},download:(name,body,type)=>{downloaded=/json/.test(type||'application/json')?JSON.parse(body):{name,text:body,type};},
  DosulSequence:require('./dist/sequence.js'),DosulSimulation:require('./dist/simulation.js'),DosulOptimizer:FastO,
- DosulRecommendationView:{full:(skillIds,baseSlots,horizon)=>({ids:skillIds,baseSlots,horizon}),overlayTimeline:()=>'<section class="recommend-timeline-overlay"><div class="recommend-axis">시간</div><div class="recommend-row-label">평타</div></section>',bindCursor(){}},
+ DosulRecommendationView:{full:(skillIds,baseSlots,horizon)=>({ids:skillIds,baseSlots,horizon,links:{passed:2,conditional:1,failed:0,moments:[]}}),overlayTimeline:()=>'<section class="recommend-timeline-overlay"><div class="recommend-axis">시간</div><div class="recommend-row-label">평타</div></section>',bindCursor(){}},
  localStorage:{getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v)},setTimeout:(fn)=>{fn();return 0;},clearTimeout(){},console,Event:class{},
  document:{querySelector:k=>k==='#optimizer'?host:el(k),addEventListener:(t,fn)=>docListeners.push(fn)}};
 storage.set('dosul-optimizer-v1',JSON.stringify({encounter:false}));
@@ -33,7 +33,7 @@ input('opt-hp-end',89632);const override={value:'542',dataset:{optOverride:'s085
 const measurement=/1마리당 받는 피해 분당 ([\d,]+) \(실측 ([\d,]+) ÷ 평균 ([\d.]+)마리\)/.exec(el('#opt-need').textContent);
 assert(measurement,'Measured incoming is derived per monster');const measuredPerMob=Number(measurement[1].replace(/,/g,''));assert(Number(measurement[3])>0);
 const budget=/받는 피해 ([\d,]+) − 자연 회복 ([\d,]+) \+ 안전 여유 ([\d,]+) = 회복·보호막 분당 ([\d,]+) 필요/.exec(el('#opt-need').textContent);assert(budget);const money=budget.slice(1).map(x=>Number(x.replace(/,/g,'')));assert(Math.abs(money[0]-money[1]+money[2]-money[3])<=1,'Displayed sustain budget preserves arithmetic');
-assert.match(el('#opt-need').textContent,/현재 빌드: 분당 처치 [\d.]+마리/);
+assert.match(el('#opt-need').textContent,/현재 빌드: 도술만 분당 처치 [\d.]+마리/);
 assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).overrides['s085:0'],'542','Inputs persist');
 click('#opt-run');
 assert.equal(searches.length,1);assert.equal(searches[0].zone.id,'101011');assert(Math.abs(searches[0].perMob-measuredPerMob)<1);assert.equal(searches[0].margin,1000);assert.equal(searches[0].iterations,4000,'Fixed search depth');
@@ -60,6 +60,7 @@ click('#opt-run');assert.equal(searches.length,4);
 assert.deepEqual(Array.from(searches[0].families).sort(),['강인','기동','연타','절명','헌신'].sort(),'Defaults to the families already in the build');
 assert.equal(el('#opt-results').hidden,false);assert.match(el('#opt-status').textContent,/완료/);
 assert.match(el('#opt-direction-cards').innerHTML,/빠른 사냥/);assert.match(el('#opt-direction-cards').innerHTML,/안정 사냥/);assert.match(el('#opt-direction-cards').innerHTML,/연계 중심/);assert.match(el('#opt-result-comparison').innerHTML,/현재 빌드와 추천 빌드 비교/);assert.match(el('#opt-result-comparison').innerHTML,/data-opt-apply="0"/);
+assert.match(el('#opt-direction-cards').innerHTML,/확정 2회 · 조건부 1회/,'Cards use the same 180-second link evaluation as the timeline');
 assert.match(el('#opt-result-timeline').innerHTML,/스킬 타임라인/);assert.match(el('#opt-result-timeline').innerHTML,/recommend-timeline-overlay/);assert.match(el('#opt-result-timeline').innerHTML,/100% · 60초/);
 assert.match(el('#opt-found').textContent,/궁극기 .*개 · 보조 도술 조합 .*개 · 검증된 빌드 .*개/);
 click('[data-opt-apply]',{optApply:'0'});assert.equal(applied.next.length,9);assert.equal(applied.base.length,5);assert.match(toasts.at(-1),/되돌리기/);
@@ -72,7 +73,7 @@ assert.match(el('#opt-validation').innerHTML,/data-tab="explore"/);assert.equal(
 D.baseSlots=['s003','s007','s008','s071','s069'];ctx.syncBuildOptimizer();assert.equal(el('#opt-validation').hidden,true,'Valid build computes again');
 console.log('Optimizer UI: stats gate, measured need, persistence, run, compact results, apply and stale results passed.');
 
-assert.match(el('#opt-world').textContent,/예상: 분당 처치/);assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).encounter,true,'Spatial encounter model is always enabled');
+assert.match(el('#opt-world').textContent,/도술만 분당 처치/);assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).encounter,true,'Spatial encounter model is always enabled');
 
 ctx.build=[];ctx.syncBuildOptimizer();const mode=el('#opt-start-mode');mode.value='conditions';hostListeners.change({target:mode});assert.equal(el('#opt-work').hidden,false);assert.equal(el('#opt-validation').hidden,true,'No primary family is a valid engine-decides state');assert.match(el('#opt-required-families').innerHTML,/엔진이 결정/);assert.equal(ctx.build.length,0);
 hostListeners.change({target:{dataset:{requiredFamily:'강타'},checked:true}});assert.match(el('#opt-equipment').textContent,/비교용/);assert.match(el('#opt-skill-picker').innerHTML,/회전 난격/);assert(el('#opt-skill-picker').innerHTML.includes('도약 찌르기'),'Supporting skills remain available across families');
@@ -113,8 +114,9 @@ const workers=[];ctx.Worker=class{constructor(url){this.url=url;workers.push(thi
 mode.value='conditions';hostListeners.change({target:mode});input('opt-incoming','');
 const beforeWorkers=searches.length;click('#opt-run');const firstWorker=workers.at(-1);
 assert.equal(searches.length,beforeWorkers,'No main-thread engine search');assert.equal(firstWorker.message.options.totalEvaluationBudget,4000);assert.equal(firstWorker.message.options.boundedSelection,true);assert.equal(firstWorker.message.options.families.length,Object.keys(D.families).length);assert.deepEqual(Array.from(firstWorker.message.options.conditions.primaryFamilies),['강타']);
-firstWorker.onmessage({data:{type:'progress',progress:{evaluated:12},elapsedMs:1000,preview:[{ids:expected.ids}]}});
+firstWorker.onmessage({data:{type:'progress',progress:{evaluated:12,generation:{generated:100,target:120},scorecard:{step:2,phase:'원인 맞춤 보완',generated:100,evaluated:12,feasible:3,score:68.4,target:75,status:'보완 필요',cause:'평타 대기 비율이 높습니다.',remedy:'짧은 재사용 대기시간 도술을 우선 생성합니다.'}},elapsedMs:1000,preview:[{ids:expected.ids}]}});
 assert.equal(el('#opt-live').hidden,false);assert.match(el('#opt-live-builds').innerHTML,/후보 1/);
+assert.match(el('#opt-generation-summary').textContent,/합법 시드 100개.*무작위 최소 120개.*68.4\/75점.*보완 필요/);assert.match(el('#opt-generation-rows').innerHTML,/원인 맞춤 보완.*평타 대기 비율.*짧은 재사용 대기시간/s);
 click('#opt-cancel');assert(firstWorker.terminated);const stopped=el('#opt-status').textContent;
 firstWorker.onmessage({data:{type:'validating',elapsedMs:2000}});assert.equal(el('#opt-status').textContent,stopped);
 click('#opt-run');const secondWorker=workers.at(-1);assert.notEqual(secondWorker,firstWorker);
@@ -188,3 +190,7 @@ click('#opt-run');assert.equal(workers.at(-1).message.options.perMob,135120,'Con
 assert.equal(JSON.parse(storage.get('dosul-optimizer-v1')).hitInterval,1.5,'Attack interval stays fixed at 1.5 seconds');
 input('opt-hit-damage','');assert.equal(el('#opt-incoming').readOnly,true);
 console.log('Per-hit incoming UI: fixed 1.5-second conversion, read-only display, persistence and worker input passed.');
+input('opt-basic-attack-damage',1234);input('opt-basic-attack-interval',1.2);input('opt-basic-attack-range',2.4);
+assert.match(el('#opt-world').textContent,/예상 분당 처치/,'A complete measured basic-attack profile changes the throughput label');
+click('#opt-run');const basicWorker=workers.at(-1);assert.equal(basicWorker.message.options.stats.basicAttackDamage,1234);assert.equal(basicWorker.message.options.stats.basicAttackInterval,1.2);assert.equal(basicWorker.message.options.stats.basicAttackRange,2.4);
+console.log('Measured basic attacks: complete user inputs reach the worker and are labeled as total throughput.');

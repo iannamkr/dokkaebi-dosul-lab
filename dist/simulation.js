@@ -5,6 +5,7 @@ const C=typeof module!=='undefined'?require('./combat.js'):root.DosulCombat;
 const H=typeof module!=='undefined'?require('./hit-timing.js'):root.DosulHits;
 const A=typeof module!=='undefined'?require('./timing-auto.js'):root.DosulAuto;
 const Q=typeof module!=='undefined'?require('./sequence.js'):root.DosulSequence;
+const B=typeof module!=='undefined'?require('./breakthrough.js'):root.DosulBreakthrough;
 const MODEL='spatial-no-hp-v4';
 const round=n=>Math.round(n*100)/100,exact=n=>Math.round(n*1e6)/1e6,dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 // These are scenario assumptions, not coordinates, radii or AI extracted from the recordings.
@@ -77,7 +78,7 @@ function run(data,ids,profileId='185547',horizon=60,scale=1){
  const self={};
  // Effect times keep engine precision so a hit at the same instant is judged against the true value.
  function apply(bag,s,ef,t,confirmed=true,target=null){const d=A.duration(s,ef),entry={source:s.id,effect:ef,appliedAt:exact(t),duration:d.value,expiresAt:d.value===null?null:exact(t+d.value),confirmed,target,wave:wave+1};(bag[ef]??=[]).push(entry);result.effectApplications.push(entry);}
- function applySelf(s,t,application){for(const ef of s.buffs||[]){const scope=s.effectScopes?.find(x=>x.effect===ef)?.scope;if(scope&&scope!=='self'&&scope!=='self-and-allies')continue;if(A.duration(s,ef).application===application)apply(self,s,ef,t);}}
+ function applySelf(s,t,application){for(const ef of s.buffs||[]){const scope=s.effectScopes?.find(x=>x.effect===ef)?.scope;if(scope&&scope!=='self'&&scope!=='self-and-allies')continue;if(!s.timingEffects?.[ef]?.conditional&&A.duration(s,ef).application===application)apply(self,s,ef,t);}}
  let mobs=initial(profile),player={x:0,y:0},dash=null,time=0,ai=0,wave=0,exposure=0,nearSeconds=0,peak=0,frameTime=0;
  function move(dt,next){if(dash){const p=Math.min(1,(next-dash.start)/(dash.end-dash.start));player={x:dash.from.x+(dash.to.x-dash.from.x)*p,y:dash.from.y+(dash.to.y-dash.from.y)*p};if(p>=1)dash=null;}for(const m of mobs){const d=dist(m,player),stop=.8+(m.id%3)*.18;if(d<=1.8)m.active=true;if(m.active&&d>stop){const step=Math.min(d-stop,.9*dt);m.x+=(player.x-m.x)*step/d;m.y+=(player.y-m.y)*step/d;}}
  const close=mobs.filter(m=>dist(m,player)<1.6).length;exposure+=close*dt;nearSeconds+=close>0?dt:0;peak=Math.max(peak,close);}
@@ -90,17 +91,17 @@ function run(data,ids,profileId='185547',horizon=60,scale=1){
    if(a.type==='hit'){const cast=casts.get(a.key);
     // Test waves reset every 20 s; a cast that straddles the reset aims at the new wave instead of hitting nothing.
     if(cast.wave!==wave){const t=[...mobs].sort((a,b)=>dist(a,player)-dist(b,player)||a.id-b.id)[0];Object.assign(cast,{wave,targetId:t?.id,angle:Math.atan2((t?.y||0)-player.y,(t?.x||0)-player.x)});}
-    const target=mobs.find(m=>m.id===cast.targetId),hitTargets=pickTargets(g,mobs,target,cast.angle,player);row.hitChecks++;row.targetHits+=hitTargets.length;if(!hitTargets.length)row.whiffs++;
+    const target=mobs.find(m=>m.id===cast.targetId),hitTargets=pickTargets(g,mobs,target,cast.angle,player);cast.lastHitTargets=new Set(hitTargets.map(m=>wave+':'+m.id));row.hitChecks++;row.targetHits+=hitTargets.length;if(!hitTargets.length)row.whiffs++;
     if(hitTargets.length)landed.push(a.hit);const coeff=coefficient(s,a.hit.hitIndex);
     for(const [n,m] of hitTargets.entries()){
      // Check conditions against the same enemy BEFORE applying this skill's output. Self conditions count once per hit.
      for(const condition of s.conditions||[]){if(condition.scope==='self'&&n>0)continue;const state=conditionState(s,a.ev,condition,condition.scope==='self'?self:m.effects,time);if(state.reason==='not-applied'&&condition.scope==='enemy'&&result.effectApplications.some(e=>e.wave===wave+1&&e.effect===condition.effect&&e.target!==null&&e.target!==m.id+1))state.reason='other-target';result.conditions.push({time:exact(time),id:s.id,target:m.id+1,wave:wave+1,scope:condition.scope,effect:condition.effect,result:condition.result,...state});}
-     m.active=true;m.touched=true;m.hitAt=time;cast.targets.add(wave+':'+m.id);unique.add(wave+':'+m.id);if(coeff!==null)row.coefficient+=coeff;
+     m.active=true;m.touched=true;m.hitAt=time;cast.targets.add(wave+':'+m.id);unique.add(wave+':'+m.id);if(coeff!==null)row.coefficient+=B.hitCoefficient(s,coeff,{targets:hitTargets.length,hitIndex:a.hit.hitIndex,growth:N.multiplier(s),condition:c=>conditionState(s,a.ev,c,c.scope==='self'?self:m.effects,time)});
      // End-applied enemy effects are written below; earlier hits do not get a free debuff window.
     }
     result.impacts.push({time:exact(time),id:s.id,castCycle:a.ev.cycle,hitIndex:a.hit.hitIndex,wave:wave+1,kind:g.kind,geometry:g,angle:cast.angle,origin:{...player},center:g.kind==='target'&&target?{x:target.x,y:target.y}:{...player},targets:hitTargets.map(m=>m.id),positions:hitTargets.map(m=>({x:m.x,y:m.y}))});
    }
-   if(a.type==='end'){const cast=casts.get(a.key);if(!cast)continue;row.targets+=cast.targets.size;if(cast.targets.size)row.hitCasts++;applySelf(s,time,'end');for(const ef of s.debuffs||[]){for(const m of mobs){if(cast.targets.has(wave+':'+m.id))apply(m.effects,s,ef,time,true,m.id+1);else if(cast.wave===wave&&row.unknown.some(x=>['공격 형상','사거리','지속 타격 시점'].includes(x)))apply(m.effects,s,ef,time,false,m.id+1);}}}
+   if(a.type==='end'){const cast=casts.get(a.key);if(!cast)continue;row.targets+=cast.targets.size;if(cast.targets.size)row.hitCasts++;applySelf(s,time,'end');for(const ef of s.debuffs||[]){for(const m of mobs){if((s.timingEffects?.[ef]?.trigger==='마지막 적중'?cast.lastHitTargets:cast.targets)?.has(wave+':'+m.id))apply(m.effects,s,ef,time,true,m.id+1);else if(cast.wave===wave&&row.unknown.some(x=>['공격 형상','사거리','지속 타격 시점'].includes(x)))apply(m.effects,s,ef,time,false,m.id+1);}}}
   }
   if(time>=frameTime-1e-7||time===schedule.horizon){result.frames.push({time:round(time),wave,player:{x:round(player.x),y:round(player.y)},near:mobs.filter(m=>dist(m,player)<1.6).length,mobs:mobs.map(m=>({id:m.id,x:round(m.x),y:round(m.y),active:m.active,touched:m.touched,hitAt:m.hitAt,effects:Object.keys(m.effects).filter(e=>effectState(m.effects,e,time).status==='yes')}))});frameTime+=.1;}
  }

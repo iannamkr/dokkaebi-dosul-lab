@@ -17,11 +17,11 @@ assert.equal(result.traces.length, 28);
 assert.equal(result.report.recommendation, null, 'Never declare a survival winner from a no-HP model');
 const c = result.report.builds.find(b => b.id === 'C').runs.find(r => r.profile === '185547' && r.horizon === 180);
 assert.deepEqual([c.conditions.heal.pass, c.conditions.heal.fail], [48, 0]);
-// v4: two Swing hits that used to vanish at the 20 s wave reset now land on the new wave (no mark there).
-assert.deepEqual([c.conditions.markShield.pass, c.conditions.markShield.fail], [76, 11]);
+// The fixture contains only currently classified single-target skills; keep its condition regression exact.
+assert.deepEqual([c.conditions.markShield.pass, c.conditions.markShield.fail], [69, 18]);
 assert.deepEqual([c.conditions.guardShield.pass, c.conditions.guardShield.fail], [16, 7]);
 assert.equal(c.casts.directShield.completedCasts, 23);
-assert.equal(c.opportunities.shield.maxGapIncludingEdges, 8);
+assert.equal(c.opportunities.shield.maxGapIncludingEdges, 8.12);
 assert(result.report.provenance.fileSha256['dist/data.json'].match(/^[a-f0-9]{64}$/));
 
 // Unknown and absent are not a successful condition, zero cooldown, or a real proc count.

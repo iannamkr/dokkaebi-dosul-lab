@@ -1,6 +1,6 @@
 /* Dedicated search worker: same engine and data as the planner. */
 'use strict';
-importScripts('numbers.js','sequence.js','timing.js','hit-timing.js','timing-auto.js','execution-policy.js','combat.js','shinsik.js','simulation.js','kkaebigg.js','encounter.js','optimizer.js?v=20261020-1');
+importScripts('numbers.js?v=20261023-1','sequence.js?v=20261023-1','timing.js','hit-timing.js','timing-auto.js?v=20261023-1','execution-policy.js','combat.js','shinsik.js','breakthrough.js?v=20261023-1','simulation.js?v=20261023-1','kkaebigg.js?v=20261023-1','encounter.js?v=20261023-1','optimizer.js?v=20261023-1');
 self.onmessage=event=>{
  const {data,start,options,limit=10,zones=[],includeImprovements=false}=event.data;
  try{

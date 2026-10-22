@@ -174,18 +174,22 @@ function castCoefficient(s){const n=s.referenceNumbers||{},ds=n.cm?[n.dc?.at(-1)
 // monsters in range (up to the target cap) and damage every engaged one. Returns the time-averaged number of monsters
 // attacking the player and kills per minute in the zone. The next monster is engaged as soon as one dies, so a
 // single-target build always fights exactly one (faster kills never look like less damage taken).
-function hunt(run,data,zone,attack,rate=DAMAGE_RATE){
+function hunt(run,data,zone,attack,rate=DAMAGE_RATE,basic={}){
  if(rate!==1)throw Error('실측 피해 보정계수는 지원하지 않습니다.');
  const hp=zoneSummary(zone)?.hp;if(!hp||!(attack>0))return null;
  const fx=F.prepare(run,data.shinsikEffects!==false,true);
- const byId=Object.fromEntries(data.skills.map(s=>[s.id,s])),events=run.schedule.events.filter(e=>e.completed&&e.end<=run.horizon).sort((a,b)=>a.end-b.end);
- let groups=[{w:1,h:hp}],t=0,alive=0,kills=0,pulled=0;const engaged=()=>groups.reduce((a,g)=>a+g.w,0);
+ const byId=Object.fromEntries(data.skills.map(s=>[s.id,s])),skillEvents=run.schedule.events.filter(e=>e.completed&&e.end<=run.horizon).map(e=>({...e,sourceType:'skill'}));
+ const basicDamage=Number(basic.damage),basicInterval=Number(basic.interval),basicEvents=[];
+ if(basicDamage>0&&basicInterval>0){let next=0;for(const idle of run.schedule.idle||[]){let at=Math.max(idle.start,next);while(at<idle.end-1e-7){basicEvents.push({sourceType:'basic',end:at});next=at+basicInterval;at=Math.max(next,idle.start);}}}
+ const events=skillEvents.concat(basicEvents).sort((a,b)=>a.end-b.end||Number(a.sourceType==='basic')-Number(b.sourceType==='basic'));
+ let groups=[{w:1,h:hp}],t=0,alive=0,kills=0,pulled=0,basicHits=0,basicDealt=0;const engaged=()=>groups.reduce((a,g)=>a+g.w,0);
  // Never fewer than one monster: when the engaged ones are (expected to be) dead, the next one is engaged.
  const engageNext=()=>{const w=engaged();if(w<1-1e-9)groups.push({w:1-w,h:hp});};
  for(const e of events){
-  const s=byId[e.id],g=Sim.geometry(s),coef=F.eventCoefficient(s,e);if(g.kind==='support'||g.kind==='unknown'||!coef)continue;
+  const s=e.sourceType==='skill'?byId[e.id]:null,g=s?Sim.geometry(s):{kind:'single'},coef=s?F.eventCoefficient(s,e):null;if(s&&(g.kind==='support'||g.kind==='unknown'||!coef))continue;
   alive+=engaged()*(e.end-t);t=e.end;if(!groups.length)groups.push({w:1,h:hp});
-  const d=attack*coef/100*F.castMultiplier(fx,s,e)*N.damageFactor(data.combatModifiers||{});
+  const d=s?attack*coef/100*F.castMultiplier(fx,s,e)*N.damageFactor(data.combatModifiers||{}):basicDamage;
+  if(!s){basicHits++;basicDealt+=d;}
   if(g.kind==='single'){
    if(groups[0].w>1){const f=groups[0];groups.splice(0,1,{w:1,h:f.h},{w:f.w-1,h:f.h});}
    const f=groups[0];if(d>=f.h){kills+=f.w;groups.shift();engageNext();}else f.h-=d;continue;
@@ -198,7 +202,7 @@ function hunt(run,data,zone,attack,rate=DAMAGE_RATE){
   for(const x of groups.filter(x=>x.h<=0))kills+=x.w;groups=groups.filter(x=>x.h>0);engageNext();
  }
  alive+=engaged()*(run.horizon-t);
- return {attackers:round(alive/run.horizon*1000)/1000,killsPerMin:round(kills/(run.horizon/60)),pulledPerMin:round(pulled/(run.horizon/60)),monsterHp:hp};
+ return {attackers:round(alive/run.horizon*1000)/1000,killsPerMin:round(kills/(run.horizon/60)),pulledPerMin:round(pulled/(run.horizon/60)),monsterHp:hp,basicAttackMeasured:basicDamage>0&&basicInterval>0,basicAttacks:basicHits,basicDamage:round(basicDealt)};
 }
 function evaluate(data,ids,baseSlots,ctx){
  ctx.onEvaluate?.();
@@ -210,14 +214,15 @@ function evaluate(data,ids,baseSlots,ctx){
  let localPoints;
  if(points.length){const pi=Math.max(0,PROFILES.indexOf(profile)),origin=points[Math.floor(pi*points.length/PROFILES.length)];localPoints=points.map(p=>({x:p[0]-origin[0]+1.5,y:p[1]-origin[1]})).sort((a,b)=>a.x*a.x+a.y*a.y-b.x*b.x-b.y*b.y).slice(0,24);}
  if(ctx.targetMode==='single')localPoints=[localPoints?.[0]||{x:1.5,y:0}];
- const run=world?Encounter.run({...data,baseSlots},ids,profile,ctx.horizon||180,{attack:Number(ctx.stats?.attack),hp:zone?.hp,points:localPoints,scenario:ctx.scenario,damageRate:ctx.damageRate??DAMAGE_RATE,trace:!!ctx.trace}):Sim.run({...data,baseSlots},ids,profile,ctx.horizon||180);
+ const basic={damage:Number(ctx.stats?.basicAttackDamage),interval:Number(ctx.stats?.basicAttackInterval),range:Number(ctx.stats?.basicAttackRange)};
+ const run=world?Encounter.run({...data,baseSlots},ids,profile,ctx.horizon||180,{attack:Number(ctx.stats?.attack),hp:zone?.hp,points:localPoints,scenario:ctx.scenario,damageRate:ctx.damageRate??DAMAGE_RATE,basicAttackDamage:basic.damage,basicAttackInterval:basic.interval,basicAttackRange:basic.range,trace:!!ctx.trace}):Sim.run({...data,baseSlots},ids,profile,ctx.horizon||180);
  if(run.validation.issues.length||run.schedule.missing.length)return {valid:false,issue:[...run.validation.issues,...run.schedule.missing].join(' / ')};
  const multi=run.impacts.filter(i=>i.targets.length>1).length;
  const disabled=disabledSkills(executionPolicy);
  if(ctx.singleOnly&&ids.some(id=>!disabled.has(id)&&!singleTargetSafe(data.skills.find(s=>s.id===id))))return {valid:false,issue:'자동 조작 ON인 여러 대상 공격 가능 도술 · 단일 사냥 조건 위반'};
  if(ctx.singleOnly&&multi)return {valid:false,issue:'여러 대상 동시 적중'};
  // With a zone, power is kills per minute and incoming damage grows with the monsters the build pulls.
- const h=run.encounter||(ctx.zone?hunt(run,data,ctx.zone,Number(ctx.stats?.attack)):null),attackers=h?h.attackers:1;
+ const h=run.encounter||(ctx.zone?hunt(run,data,ctx.zone,Number(ctx.stats?.attack),ctx.damageRate??DAMAGE_RATE,basic):null),attackers=h?h.attackers:1;
  const incoming=Number(ctx.perMob)>0?round(ctx.perMob*attackers):ctx.incoming;
  const s=sustain(run,data,ids,ctx.stats,ctx.overrides,{incoming,snapshot:ctx.snapshot}),partial=run.rows.filter(r=>r.unknown.includes('피해 계수')).map(r=>r.name);
  const need=Number(ctx.perMob)>0?round(incoming-(Number(ctx.regenPerMin)||0)+(Number(ctx.margin)||0)):ctx.need;
@@ -400,7 +405,9 @@ function createSearch(data,current,opts){
  const changed=s=>s.ids.filter(id=>!current.ids.includes(id)).length;
  const key=s=>s.ids.join()+'|'+[...s.base].sort().join();
  const diversity=createBehaviorArchive(opts.behaviorBins||6);
- const diagnostics={evaluated:0,valid:0,invalidReasons:{},byUltimate:{},bundleProposals:0,refinementByUltimate:{},chainStarts:[0],refinementJobsStarted:0};
+ const requestedGenerationTarget=Math.max(100,Number.isSafeInteger(opts.seedSetCount)?opts.seedSetCount:120),generationTarget=Number.isFinite(maxEvaluations)&&maxEvaluations<requestedGenerationTarget?Math.max(1,Math.floor(maxEvaluations*.25)):requestedGenerationTarget;
+ const requestedGenerationMax=Math.max(generationTarget,Number.isSafeInteger(opts.seedSetMax)?opts.seedSetMax:Math.min(600,Math.max(generationTarget,Math.floor((Number.isFinite(maxEvaluations)?maxEvaluations:4000)*.2)))),generationMax=Number.isFinite(maxEvaluations)?Math.min(requestedGenerationMax,Math.max(generationTarget,Math.floor(maxEvaluations*.5))):requestedGenerationMax,selfScoreTarget=Math.max(0,Math.min(100,Number.isFinite(opts.selfScoreTarget)?opts.selfScoreTarget:75));
+ const diagnostics={evaluated:0,valid:0,invalidReasons:{},byUltimate:{},bundleProposals:0,refinementByUltimate:{},chainStarts:[0],refinementJobsStarted:0,generation:{target:generationTarget,max:generationMax,generated:0,attempts:0,steps:[]}};
  const ev=s=>{if(opts.conditions){try{const repaired=conditionSeed(data,opts.conditions,opts.families,s.ids);s.ids=repaired.ids;s.base=repaired.baseSlots;}catch(e){return {valid:false,issue:e.message};}}const k=key(s);if(!cache.has(k)){if(cache.size>=maxEvaluations)return {valid:false,issue:'평가 예산 소진'};spatialCache=null;const r=evaluate(data,s.ids,s.base,ctx);cache.set(k,r);diagnostics.evaluated++;if(r.valid)diagnostics.valid++;else diagnostics.invalidReasons[r.issue]=(diagnostics.invalidReasons[r.issue]||0)+1;const u=s.ids.find(isUlt)||'none',v=diagnostics.byUltimate[u]??={evaluated:0,valid:0};v.evaluated++;if(r.valid)v.valid++;}return cache.get(k);};
  const start={ids:[...current.ids],base:[...current.baseSlots]},startEval=ev(start);
  // Each build has its own need: pulling more monsters raises the damage it must absorb.
@@ -409,6 +416,10 @@ function createSearch(data,current,opts){
  // Equal power is common (order changes nothing); the tiny sustain term breaks those ties toward more room.
  const score=r=>r.valid?r.power-penalty(r)+(r.perMin-(needOf(r)||0))*1e-9*scale:-Infinity;
  const feasible=r=>r.valid&&(!has(needOf(r))||r.perMin>=needOf(r));
+ // Skill cooldown gaps are real, but the game fills them with basic attacks. Keep a visible
+ // rotation-density penalty without treating every unmeasured basic-attack second as zero value.
+ const selfScore=r=>{if(!r?.valid)return 0;const power=Math.min(60,45*Math.max(0,r.power)/scale),need=needOf(r),survival=!has(need)?20:Math.max(0,Math.min(20,20*(r.perMin/Math.max(need,1)))),flow=Math.max(8,Math.min(20,8+12*(1-(r.behavior?.idle||0))));return Math.round((power+survival+flow)*10)/10;};
+ let bestSelf=null;
  let cur=start,curScore=score(startEval),done=0,chain=0,temp=0.03*scale;
  const pick=a=>a[Math.floor(random()*a.length)];
  // New ultimate in the same slot; skills of its family replace others until three are in the build, then the base
@@ -439,7 +450,7 @@ function createSearch(data,current,opts){
  }
  // Builds that fall short are kept too (best room first), so a zone nobody survives still shows how close it gets.
  const nearMiss=new Map();
- function remember(s,r){if(feasible(r))diversity.offer(s,r,score(r));if(r.valid&&!feasible(r)){const k=key(s);if(!nearMiss.has(k)){nearMiss.set(k,{ids:s.ids,baseSlots:s.base,behavior:behavior(r),coefficient:r.coefficient,power:r.power,perMin:r.perMin,room:r.perMin-(needOf(r)||0)});if(nearMiss.size>400){const keep=[...nearMiss].sort((a,b)=>b[1].room-a[1].room).slice(0,200);nearMiss.clear();keep.forEach(([k,v])=>nearMiss.set(k,v));}}}if(!feasible(r))return;const k=key(s);if(!archive.has(k))archive.set(k,{ids:s.ids,baseSlots:s.base,behavior:behavior(r),coefficient:r.coefficient,power:r.power,perMin:r.perMin,room:r.perMin-(needOf(r)||0)});}
+ function remember(s,r){const ss=selfScore(r);if(!bestSelf||ss>bestSelf.score)bestSelf={score:ss,result:r,candidate:{ids:[...s.ids],base:[...s.base]}};if(feasible(r))diversity.offer(s,r,score(r));if(r.valid&&!feasible(r)){const k=key(s);if(!nearMiss.has(k)){nearMiss.set(k,{ids:s.ids,baseSlots:s.base,behavior:behavior(r),coefficient:r.coefficient,power:r.power,perMin:r.perMin,room:r.perMin-(needOf(r)||0)});if(nearMiss.size>400){const keep=[...nearMiss].sort((a,b)=>b[1].room-a[1].room).slice(0,200);nearMiss.clear();keep.forEach(([k,v])=>nearMiss.set(k,v));}}}if(!feasible(r))return;const k=key(s);if(!archive.has(k))archive.set(k,{ids:s.ids,baseSlots:s.base,behavior:behavior(r),coefficient:r.coefficient,power:r.power,perMin:r.perMin,room:r.perMin-(needOf(r)||0)});}
  remember(start,startEval);
  const seeds=ultimates.filter(u=>u!==ult).map(u=>{let s=switchUltimate(start,u);for(let i=0;i<50&&changed(s)<FAR;i++)s=replaceOne(s);s.base=Q.fit(data,s.ids,s.base);return s;}).filter(s=>changed(s)>=FAR);
  for(const s of seeds)remember(s,ev(s));
@@ -465,10 +476,29 @@ function createSearch(data,current,opts){
   else{const a=Math.floor(random()*n.ids.length),b=Math.floor(random()*n.ids.length),[id]=n.ids.splice(a,1);n.ids.splice(b,0,id);}
   n.base=Q.fit(data,n.ids,n.base);return n;
  }
+ const sustainCandidates=candidates.filter(id=>sources(byId[id],opts.snapshot).sources.length),shortCooldown=[...candidates].sort((a,b)=>(byId[a].basic?.cooldown??Infinity)-(byId[b].basic?.cooldown??Infinity));
+ const generatedKeys=new Set();let generated=0,generationAttempts=0,selfStep=0;
+ function randomSet(){
+  const shuffled=[...candidates];for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
+  const u=ultimates.length?pick(ultimates):null,core=u?shuffled.filter(id=>byId[id].family===byId[u].family).slice(0,3):[],ids=[...core,...shuffled.filter(id=>!core.includes(id))].slice(0,normals.length);if(u)ids.splice(Math.floor(random()*(ids.length+1)),0,u);
+  try{return {ids,base:Q.fit(data,ids)};}catch{return exploratoryMutation(start);}
+ }
+ function replaceFromPool(parent,pool,count=2){const n={ids:[...parent.ids],base:[...parent.base]};for(let i=0;i<count;i++){const avail=pool.filter(id=>!n.ids.includes(id)),out=pick(n.ids.filter(id=>!isUlt(id)));if(!avail.length||!out)break;const inn=pick(avail);n.ids[n.ids.indexOf(out)]=inn;n.base=n.base.map(id=>id===out?inn:id);}try{n.base=Q.fit(data,n.ids,n.base);}catch{return exploratoryMutation(parent);}return n;}
+ function selfReview(){
+  const scoreNow=bestSelf?.score||0,r=bestSelf?.result;if(!r)return {score:0,target:selfScoreTarget,status:'보완 필요',cause:'유효한 스킬 세트를 아직 찾지 못했습니다.',remedy:'조건을 만족하도록 슬롯과 궁극기 계열을 복구한 뒤 다시 생성합니다.',mode:'validity'};
+  if(!archive.size&&has(needOf(r)))return {score:scoreNow,target:selfScoreTarget,status:'보완 필요',cause:`회복·보호막이 필요량보다 분당 ${round(Math.max(0,needOf(r)-r.perMin))} 부족합니다.`,remedy:'수치가 확인된 회복·보호막 도술을 포함하는 시드 비중을 높입니다.',mode:'survival'};
+  if(scoreNow<selfScoreTarget&&(r.behavior?.idle||0)>.65)return {score:scoreNow,target:selfScoreTarget,status:'보완 필요',cause:`180초 중 평타 대기 비율이 ${Math.round((r.behavior?.idle||0)*100)}%로 높습니다.`,remedy:'재사용 대기시간이 짧은 도술과 순서 변경을 우선 생성합니다.',mode:'idle'};
+  if(scoreNow<selfScoreTarget&&r.power<scale*1.1)return {score:scoreNow,target:selfScoreTarget,status:'보완 필요',cause:'현재 빌드 대비 공격 처리량 개선 폭이 작습니다.',remedy:'서로 다른 계열 묶음과 다중 도술 교체를 우선 탐색합니다.',mode:'power'};
+  if(scoreNow<selfScoreTarget)return {score:scoreNow,target:selfScoreTarget,status:'보완 필요',cause:'공격·생존·대기시간의 종합 점수가 기준에 미달합니다.',remedy:'행동 특성이 다른 후보를 추가 생성해 탐색 다양성을 넓힙니다.',mode:'diversity'};
+  return {score:scoreNow,target:selfScoreTarget,status:'통과',cause:'공격·생존·대기시간 종합 점수가 기준을 충족했습니다.',remedy:'상위 후보를 정밀 검증하고 연계·배치를 비교합니다.',mode:'verify'};
+ }
+ function adaptiveSeed(mode){const parent=bestSelf?.candidate||start;if(mode==='survival'&&sustainCandidates.length)return replaceFromPool(parent,sustainCandidates,3);if(mode==='idle'&&shortCooldown.length)return replaceFromPool(parent,shortCooldown.slice(0,Math.max(8,Math.ceil(shortCooldown.length/3))),3);let n={ids:[...parent.ids],base:[...parent.base]};for(let i=0;i<(mode==='power'?4:2);i++)n=exploratoryMutation(n);return n;}
  function step(budgetMs=40){
   const end=Date.now()+budgetMs;
   while(Date.now()<end){
    if(cache.size>=maxEvaluations)break;
+   const review=selfReview(),needsGeneration=generated<generationTarget||(review.score<review.target&&generated<generationMax);
+   if(needsGeneration){let candidate=generated<generationTarget?randomSet():adaptiveSeed(review.mode);generationAttempts++;const before=cache.size,r=ev(candidate);if(cache.size>before){const k=key(candidate);if(!generatedKeys.has(k)){generatedKeys.add(k);generated++;remember(candidate,r);}}continue;}
    if(done<total){
         if(done>0&&chain<Math.floor(done/perChain)){chain=Math.floor(done/perChain);diagnostics.chainStarts.push(chain);cur=start;
      if(chain<nearChains){for(let i=0;i<chain*3;i++)cur=mutate(cur);}else{for(let i=0;i<FAR+chain-nearChains;i++)cur=replaceOne(cur);if((chain-nearChains)%2===1&&ultimates.length>1)cur=switchUltimate(cur,pick(ultimates.filter(u=>u!==ult)));}
@@ -488,7 +518,8 @@ function createSearch(data,current,opts){
    if(ni<nb.length){jobSteps++;const family=byId[pc.ids.find(isUlt)]?.family||'none';diagnostics.refinementByUltimate[family]=(diagnostics.refinementByUltimate[family]||0)+1;const n=nb[ni++],fresh=!cache.has(key(n)),r=ev(n),s=score(r);remember(n,r);if(s>bestNS){bestN=n;bestNS=s;}if(fresh)polished++;continue;}
    if(bestN&&bestNS>pcScore+1e-9){pc=bestN;pcScore=bestNS;nb=neighbors(pc);ni=0;bestN=null;bestNS=-Infinity;}else pc=null;
   }
-  return {done:done+Math.min(polished,polishBudget),total:total+polishBudget,finished:cache.size>=maxEvaluations||(done>=total&&polished>=polishBudget),budgetExhausted:cache.size>=maxEvaluations,evaluated:cache.size,feasible:archive.size};
+  const review=selfReview(),scorecard={step:++selfStep,phase:generated<generationTarget?'무작위 시드 생성':review.score<review.target&&generated<generationMax?'원인 맞춤 보완':archive.size?'탐색·검증':'가능성 복구',generated,evaluated:cache.size,valid:diagnostics.valid,feasible:archive.size,score:review.score,target:review.target,status:review.status,cause:review.cause,remedy:review.remedy,next:review.mode};diagnostics.generation.generated=generated;diagnostics.generation.attempts=generationAttempts;diagnostics.generation.steps.push(scorecard);if(diagnostics.generation.steps.length>1000)diagnostics.generation.steps.shift();
+  return {done:generated+done+Math.min(polished,polishBudget),total:generationTarget+total+polishBudget,finished:cache.size>=maxEvaluations||(generated>=generationTarget&&done>=total&&polished>=polishBudget),budgetExhausted:cache.size>=maxEvaluations,evaluated:cache.size,feasible:archive.size,generation:{generated,target:generationTarget,max:generationMax},scorecard};
  }
  // Base slots outside the active shinsik often change nothing; keep one entry per identical outcome, closest to the current equipment.
  function distinct(){

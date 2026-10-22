@@ -5,7 +5,7 @@ const FAMILIES=['절명','연타','강타','척살','저격','주술','파멸','
 // One fixed search depth and safety margin: the screen only asks for what the player can measure.
 const ITERATIONS=4000,GROUP_SIZE=10,MARGIN=1000,REGEN_PERIOD=5,SEARCH_PROFILE='185547',STORE='dosul-optimizer-v1';
 const q=sel=>host.querySelector(sel),f=n=>n===null||n===undefined||!Number.isFinite(n)?'—':Math.round(n).toLocaleString('ko-KR'),signed=n=>n==null?'—':(n>=0?'+':'')+f(n);
-let settings={hitDamage:'',hitInterval:1.5,useUltimate:true,targetMode:'area',startMode:'current',primaryFamily:'',primaryFamilies:[],excludedFamilies:[],requiredSkills:[],requiredFamilies:[],requiredShinsik:[],stats:{attack:'',maxHp:'',regen:'',accuracy:'',criticalHit:'',criticalDamage:'',defense:'',basicEvasion:'',skillBlock:'',criticalResistance:'',skillDamageReduction:'',normalDamageUp:'',normalDamageDown:'',bossDamageUp:'',bossDamageDown:''},mode:'measure',incoming:'',measure:{hpStart:'',hpEnd:'',seconds:'',hpCapped:false},overrides:{},families:null,encounter:true,zoneFrom:'',zoneTo:'',power:''};
+let settings={hitDamage:'',hitInterval:1.5,useUltimate:true,targetMode:'area',startMode:'current',primaryFamily:'',primaryFamilies:[],excludedFamilies:[],requiredSkills:[],requiredFamilies:[],requiredShinsik:[],stats:{attack:'',maxHp:'',regen:'',basicAttackDamage:'',basicAttackInterval:'',basicAttackRange:'',accuracy:'',criticalHit:'',criticalDamage:'',defense:'',basicEvasion:'',skillBlock:'',criticalResistance:'',skillDamageReduction:'',normalDamageUp:'',normalDamageDown:'',bossDamageUp:'',bossDamageDown:''},mode:'measure',incoming:'',measure:{hpStart:'',hpEnd:'',seconds:'',hpCapped:false},overrides:{},families:null,encounter:true,zoneFrom:'',zoneTo:'',power:''};
 try{const v=JSON.parse(localStorage.getItem(STORE)||'null');if(v&&typeof v==='object')settings={...settings,...v,stats:{...settings.stats,...v.stats},measure:{...settings.measure,...v.measure},overrides:{...v.overrides}};}catch{}
 settings.targetMode=settings.targetMode==='single'?'single':'area';delete settings.combatMode;
 settings.hitInterval=1.5;
@@ -15,11 +15,14 @@ settings.primaryFamilies=[...new Set((settings.primaryFamilies?.length?settings.
 settings.primaryFamily=settings.primaryFamilies[0]||'';
 settings.excludedFamilies=(settings.excludedFamilies||[]).filter(f=>!settings.primaryFamilies.includes(f));
 if(settings.startMode==='conditions')settings.mode='incoming';else if(settings.mode!=='incoming')settings.mode='measure';delete settings.margin;delete settings.depth;delete settings.single;delete settings.stats.regenPeriod;
-let activeResultGroup=0,activeResultPick=0,freeTimelineZoom=1;
+let activeResultGroup=0,activeResultPick=0,freeTimelineZoom=1,evaluationHistory=[];
 let context='',current=null,search=null,timer=0,lastResults=null,resultContext='',searchWorker=null;
+const flowCache=new Map();
 const save=()=>{try{localStorage.setItem(STORE,JSON.stringify(settings));}catch{}};
 const num=v=>v===''||v===null||v===undefined?NaN:Number(v);
-const stats=()=>({attack:num(settings.stats.attack),maxHp:num(settings.stats.maxHp),regen:num(settings.stats.regen)||0,regenPeriod:REGEN_PERIOD});
+const stats=()=>({attack:num(settings.stats.attack),maxHp:num(settings.stats.maxHp),regen:num(settings.stats.regen)||0,regenPeriod:REGEN_PERIOD,basicAttackDamage:num(settings.stats.basicAttackDamage),basicAttackInterval:num(settings.stats.basicAttackInterval),basicAttackRange:num(settings.stats.basicAttackRange)});
+const basicAttackMeasured=()=>{const s=stats();return s.basicAttackDamage>0&&s.basicAttackInterval>0&&s.basicAttackRange>0;};
+const throughputLabel=()=>basicAttackMeasured()?'예상 분당 처치':'도술만 분당 처치';
 const familiesOf=ids=>[...new Set(ids.map(id=>byId(id)?.family).filter(Boolean))];
 
 host.innerHTML=`<div class="opt-heading"><h1>자유 추천</h1><span class="opt-caption">핵심 유지 → 사냥 조건 → 추천 비교</span></div>
@@ -38,7 +41,7 @@ host.innerHTML=`<div class="opt-heading"><h1>자유 추천</h1><span class="opt-
 <details id="opt-advanced-evaluation" class="opt-advanced opt-evaluation-advanced"><summary>세부 정보 확인·수정</summary><div class="opt-grid">
 <section class="opt-panel opt-character-panel" aria-labelledby="opt-stats-title"><div class="opt-panel-heading"><span aria-hidden="true">1</span><div><h2 id="opt-stats-title">캐릭터 정보</h2><p>이미지를 첨부하고 자동 입력된 능력치를 확인하세요.</p></div></div>
 <div class="opt-stat-import"><div><b>인게임 정보 이미지 첨부</b></div><label class="opt-image-upload" for="opt-stat-images"><span>이미지 선택</span><input id="opt-stat-images" type="file" accept="image/png,image/jpeg,image/webp" multiple></label><div id="opt-stat-image-list" class="opt-stat-image-list" aria-live="polite"></div><progress id="opt-ocr-progress" max="1" value="0" hidden></progress><span id="opt-stat-import-status" role="status"></span></div>
-<fieldset class="opt-stat-group opt-stat-required"><legend>계산에 직접 사용</legend><label><span>공격력</span><input id="opt-attack" type="number" min="0" inputmode="numeric"></label><label><span>최대 체력</span><input id="opt-maxhp" type="number" min="0" inputmode="numeric"></label><label><span>체력 자연 회복</span><input id="opt-regen" type="number" min="0" inputmode="numeric" placeholder="0"></label></fieldset>
+<fieldset class="opt-stat-group opt-stat-required"><legend>계산에 직접 사용</legend><label><span>공격력</span><input id="opt-attack" type="number" min="0" inputmode="numeric"></label><label><span>최대 체력</span><input id="opt-maxhp" type="number" min="0" inputmode="numeric"></label><label><span>체력 자연 회복</span><input id="opt-regen" type="number" min="0" inputmode="numeric" placeholder="0"></label><label><span>평타 1회 실측 피해 <small>(선택)</small></span><input id="opt-basic-attack-damage" type="number" min="0" inputmode="numeric"></label><label><span>평타 간격 (초)</span><input id="opt-basic-attack-interval" type="number" min="0" step="0.01" inputmode="decimal"></label><label><span>평타 사거리 (m)</span><input id="opt-basic-attack-range" type="number" min="0" step="0.1" inputmode="decimal"></label></fieldset>
 <fieldset class="opt-stat-group"><legend>공격 보정 · 기록</legend><label><span>공격 정확도</span><input id="opt-accuracy" type="number" min="0" inputmode="numeric"></label><label><span>치명타 적중</span><input id="opt-critical-hit" type="number" min="0" inputmode="numeric"></label><label><span>치명타 피해 증가 (%)</span><input id="opt-critical-damage" type="number" min="0" step="0.01" inputmode="decimal"></label><label><span>일반 요귀 피해 증가 (%)</span><input id="opt-normal-damage-up" type="number" min="0" step="0.01" inputmode="decimal"></label><label><span>보스 피해 증가 (%)</span><input id="opt-boss-damage-up" type="number" min="0" step="0.01" inputmode="decimal"></label></fieldset>
 <fieldset class="opt-stat-group"><legend>방어 보정 · 기록</legend><label><span>방어력</span><input id="opt-defense" type="number" min="0" inputmode="numeric"></label><label><span>기본 공격 회피</span><input id="opt-basic-evasion" type="number" min="0" inputmode="numeric"></label><label><span>도술 막기</span><input id="opt-skill-block" type="number" min="0" inputmode="numeric"></label><label><span>치명타 저항</span><input id="opt-critical-resistance" type="number" min="0" inputmode="numeric"></label><label><span>도술 공격 피해 감소 (%)</span><input id="opt-skill-damage-reduction" type="number" min="0" step="0.01" inputmode="decimal"></label><label><span>일반 요귀 피해 감소 (%)</span><input id="opt-normal-damage-down" type="number" min="0" step="0.01" inputmode="decimal"></label><label><span>보스 피해 감소 (%)</span><input id="opt-boss-damage-down" type="number" min="0" step="0.01" inputmode="decimal"></label></fieldset>
 <p id="opt-stats-note" class="opt-caption"></p></section>
@@ -59,7 +62,7 @@ host.innerHTML=`<div class="opt-heading"><h1>자유 추천</h1><span class="opt-
 <p id="opt-world" hidden></p><p id="opt-need" hidden role="status"></p></section>
 </div></details>
 <div class="opt-run"><button id="opt-run" class="primary">새 빌드 추천</button><button id="opt-cancel" hidden>중지</button><progress id="opt-progress" max="1" value="0" hidden></progress><span id="opt-status" role="status" aria-live="polite"></span></div></section>
-<section id="opt-live" hidden aria-live="polite"><h2>탐색 중 후보 <small>최종 검증 전</small></h2><div id="opt-live-builds"></div></section><section id="opt-results" hidden aria-label="최적화 결과"><p id="opt-stale" class="opt-warning" hidden>빌드나 입력이 바뀌었습니다. 아래 결과는 이전 기준입니다.</p>
+<section id="opt-live" hidden aria-live="polite"><h2>자체 평가 기록 <small>시드 생성·문제 보완·검증</small></h2><div id="opt-generation-summary" class="opt-generation-summary"></div><div class="opt-generation-table-wrap"><table class="opt-generation-table"><thead><tr><th>단계</th><th>구간</th><th>시드</th><th>평가</th><th>가능</th><th>점수</th><th>원인 분석</th><th>다음 보완</th></tr></thead><tbody id="opt-generation-rows"></tbody></table></div><div id="opt-live-builds"></div></section><section id="opt-results" hidden aria-label="최적화 결과"><p id="opt-stale" class="opt-warning" hidden>빌드나 입력이 바뀌었습니다. 아래 결과는 이전 기준입니다.</p>
 <header class="opt-step-heading"><div><small>STEP 03</small><h2>추천 결과</h2><p>목표가 다른 세 가지 빌드를 비교한 뒤 하나를 선택해 적용하세요.</p></div><span id="opt-found" class="opt-caption"></span></header><div id="opt-direction-cards" class="opt-direction-cards"></div><div id="opt-result-comparison" class="opt-result-comparison"></div><section id="opt-result-timeline" class="opt-free-timeline" aria-label="자유 추천 스킬 타임라인"></section></section>
 </div>`;
 
@@ -126,7 +129,7 @@ function needed(){
  const v=current.verification,regen=O.regenPerMin(stats()),bare=v.need-MARGIN,have=v.minPerMin,left=have-bare;
  const src=current.how==='HP 변화로 추정'?`실측 ${f(current.measured)} ÷ 평균 ${current.measuredAttackers.toFixed(2)}마리`:'입력',moved=current.scale!==1?` × 사냥터 공격력 ${current.scale.toFixed(2)}배 (추정)`:'';
  return {value:v.need,bare,have,text:`1마리당 받는 피해 분당 ${f(current.perMob)} (${src}${moved}) · ${current.zone.name}에서 현재 빌드는 평균 ${v.attackers.toFixed(2)}마리 → 받는 피해 ${f(v.incoming)} − 자연 회복 ${f(regen)} + 안전 여유 ${f(MARGIN)} = 회복·보호막 분당 ${f(v.need)} 필요`,
-  status:`현재 빌드: 분당 처치 ${v.minPower.toFixed(1)}마리 · 회복·보호막 ${f(have)} · ${left>=0?'회복·보호막 ≥ 받는 피해 (예상) (+'+f(left)+')':'부족 ('+f(left)+')'}`};
+  status:`현재 빌드: ${throughputLabel()} ${v.minPower.toFixed(1)}마리 · 회복·보호막 ${f(have)} · ${left>=0?'회복·보호막 ≥ 받는 피해 (예상) (+'+f(left)+')':'부족 ('+f(left)+')'}`};
 }
 function zoneById(id){return ZONES.find(z=>z.id===id)||null;}
 function renderZone(){
@@ -157,7 +160,7 @@ function renderInputs(){
  q('#opt-hp-capped').checked=!!settings.measure.hpCapped;
  q('#opt-target-mode').value=settings.targetMode;
  host.querySelectorAll('[data-opt-target-mode]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.optTargetMode===settings.targetMode)));
- const statInputs={attack:'opt-attack',maxHp:'opt-maxhp',regen:'opt-regen',accuracy:'opt-accuracy',criticalHit:'opt-critical-hit',criticalDamage:'opt-critical-damage',defense:'opt-defense',basicEvasion:'opt-basic-evasion',skillBlock:'opt-skill-block',criticalResistance:'opt-critical-resistance',skillDamageReduction:'opt-skill-damage-reduction',normalDamageUp:'opt-normal-damage-up',normalDamageDown:'opt-normal-damage-down',bossDamageUp:'opt-boss-damage-up',bossDamageDown:'opt-boss-damage-down'};
+ const statInputs={attack:'opt-attack',maxHp:'opt-maxhp',regen:'opt-regen',basicAttackDamage:'opt-basic-attack-damage',basicAttackInterval:'opt-basic-attack-interval',basicAttackRange:'opt-basic-attack-range',accuracy:'opt-accuracy',criticalHit:'opt-critical-hit',criticalDamage:'opt-critical-damage',defense:'opt-defense',basicEvasion:'opt-basic-evasion',skillBlock:'opt-skill-block',criticalResistance:'opt-critical-resistance',skillDamageReduction:'opt-skill-damage-reduction',normalDamageUp:'opt-normal-damage-up',normalDamageDown:'opt-normal-damage-down',bossDamageUp:'opt-boss-damage-up',bossDamageDown:'opt-boss-damage-down'};
  for(const [key,id] of Object.entries(statInputs))q('#'+id).value=settings.stats[key]??'';
  host.querySelectorAll('[name="opt-mode"]').forEach(x=>x.checked=x.value===settings.mode);
  q('#opt-incoming').value=settings.incoming;q('#opt-hp-start').value=settings.measure.hpStart;q('#opt-hp-end').value=settings.measure.hpEnd;q('#opt-seconds').value=settings.measure.seconds;
@@ -171,7 +174,7 @@ function renderValidation(){
  const box=q('#opt-validation');if(current?.valid!==false){box.hidden=true;box.innerHTML='';return;}
  box.hidden=false;box.innerHTML='<strong>'+'입력을 확인해 주세요.'+'</strong><p>'+esc(current.issue||'')+'</p>'+(settings.startMode==='conditions'?'':'<button data-opt-edit data-tab="explore">순서 구성에서 고치기</button>');
 }
-function worldText(r){const x=r?.encounter;if(!x)return '이동·몬스터 재등장 미반영 · 평균 적중 수로 계산';return `예상: 분당 처치 ${x.killsPerMin} · 몬스터가 모인 반경 ${x.clusterRadiusMean}m · 2m 내 밀집 ${x.compactPct}% · 따라오는 몬스터와 최대 거리 ${x.maxTrail}m · 적중당 ${x.targetsPerHit}명 · 빗나감 ${x.whiffPct}% · 남은 체력을 초과한 피해 ${x.overkillPct}% · 평균 처치 ${x.meanTimeToKill??'—'}초 · 걸어서 이동 ${x.walkMetres}m / 도술 이동 ${x.skillMoveMetres}m · 복귀 ${x.returns}회 · 몬스터 재등장 ${x.respawns}회. 가정: 이동 ${x.assumptions.playerSpeed}m/s, 몹 추적 ${x.assumptions.monsterSpeed}m/s, 몬스터 재등장 ${x.assumptions.respawn}초, 복귀 반경 ${x.assumptions.homeRadius}m. ${x.limitations.join(' / ')}`;}
+function worldText(r){const x=r?.encounter;if(!x)return '이동·몬스터 재등장 미반영 · 평균 적중 수로 계산';const basic=x.basicAttackMeasured?`평타 ${x.basicAttacks}회·${f(x.basicDamage)} 피해 반영`:'평타 실측값 미입력·도술 피해만 반영';return `${throughputLabel()} ${x.killsPerMin} · ${basic} · 몬스터가 모인 반경 ${x.clusterRadiusMean}m · 2m 내 밀집 ${x.compactPct}% · 따라오는 몬스터와 최대 거리 ${x.maxTrail}m · 적중당 ${x.targetsPerHit}명 · 빗나감 ${x.whiffPct}% · 남은 체력을 초과한 피해 ${x.overkillPct}% · 평균 처치 ${x.meanTimeToKill??'—'}초 · 걸어서 이동 ${x.walkMetres}m / 도술 이동 ${x.skillMoveMetres}m · 복귀 ${x.returns}회 · 몬스터 재등장 ${x.respawns}회. 가정: 이동 ${x.assumptions.playerSpeed}m/s, 몹 추적 ${x.assumptions.monsterSpeed}m/s, 몬스터 재등장 ${x.assumptions.respawn}초, 복귀 반경 ${x.assumptions.homeRadius}m. ${x.limitations.join(' / ')}`;}
 function shinsikText(r){const x=r?.shinsik;if(!x)return '';return `신식 ${x.active.join(' · ')||'미개방'} · ${(x.timeline||[]).map(t=>t.family+' 첫 발동 '+(t.first===null?'없음':t.first+'초')+(t.hasWindow?' / 유지 '+t.uptimePct+'%':' / 지속 구간 없음')).join(' · ')} · 공간 적중 기준 피해 증가 ${x.damageGainPct}% (추가 계수 ${f(x.extraCoefficient)}) · 방어 기여 분당 ${f((r.rows||[]).filter(x=>x.shinsik).reduce((a,x)=>a+(x.perMin||0),0))}`;}
 function renderCurrent(){
  renderValidation();
@@ -179,7 +182,7 @@ function renderCurrent(){
 }
 function renderNeed(){
  const st=stats(),miss=missingStats(),n=needed();
- q('#opt-stats-note').textContent=miss.length?`${miss.join('·')} 입력 필요`:`자연 회복 분당 ${f(O.regenPerMin(st))} (전투 중 ${REGEN_PERIOD}초마다)`;
+ q('#opt-stats-note').textContent=miss.length?`${miss.join('·')} 입력 필요`:`자연 회복 분당 ${f(O.regenPerMin(st))} (전투 중 ${REGEN_PERIOD}초마다) · ${basicAttackMeasured()?'평타 실측값 반영':'평타 3개 값을 모두 입력하기 전에는 도술 피해만 비교'}`;
  q('#opt-need').textContent=n.text+(n.status?' · '+n.status:'');q('#opt-need').classList.toggle('opt-warning',(n.value===null&&!n.unassessed)||n.have<n.bare);
  const ult=build.map(byId).find(s=>s?.ultimate);q('#opt-ultimate').textContent=ult?`현재 궁극기 · ${ult.name}`:'궁극기 미배치';
  q('#opt-run').disabled=!!search||!current?.valid||(n.value===null&&!n.unassessed)||miss.length>0;
@@ -212,13 +215,19 @@ function sync(force){
 }
 function recalc(){current=evalCurrent();renderCurrent();renderNeed();}
 function stop(message){searchWorker?.terminate();searchWorker=null;clearTimeout(timer);search=null;q('#opt-live').hidden=true;q('#opt-cancel').hidden=true;q('#opt-progress').hidden=true;if(message)q('#opt-status').textContent=message;renderNeed();}
+function renderScorecard(card,generation){
+ if(!card)return;evaluationHistory.push(card);if(evaluationHistory.length>1000)evaluationHistory.shift();q('#opt-live').hidden=false;
+ q('#opt-generation-summary').textContent=`합법 시드 ${generation?.generated||card.generated||0}개 (무작위 최소 ${generation?.target||120}개) · 자체 평가 ${card.score.toFixed(1)}/${card.target}점 · ${card.status}`;
+ q('#opt-generation-rows').innerHTML=evaluationHistory.map(x=>`<tr class="${x.status==='통과'?'pass':'repair'}"><td>${x.step}</td><td>${esc(x.phase)}</td><td>${f(x.generated)}</td><td>${f(x.evaluated)}</td><td>${f(x.feasible)}</td><td><strong>${x.score.toFixed(1)}</strong> / ${x.target}</td><td>${esc(x.cause)}</td><td>${esc(x.remedy)}</td></tr>`).join('');
+}
 function run(){
  const n=needed();if(n.value===null&&!n.unassessed)return;const fams=searchFamilies();
+ evaluationHistory=[];q('#opt-generation-rows').innerHTML='';q('#opt-generation-summary').textContent='무작위 합법 시드를 생성하고 있습니다.';
  if(typeof Worker!=='undefined'){
   let start;try{start=startState();}catch(error){q('#opt-status').textContent=error.message;return;}
-  const snapshotKey=key(),baseline=current,options={...current.ctx,snapshot:KK?.snapshot||current.ctx?.snapshot,families:fams,useUltimate:settings.useUltimate!==false,conditions:settings.startMode==='conditions'?conditions():undefined,iterations:ITERATIONS,totalEvaluationBudget:4000,boundedSelection:true,mechanismGroups:true,detailedGroups:true,seed:20261018};
+   const snapshotKey=key(),baseline=current,options={...current.ctx,snapshot:KK?.snapshot||current.ctx?.snapshot,families:fams,useUltimate:settings.useUltimate!==false,conditions:settings.startMode==='conditions'?conditions():undefined,iterations:ITERATIONS,seedSetCount:120,seedSetMax:600,selfScoreTarget:75,totalEvaluationBudget:4000,boundedSelection:true,mechanismGroups:true,detailedGroups:true,seed:20261018};
   try{
-   const worker=new Worker('optimizer-worker.js?v=20261020-1');searchWorker=worker;search={};resultContext=snapshotKey;
+   const worker=new Worker('optimizer-worker.js?v=20261023-1');searchWorker=worker;search={};resultContext=snapshotKey;
    q('#opt-live').hidden=true;q('#opt-live-builds').innerHTML='';q('#opt-cancel').hidden=false;q('#opt-progress').hidden=false;q('#opt-run').disabled=true;q('#opt-status').textContent='백그라운드 탐색 중 · 계산 한도 4,000회';
    if(lastResults)q('#opt-stale').hidden=false;
    worker.onmessage=({data:m})=>{
@@ -227,10 +236,10 @@ function run(){
     if(m.type==='progress'){
      q('#opt-progress').value=Math.min(.95,m.progress.evaluated/4000);
      q('#opt-status').textContent=`탐색 ${f(m.progress.evaluated)}회 / 최대 4,000회 · ${elapsed}초`;
-     if(m.preview?.length){q('#opt-live').hidden=false;q('#opt-live-builds').innerHTML=m.preview.map((c,i)=>`<div><b>후보 ${i+1}</b><div class="opt-build">${strip(c.ids)}</div></div>`).join('');}
+     renderScorecard(m.progress.scorecard,m.progress.generation);if(m.preview?.length){q('#opt-live-builds').innerHTML=m.preview.map((c,i)=>`<div><b>후보 ${i+1}</b><div class="opt-build">${strip(c.ids)}</div></div>`).join('');}
     }else if(m.type==='validating'){q('#opt-status').textContent=`상위 후보 검증 중 · ${elapsed}초`;
     }else if(m.type==='complete'){
-     lastResults={...m.result,start:baseline};q('#opt-live').hidden=true;stop(`완료 · ${elapsed}초 · ${f(m.result.diagnostics?.selection?.totalEvaluations)}회 계산`);renderResults();
+     lastResults={...m.result,start:baseline};stop(`완료 · ${elapsed}초 · ${f(m.result.diagnostics?.selection?.totalEvaluations)}회 계산`);q('#opt-live').hidden=false;renderResults();
     }else if(m.type==='error'){stop('탐색 오류: '+m.message);}
    };
    worker.onerror=()=>{if(searchWorker===worker)stop('백그라운드 탐색을 실행하지 못했습니다. 새로고침 후 다시 시도하세요.');};
@@ -238,12 +247,12 @@ function run(){
   }catch(error){stop('탐색 오류: '+error.message);return;}
  }
 
- try{search=O.createSearch(D,startState(),{...current.ctx,families:fams,useUltimate:settings.useUltimate!==false,conditions:settings.startMode==='conditions'?conditions():undefined,iterations:ITERATIONS,seed:20261018});}catch(e){q('#opt-status').textContent=e.message;return;}
+ try{search=O.createSearch(D,startState(),{...current.ctx,families:fams,useUltimate:settings.useUltimate!==false,conditions:settings.startMode==='conditions'?conditions():undefined,iterations:ITERATIONS,seedSetCount:120,seedSetMax:600,selfScoreTarget:75,seed:20261018});}catch(e){q('#opt-status').textContent=e.message;return;}
  resultContext=key();q('#opt-cancel').hidden=false;q('#opt-progress').hidden=false;q('#opt-run').disabled=true;q('#opt-status').textContent=`후보 도술 ${search.pool.length}개에서 탐색 중`;
  // A hidden page gets about one timer per second, so it works in longer slices to keep going in the background.
- const tick=()=>{if(!search)return;const p=search.step(document.hidden?800:40);q('#opt-progress').value=p.done/p.total;q('#opt-status').textContent=`${f(p.done)} / ${f(p.total)}회 · ${current?.unassessed?'계산 가능한 구성':'버티는 구성'} ${f(p.feasible)}개`;
+ const tick=()=>{if(!search)return;const p=search.step(document.hidden?800:40);renderScorecard(p.scorecard,p.generation);q('#opt-progress').value=p.done/p.total;q('#opt-status').textContent=`시드 ${f(p.generation?.generated||0)}개 · 평가 ${f(p.evaluated)}회 · ${current?.unassessed?'계산 가능한 구성':'버티는 구성'} ${f(p.feasible)}개 · 자체 평가 ${p.scorecard?.score?.toFixed(1)||'0.0'}점`;
   if(!p.finished){timer=setTimeout(tick,0);return;}
-  q('#opt-status').textContent='상위 후보를 모든 배치·구간에서 다시 계산하는 중';timer=setTimeout(()=>{const s=search;if(!s)return;lastResults={...s.grouped(GROUP_SIZE),start:current};if(!lastResults.similar.length&&!lastResults.different.length&&lastResults.closest?.[0]){const c=lastResults.closest[0];lastResults.improve=O.improvements(D,c.ids,c.baseSlots,current.ctx,{zones:ZONES});}stop(`완료 · ${f(p.evaluated)}개 구성 계산`);renderResults();},0);};
+  q('#opt-status').textContent='상위 후보를 모든 배치·구간에서 다시 계산하는 중';timer=setTimeout(()=>{const s=search;if(!s)return;lastResults={...s.grouped(GROUP_SIZE),start:current};if(!lastResults.similar.length&&!lastResults.different.length&&lastResults.closest?.[0]){const c=lastResults.closest[0];lastResults.improve=O.improvements(D,c.ids,c.baseSlots,current.ctx,{zones:ZONES});}stop(`완료 · ${f(p.evaluated)}개 구성 계산`);q('#opt-live').hidden=false;renderResults();},0);};
  timer=setTimeout(tick,0);
 }
 const power=c=>{const base=lastResults.start.verification.minPower;return base?(c.verification.minPower/base-1)*100:0;};
@@ -345,7 +354,7 @@ const tiles=c=>strip(c.ids,lastResults.start.startIds||build);
 function card(c){
  const start={ids:build,baseSlots:D.baseSlots},unchanged=same(c,start),l=left(c);
  return `<div class="opt-card-head"><h2>추천 빌드</h2><span class="opt-verdict ${l===null?'':l>=0?'ok':'bad'}">${l===null?'생존 미평가':(l>=0?'회복·보호막 ≥ 받는 피해 (예상)':'부족')+' · 분당 '+signed(l)}</span></div>
-<div class="opt-metrics"><div><small>예상 분당 처치 수 · ${esc(lastResults.start.zone?.name||'기본 환경')} 분당 처치 (현재 대비)</small><b>${pct(power(c))}</b><span>분당 ${kills(lastResults.start.verification.minPower)} → ${kills(c.verification.minPower)}</span></div>
+<div class="opt-metrics"><div><small>${throughputLabel()} · ${esc(lastResults.start.zone?.name||'기본 환경')} (현재 대비)</small><b>${pct(power(c))}</b><span>분당 ${kills(lastResults.start.verification.minPower)} → ${kills(c.verification.minPower)}</span></div>
 <div><small>분당 회복·보호막 (가장 나쁜 배치)</small><b>${f(c.verification.minPerMin)}</b><span>동시에 붙는 몹 평균 ${c.verification.attackers.toFixed(2)}마리 · 받는 피해 ${f(c.verification.incoming)} · 필요 ${f(c.verification.need===null?null:c.verification.need-MARGIN)}</span></div></div>
 ${unchanged?'<p class="opt-caption">현재 빌드가 이미 이 조건에서 가장 강합니다.</p>':''}
 <p class="opt-summary">${esc(summary(c))}</p><p class="opt-caption">${esc(shinsikText(c.verification.worst))}</p>
@@ -358,10 +367,10 @@ function resultVisual(c){
  const valid=Number.isFinite(cur.idle)&&Number.isFinite(next.idle),delta=valid?next.idle-cur.idle:0;
  const tone=delta<-.05?'better':delta>.05?'worse':'neutral';
  const bar=(name,value)=>`<div class="opt-wait-row"><span>${name}</span><span class="opt-wait-track"><i style="width:${Math.max(0,Math.min(100,value/180*100))}%"></i></span><b>${value.toFixed(1)}초</b></div>`;
- return `<div class="opt-result-badges"><b>${esc(family)}</b><span>예상 분당 처치 수 <strong>${pct(power(c))}</strong></span><span class="${tone}">대기 ${valid?(delta>0?'+':'')+delta.toFixed(1)+'초':'미확인'}</span><span>${changeText(c)}</span><span title="${left(c)===null?'받는 피해 미입력':'회복·보호막에서 받는 피해를 뺀 분당 회복·보호막 − 받는 피해'}">${left(c)===null?'생존 미평가':'분당 회복·보호막 − 받는 피해 '+signed(left(c))}</span></div>
+ return `<div class="opt-result-badges"><b>${esc(family)}</b><span>${throughputLabel()} <strong>${pct(power(c))}</strong></span><span class="${tone}">대기 ${valid?(delta>0?'+':'')+delta.toFixed(1)+'초':'미확인'}</span><span>${changeText(c)}</span><span title="${left(c)===null?'받는 피해 미입력':'회복·보호막에서 받는 피해를 뺀 분당 회복·보호막 − 받는 피해'}">${left(c)===null?'생존 미평가':'분당 회복·보호막 − 받는 피해 '+signed(left(c))}</span></div>
  <div class="opt-build opt-card-build">${tiles(c)}</div>
  ${valid?`<div class="opt-wait-comparison ${tone}" aria-label="전체 도술 재사용 대기 비교"><small>전체 도술 쿨타임 대기 · 180초 기준</small>${bar(settings.startMode==='conditions'?'시작안':'현재 빌드',cur.idle)}${bar('추천안',next.idle)}</div>`:''}
- <details class="opt-change-details"><summary>변경 상세</summary><p>${esc(summary(c))}</p><p>${esc(shinsikText(c.verification.worst))}</p><p>예상 처치 분당 ${kills(cur.verification.minPower)} → ${kills(c.verification.minPower)} · 몹 평균 ${c.verification.attackers.toFixed(2)}마리</p><p>기본 장착: ${c.baseSlots.map(id=>esc(byId(id).name)).join(' · ')}</p></details>`;
+ <details class="opt-change-details"><summary>변경 상세</summary><p>${esc(summary(c))}</p><p>${esc(shinsikText(c.verification.worst))}</p><p>${throughputLabel()} ${kills(cur.verification.minPower)} → ${kills(c.verification.minPower)} · 몹 평균 ${c.verification.attackers.toFixed(2)}마리</p><p>기본 장착: ${c.baseSlots.map(id=>esc(byId(id).name)).join(' · ')}</p></details>`;
 }
 function row(label,c,i){
  return `<article class="opt-alt"><div class="opt-alt-head"><b>${esc(label)}</b><span class="opt-alt-actions"><button data-opt-apply="${i}">적용</button><button data-opt-json="${i}">JSON</button></span></div>${resultVisual(c)}</article>`;
@@ -387,38 +396,38 @@ function noneCard(){
  const why=`<p>현재 빌드는 회복·보호막 분당 ${f(v.minPerMin)}, 필요한 양은 분당 ${f(v.need-MARGIN)}입니다.${best?` 회복·보호막을 가장 많이 확보한 빌드도 분당 ${f(best.verification.minPerMin)}에 그칩니다.`:''}${ratio} 실제 사냥 유지 여부가 아니라 가정한 조건에서의 비교 결과입니다.</p>`;
  const im=improveLines(r.improve),improve=im.length?`<h3 class="opt-closest-title">버티려면 (가장 근접한 빌드 기준 · 하나만 바꿀 때)</h3><ul class="opt-improve">${im.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'';
  if(!best)return head+why;
- return head+why+improve+`<h3 class="opt-closest-title">가장 근접한 빌드</h3><p class="opt-summary">${esc(summary(best))}</p><div class="opt-build opt-card-build">${tiles(best)}</div><p class="opt-caption">${changeText(best)} · 분당 처치 ${kills(best.verification.minPower)} · 몹 평균 ${best.verification.attackers.toFixed(2)}마리 · 기본 장착: ${best.baseSlots.map(id=>esc(byId(id).name)).join(' · ')}</p>`;
+ return head+why+improve+`<h3 class="opt-closest-title">가장 근접한 빌드</h3><p class="opt-summary">${esc(summary(best))}</p><div class="opt-build opt-card-build">${tiles(best)}</div><p class="opt-caption">${changeText(best)} · ${throughputLabel()} ${kills(best.verification.minPower)} · 몹 평균 ${best.verification.attackers.toFixed(2)}마리 · 기본 장착: ${best.baseSlots.map(id=>esc(byId(id).name)).join(' · ')}</p>`;
 }
 function linkStats(c,currentBuild=false){
  const ids=currentBuild?(lastResults.start.startIds||build):c.ids,base=currentBuild?(lastResults.start.startBase||D.baseSlots):c.baseSlots;
  try{
-  if(typeof DosulLinkTiming!=='undefined'&&typeof E!=='undefined'&&Array.isArray(E.connections)){const rows=DosulLinkTiming.evaluate({...D,executionPolicy:D.executionPolicy||{}},ids,base,E.connections),passed=rows.reduce((n,x)=>n+(x.timing?.valid||0),0),total=rows.reduce((n,x)=>n+(x.timing?.total||0),0);return {passed,total};}
+  const key=JSON.stringify([ids,base,D.executionPolicy||{}]);if(!flowCache.has(key))flowCache.set(key,window.DosulRecommendationView?.full?.(ids,base,180));const links=flowCache.get(key)?.links;if(links)return {passed:links.passed||0,conditional:links.conditional||0,failed:links.failed||0,total:(links.passed||0)+(links.conditional||0)+(links.failed||0)};
  }catch{}
- const evaluated=currentBuild?lastResults.start:detail(c),rows=(evaluated.rows||[]).filter(x=>x.condition);return {passed:rows.reduce((n,x)=>n+(x.triggers||0),0),total:rows.reduce((n,x)=>n+(x.triggers||0),0)};
+ const evaluated=currentBuild?lastResults.start:detail(c),rows=(evaluated.rows||[]).filter(x=>x.condition),passed=rows.reduce((n,x)=>n+(x.triggers||0),0);return {passed,conditional:0,failed:0,total:passed};
 }
 function freeDirections(list){
  if(!list.length)return [];
  const scored=list.map((x,i)=>({...x,i,detail:detail(x.c),room:left(x.c),links:linkStats(x.c)})),used=new Set(),pick=sort=>{const ranked=[...scored].sort(sort),found=ranked.find(x=>!used.has(x.i))||ranked[0];used.add(found.i);return found;};
- const fast=pick((a,b)=>b.c.verification.minPower-a.c.verification.minPower||b.detail.casts-a.detail.casts),stable=pick((a,b)=>(b.room??-Infinity)-(a.room??-Infinity)||b.c.verification.minPerMin-a.c.verification.minPerMin),linked=pick((a,b)=>b.links.passed-a.links.passed||a.detail.idle-b.detail.idle);
- return [{id:'fast',title:'빠른 사냥',eyebrow:'처치 속도 우선',entry:fast,reason:`예상 분당 처치 수를 ${kills(lastResults.start.verification.minPower)}에서 ${kills(fast.c.verification.minPower)}로 높이는 구성을 우선했습니다.`},{id:'stable',title:'안정 사냥',eyebrow:'회복 여유 우선',entry:stable,reason:stable.room===null?'받는 피해가 없어 생존 여유는 평가하지 않고 회복·보호막 생성량이 큰 구성을 골랐습니다.':`자연 회복을 포함한 회복·보호막 여유를 분당 ${signed(stable.room)} 확보하는 구성을 우선했습니다.`},{id:'links',title:'연계 중심',eyebrow:'조건 적중 우선',entry:linked,reason:linked.links.passed>0?`60초 반복 흐름에서 조건 연계 적중 ${linked.links.passed}회를 확인한 구성을 우선했습니다.`:'현재 조건에서 확인된 연계 적중 후보가 없어, 평타 대기가 가장 짧은 대안을 표시했습니다.'}];
+ const fast=pick((a,b)=>b.c.verification.minPower-a.c.verification.minPower||b.detail.casts-a.detail.casts),stable=pick((a,b)=>(b.room??-Infinity)-(a.room??-Infinity)||b.c.verification.minPerMin-a.c.verification.minPerMin),linked=pick((a,b)=>b.links.passed-a.links.passed||b.links.conditional-a.links.conditional||a.detail.idle-b.detail.idle);
+ return [{id:'fast',title:'빠른 사냥',eyebrow:basicAttackMeasured()?'처치 속도 우선':'도술 피해 우선',entry:fast,reason:`${throughputLabel()} 수를 ${kills(lastResults.start.verification.minPower)}에서 ${kills(fast.c.verification.minPower)}로 높이는 구성을 우선했습니다.`},{id:'stable',title:'안정 사냥',eyebrow:stable.room===null?'생존 미평가':'회복 여유 우선',entry:stable,reason:stable.room===null?`받는 피해가 없어 생존성은 비교하지 못했습니다. 빠른 사냥과 다른 후보 중 회복·보호막 생성량이 분당 ${f(stable.c.verification.minPerMin)}인 구성을 표시합니다.`:`빠른 사냥과 다른 후보 중 자연 회복을 포함한 회복·보호막 여유를 분당 ${signed(stable.room)} 확보하는 구성을 우선했습니다.`},{id:'links',title:'연계 중심',eyebrow:linked.links.passed>0?'확정 연계 우선':'확정 연계 없음',entry:linked,reason:linked.links.passed>0?`앞선 추천과 다른 후보 중 180초 확정 연계 ${linked.links.passed}회${linked.links.conditional?`·조건부 ${linked.links.conditional}회`:''}를 확인한 구성을 표시합니다.`:linked.links.conditional>0?`앞선 추천과 다른 후보에서 확정 연계는 없고 조건부 연계 ${linked.links.conditional}회만 확인됐습니다.`:'앞선 추천과 다른 후보에서 확인된 연계가 없어, 그중 평타 대기가 가장 짧은 구성을 표시합니다.'}];
 }
 function compactStrip(ids){return ids.map((id,i)=>{const s=byId(id);return `<span class="${s?.ultimate?'is-ultimate':''}"><small>${s?.ultimate?'궁극기':String(i+1).padStart(2,'0')}</small>${icon(s)}<b>${esc(s.name)}</b></span>`;}).join('');}
 function renderFreeTimeline(c){
  const panel=q('#opt-result-timeline'),view=window.DosulRecommendationView;if(!panel)return;
  if(!c||!view?.full||!view?.overlayTimeline){panel.innerHTML=c?'<p class="opt-caption">스킬 타임라인을 준비하지 못했습니다.</p>':'';return;}
  try{
-  const baseIds=lastResults.start.startIds||build,baseSlots=lastResults.start.startBase||D.baseSlots,currentFlow=view.full(baseIds,baseSlots,180),nextFlow=view.full(c.ids,c.baseSlots,180),end=Math.max(20,Math.min(180,60/freeTimelineZoom));
+  const baseIds=lastResults.start.startIds||build,baseSlots=lastResults.start.startBase||D.baseSlots,currentKey=JSON.stringify([baseIds,baseSlots,D.executionPolicy||{}]),nextKey=JSON.stringify([c.ids,c.baseSlots,D.executionPolicy||{}]);if(!flowCache.has(currentKey))flowCache.set(currentKey,view.full(baseIds,baseSlots,180));if(!flowCache.has(nextKey))flowCache.set(nextKey,view.full(c.ids,c.baseSlots,180));const currentFlow=flowCache.get(currentKey),nextFlow=flowCache.get(nextKey),end=Math.max(20,Math.min(180,60/freeTimelineZoom));
   panel.innerHTML=`<div class="opt-free-timeline-heading"><div><small>선택한 추천 기준</small><h3>스킬 타임라인</h3></div><div class="recommend-toolbar"><div class="recommend-overlay-legend"><span class="current">현재 빌드</span><span class="next">추천 빌드</span></div><div class="recommend-zoom" role="group" aria-label="자유 추천 시간축 확대 축소"><button type="button" data-opt-free-timeline-zoom="out" aria-label="시간축 축소">−</button><input id="opt-free-timeline-range" type="range" min="34" max="300" step="10" value="${Math.round(freeTimelineZoom*100)}" aria-label="자유 추천 시간축 배율"><button type="button" data-opt-free-timeline-zoom="in" aria-label="시간축 확대">＋</button><output>${Math.round(freeTimelineZoom*100)}% · ${Math.round(end*10)/10}초</output></div></div></div><div class="recommend-timelines">${view.overlayTimeline(currentFlow,nextFlow,end)}</div>`;
   const timelines=panel.querySelector?.('.recommend-timelines');view.bindCursor?.(timelines,end);
  }catch(error){panel.innerHTML=`<p class="opt-caption">스킬 타임라인을 표시할 수 없습니다: ${esc(error.message)}</p>`;}
 }
 function renderFreeResults(list){
  const directions=freeDirections(list),available=new Set(directions.map(x=>x.entry.i));if(!available.has(activeResultPick))activeResultPick=directions[0]?.entry.i??0;
- q('#opt-direction-cards').innerHTML=directions.length?directions.map(x=>{const c=x.entry.c,d=x.entry.detail,selected=x.entry.i===activeResultPick,l=x.entry.links,wait=Number.isFinite(d.idle)?d.idle:null;return `<article class="opt-direction-card ${selected?'is-selected':''}" data-direction="${x.id}"><header><span><small>${esc(x.eyebrow)}</small><h3>${esc(x.title)}</h3></span><button type="button" data-opt-select-result="${x.entry.i}" aria-pressed="${selected}">${selected?'선택됨':'이 결과 보기'}</button></header><div class="opt-direction-strip">${compactStrip(c.ids)}</div><dl><div><dt>분당 처치</dt><dd>${kills(c.verification.minPower)} <em>${pct(power(c))}</em></dd></div><div><dt>평타 대기</dt><dd>${wait===null?'—':wait.toFixed(1)+'초'}</dd></div><div><dt>연계 적중</dt><dd>${l.passed}회</dd></div><div><dt>생존 여유</dt><dd>${x.entry.room===null?'미평가':'분당 '+signed(x.entry.room)}</dd></div></dl><p>${esc(x.reason)}</p></article>`;}).join(''):'<div class="opt-no-direction">조건을 만족하는 추천 빌드를 찾지 못했습니다.</div>';
+ q('#opt-direction-cards').innerHTML=directions.length?directions.map(x=>{const c=x.entry.c,d=x.entry.detail,selected=x.entry.i===activeResultPick,l=x.entry.links,wait=Number.isFinite(d.idle)?d.idle:null;return `<article class="opt-direction-card ${selected?'is-selected':''}" data-direction="${x.id}"><header><span><small>${esc(x.eyebrow)}</small><h3>${esc(x.title)}</h3></span><button type="button" data-opt-select-result="${x.entry.i}" aria-pressed="${selected}">${selected?'선택됨':'이 결과 보기'}</button></header><div class="opt-direction-strip">${compactStrip(c.ids)}</div><dl><div><dt>${throughputLabel()}</dt><dd>${kills(c.verification.minPower)} <em>${pct(power(c))}</em></dd></div><div><dt>평타 대기</dt><dd>${wait===null?'—':wait.toFixed(1)+'초'}</dd></div><div><dt>연계</dt><dd>확정 ${l.passed}회${l.conditional?` · 조건부 ${l.conditional}회`:''}</dd></div><div><dt>생존 여유</dt><dd>${x.entry.room===null?'미평가':'분당 '+signed(x.entry.room)}</dd></div></dl><p>${esc(x.reason)}</p></article>`;}).join(''):'<div class="opt-no-direction">조건을 만족하는 추천 빌드를 찾지 못했습니다.</div>';
  const selected=list[activeResultPick]||list[0];if(!selected){q('#opt-result-comparison').innerHTML=noneCard();renderFreeTimeline(null);return;}
  const c=selected.c,baseIds=lastResults.start.startIds||build,baseLinks=linkStats(null,true),nextLinks=linkStats(c),selectedDirection=directions.find(x=>x.entry.i===activeResultPick);
  const linkDelta=nextLinks.passed-baseLinks.passed,linkChange=linkDelta>0?`${linkDelta}회 늘어납니다`:linkDelta<0?`${Math.abs(linkDelta)}회 줄어듭니다`:'같습니다';
- q('#opt-result-comparison').innerHTML=`<div class="opt-comparison-heading"><div><small>${esc(selectedDirection?.title||'추천')} 선택</small><h3>현재 빌드와 추천 빌드 비교</h3></div><div class="opt-comparison-actions"><button type="button" data-opt-next-direction>다른 추천</button><button type="button" class="primary" data-opt-apply="${activeResultPick}">추천 적용</button></div></div><div class="opt-comparison-builds"><section><h4>현재 빌드</h4><div class="opt-direction-strip">${compactStrip(baseIds)}</div></section><span aria-hidden="true">→</span><section class="recommended"><h4>추천 빌드</h4><div class="opt-direction-strip">${compactStrip(c.ids)}</div></section></div><p class="opt-comparison-summary">${esc(summary(c))} 조건 연계 적중은 ${baseLinks.passed}회에서 ${nextLinks.passed}회로 ${linkChange}.</p>`;
+ q('#opt-result-comparison').innerHTML=`<div class="opt-comparison-heading"><div><small>${esc(selectedDirection?.title||'추천')} 선택</small><h3>현재 빌드와 추천 빌드 비교</h3></div><div class="opt-comparison-actions"><button type="button" data-opt-next-direction>다른 추천</button><button type="button" class="primary" data-opt-apply="${activeResultPick}">추천 적용</button></div></div><div class="opt-comparison-builds"><section><h4>현재 빌드</h4><div class="opt-direction-strip">${compactStrip(baseIds)}</div></section><span aria-hidden="true">→</span><section class="recommended"><h4>추천 빌드</h4><div class="opt-direction-strip">${compactStrip(c.ids)}</div></section></div><p class="opt-comparison-summary">${esc(summary(c))} 180초 확정 연계는 ${baseLinks.passed}회에서 ${nextLinks.passed}회로 ${linkChange} 조건부 연계는 ${baseLinks.conditional}회에서 ${nextLinks.conditional}회입니다.</p>`;
  renderFreeTimeline(c);
 }
 function renderResults(){
@@ -495,7 +504,7 @@ async function exportResults(copy){
 }
 function buildJson(c){return {schema:'dosul-build-v3',name:'빌드 최적화 결과',baseSlots:c.baseSlots,skills:c.ids,skillNames:c.ids.map(id=>byId(id).name),validation:DosulSequence.validate({...D,baseSlots:c.baseSlots},c.ids),optimizer:{model:DosulSimulation.model,shinsik:c.verification.worst.shinsik,kkaebigg:KK?.snapshot?.meta?.sources||null,measuredIncoming:current.measured,measuredAttackers:current.measuredAttackers,incomingPerMonster:current.perMob,zones:{measured:settings.mode==='measure'?zoneById(settings.zoneFrom)?.name||null:null,target:current.zone?.name||null,attackScale:current.scale},hunt:{killsPerMin:c.verification.minPower,attackers:c.verification.attackers,incoming:c.verification.incoming,mPerPx:O.mPerPx,damageRate:O.damageRate},need:c.verification.need,safetyMargin:MARGIN,coefficient:c.verification.minCoefficient,powerChangePct:Math.round(power(c)*10)/10,sustainPerMin:c.verification.minPerMin,surplusPerMin:left(c),margin:c.verification.margin,stats:stats(),settings}};}
 host.addEventListener('input',e=>{
- const t=e.target,map={'opt-attack':'attack','opt-maxhp':'maxHp','opt-regen':'regen','opt-accuracy':'accuracy','opt-critical-hit':'criticalHit','opt-critical-damage':'criticalDamage','opt-defense':'defense','opt-basic-evasion':'basicEvasion','opt-skill-block':'skillBlock','opt-critical-resistance':'criticalResistance','opt-skill-damage-reduction':'skillDamageReduction','opt-normal-damage-up':'normalDamageUp','opt-normal-damage-down':'normalDamageDown','opt-boss-damage-up':'bossDamageUp','opt-boss-damage-down':'bossDamageDown'};
+ const t=e.target,map={'opt-attack':'attack','opt-maxhp':'maxHp','opt-regen':'regen','opt-basic-attack-damage':'basicAttackDamage','opt-basic-attack-interval':'basicAttackInterval','opt-basic-attack-range':'basicAttackRange','opt-accuracy':'accuracy','opt-critical-hit':'criticalHit','opt-critical-damage':'criticalDamage','opt-defense':'defense','opt-basic-evasion':'basicEvasion','opt-skill-block':'skillBlock','opt-critical-resistance':'criticalResistance','opt-skill-damage-reduction':'skillDamageReduction','opt-normal-damage-up':'normalDamageUp','opt-normal-damage-down':'normalDamageDown','opt-boss-damage-up':'bossDamageUp','opt-boss-damage-down':'bossDamageDown'};
  if(t.id==='opt-free-timeline-range'&&lastResults){freeTimelineZoom=Math.max(.34,Math.min(3,+t.value/100));renderFreeResults(picks());return;}
  if(t.id==='opt-stat-paste'){importStats(t.value);return;}
  if(map[t.id])settings.stats[map[t.id]]=t.value;else if(t.id==='opt-incoming'){settings.incoming=t.value;settings.hitDamage='';renderHitRate();}else if(t.id==='opt-hit-damage'){settings.hitDamage=t.value;settings.hitInterval=1.5;settings.incoming=O.incomingFromHit(settings.hitDamage,settings.hitInterval)??'';renderHitRate();}else if(t.id==='opt-power'){settings.power=t.value;save();renderZone();return;}
@@ -522,7 +531,7 @@ host.addEventListener('change',e=>{
   save();sync(true);return;
  }
  // Recalculating runs 13+ simulations and rebuilds the override inputs, so wait until the value is committed.
- if(['opt-hit-damage','opt-attack','opt-maxhp','opt-regen','opt-incoming','opt-hp-start','opt-hp-end','opt-seconds'].includes(t.id)||t.dataset.optOverride){recalc();return;}
+ if(['opt-hit-damage','opt-attack','opt-maxhp','opt-regen','opt-basic-attack-damage','opt-basic-attack-interval','opt-basic-attack-range','opt-incoming','opt-hp-start','opt-hp-end','opt-seconds'].includes(t.id)||t.dataset.optOverride){recalc();return;}
  if(t.name==='opt-mode'){settings.mode=t.value;save();renderInputs();renderZone();recalc();return;}
  if(t.id==='opt-zone-from'||t.id==='opt-zone-to'){settings[t.id==='opt-zone-from'?'zoneFrom':'zoneTo']=t.value;save();renderZone();recalc();return;}
  if(t.dataset.optFamily){settings.families=[...host.querySelectorAll('[data-opt-family]')].filter(x=>x.checked).map(x=>x.dataset.optFamily);}

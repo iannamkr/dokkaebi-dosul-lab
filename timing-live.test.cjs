@@ -8,13 +8,13 @@ run("select('s060')");assert.equal(run('timingTarget'),'s060');assert.match(el('
 assert.equal((el('#timing-inline').innerHTML.match(/class="compact-gantt"/g)||[]).length,1);assert.equal((el('#timing-inline').innerHTML.match(/data-segment=/g)||[]).length,3);
 assert.match(el('#candidate-nodes').innerHTML,/지속 5초/);
 run("build=['회전 난격','검기 폭발','대검 강타','연속 충격'].map(n=>S.find(s=>s.name===n).id);D.baseSlots=build.slice();step=4;$('#link-scope').value='all';$('#candidate-search').value='연쇄 번개';render()");
-assert.match(el('#candidate-nodes').innerHTML,/만료/);assert.match(el('#candidate-nodes').innerHTML,/0.8초 초과/);assert.match(el('#candidate-nodes').innerHTML,/점수 제외/);
-assert.equal(run('shown[0].score'),0);
-run("$('#candidate-mode').value='linked';renderGraph()");assert.equal(run('shown.length'),0);
+assert.match(el('#candidate-nodes').innerHTML,/선행 조건 불충족/);assert.match(el('#candidate-nodes').innerHTML,/점수 제외/);
+assert(run('shown.some(x=>x.score===0)'));assert(run('shown.some(x=>x.score>0)'));run('window.allCandidateCount=shown.length');
+run("$('#candidate-mode').value='linked';renderGraph()");assert(run('shown.length')>0);assert(run('shown.some(x=>x.score>0)'));
 run("$('#candidate-mode').value='all';$('#candidate-search').value='';$('#link-scope').value='previous';build=['s015'];D.baseSlots=build.slice();step=1;select('s060')");
 run("timingSegment=1;renderTimingPanel()");assert.match(el('#timing-inline').innerHTML,/20초부터 40초까지/);
 run("timingHorizon=120;renderGraph()");assert.equal((el('#timing-inline').innerHTML.match(/data-segment=/g)||[]).length,6);
-run("build=['s019','s015','s062','s059','s025','s003','s012','s060','s066'];D.baseSlots=['s062','s059','s060','s019','s015'];timingHorizon=60;step=8;selected='s066';render()");assert.match(el('#timing-inline').innerHTML,/파멸 · 요기범람/);assert.match(el('#timing-inline').innerHTML,/신식 미적용 → 적용/);assert.match(el('#mechanics-summary').innerHTML,/현재 조합/);
+run("build=['s019','s015','s062','s059','s025','s003','s012','s060','s066'];D.baseSlots=['s062','s059','s060','s019','s015'];timingHorizon=60;step=8;selected='s066';render();renderMechanics()");assert.match(el('#timing-inline').innerHTML,/파멸 · 요기범람/);assert.match(el('#timing-inline').innerHTML,/신식 미적용 → 적용/);assert.match(el('#mechanics-summary').innerHTML,/현재 조합/);
 run("build=[];step=0;selected=null;render()");assert.equal(el('#timing-inline').innerHTML,'');assert.equal(el('#timing-inline').hidden,true);
 // Reproduce the screenshot: 8 normals, 4 smash, linked-only and no direct effect link.
 run("build=['연속 충격','삼단 찌르기','올려치기','회전 난격','화염 분출','얼음화살','검기 날리기','내려치기'].map(n=>S.find(s=>s.name===n).id);D.baseSlots=['연속 충격','올려치기','검기 날리기','회전 난격','얼음화살'].map(n=>S.find(s=>s.name===n).id);step=8;selected=build[7];$('#candidate-mode').value='linked';render()");

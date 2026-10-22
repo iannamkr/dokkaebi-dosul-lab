@@ -50,8 +50,28 @@ function candidates(data,edges,ids,step,types=['explicit','general','resource','
   return {skill:s,connections,positive,score};
  }).sort((a,b)=>b.score-a.score||a.skill.ultimate-b.skill.ultimate||a.skill.id.localeCompare(b.skill.id));
 }
+// Explore either side of an anchor using the actual proposed order and hit timing.
+function directionalCandidates(data,edges,ids,anchor,direction,types=['explicit','general','resource','conflict']){
+ const T=typeof module!=='undefined'?require('./link-timing.js'):root.DosulLinkTiming;
+ if(!ids.includes(anchor)||!['before','after'].includes(direction))return [];
+ const by=index(data),out=[];
+ for(const skill of data.skills){
+  if(skill.id===anchor)continue;
+  const existing=ids.indexOf(skill.id);let plan;
+  if(existing>=0){const next=ids.filter(id=>id!==skill.id),at=next.indexOf(anchor)+(direction==='after'?1:0);next.splice(at,0,skill.id);plan={ids:next,baseSlots:base(data,next)};}
+  else {const at=ids.indexOf(anchor)+(direction==='after'?1:0);plan=place(data,ids,at,skill.id,'insert');}
+  if(plan.error)continue;
+  const source=direction==='before'?skill.id:anchor,target=direction==='before'?anchor:skill.id;
+  const raw=links(data,edges,plan.ids,plan.ids.indexOf(target),target).filter(e=>e.source===source&&types.includes(e.type));
+  const connections=T.evaluate(data,plan.ids,plan.baseSlots,raw),positive=connections.filter(e=>e.type!=='conflict'&&e.timing.eligible);
+  if(!positive.length)continue;
+  const score=positive.reduce((n,e)=>n+({explicit:10,general:2,resource:1}[e.type]||0)*e.timing.ratio,0);
+  out.push({skill,connections,positive,score,plan,anchor,direction,existing:existing>=0});
+ }
+ return out.sort((a,b)=>b.score-a.score||a.skill.id.localeCompare(b.skill.id));
+}
 function predecessors(data,edges,target,types=['explicit','general','resource']){const by=index(data),groups=new Map();for(const e of edges){if(e.target!==target||e.source===target||e.type==='conflict'||!types.includes(e.type))continue;if(!groups.has(e.source))groups.set(e.source,[]);groups.get(e.source).push(e);}return [...groups].map(([id,connections])=>({skill:by.get(id),connections,score:connections.reduce((n,e)=>n+({explicit:10,general:2,resource:1}[e.type]||0),0)})).filter(x=>x.skill).sort((a,b)=>b.score-a.score||a.skill.id.localeCompare(b.skill.id));}
 function before(data,ids,target,source){const pos=ids.indexOf(target);if(pos<0)return {error:'선택한 도술을 현재 단계에 먼저 배치하세요.'};if(source===target)return {error:'같은 도술을 선행으로 배치할 수 없습니다.'};const existing=ids.indexOf(source);if(existing===pos-1&&existing>=0)return {error:'이미 바로 앞에 배치되어 있습니다.'};if(existing>=0){const next=ids.filter(id=>id!==source);next.splice(next.indexOf(target),0,source);return {ids:next,moved:true};}return place(data,ids,pos,source,'insert');}
 function restore(data,v){if(!v||!['dosul-build-v1','dosul-build-v2','dosul-build-v3'].includes(v.schema)||!Array.isArray(v.skills)||v.skills.length>9||clean(data,v.skills).length!==v.skills.length)throw Error('유효한 도술 조합 파일이 아닙니다.');const by=index(data);if(v.baseSlots!==undefined&&(!Array.isArray(v.baseSlots)||v.baseSlots.length>5||new Set(v.baseSlots).size!==v.baseSlots.length||v.baseSlots.some(id=>!v.skills.includes(id)||by.get(id).ultimate)))throw Error('기본 장착 정보가 올바르지 않습니다.');return {ids:[...v.skills],baseSlots:base({...data,baseSlots:undefined},v.skills,v.baseSlots)};}
-const api={restore,clean,counts,base,fit,baseCounts,unlocked,validate,place,links,candidates,predecessors,before};if(typeof module!=='undefined')module.exports=api;else root.DosulSequence=api;
+const api={restore,clean,counts,base,fit,baseCounts,unlocked,validate,place,links,candidates,directionalCandidates,predecessors,before};if(typeof module!=='undefined')module.exports=api;else root.DosulSequence=api;
 })(typeof window==='undefined'?globalThis:window);

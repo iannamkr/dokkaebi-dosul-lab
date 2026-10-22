@@ -2,7 +2,7 @@
 'use strict';
 const round=n=>Math.round(n*1e6)/1e6,valid=n=>typeof n==='number'&&Number.isFinite(n)&&n>=0;
 function motion(skill){const n=skill.referenceNumbers||{};if(!valid(n.m))return null;const prep=valid(n.pm)?n.pm:0,charge=valid(n.cm)?n.cm/1000:0,action=n.m/1000;return {prep,charge,action,total:round(prep+charge+action)};}
-function duration(skill,effect){const base=typeof module!=='undefined'?require('./timing.js'):root.DosulTiming,d=base.duration(skill,effect),extra=skill.timingEffects?.[effect];return {value:d.value??extra?.duration??null,source:d.source||extra?.source||null,application:extra?.application||'end'};}
+function duration(skill,effect){const base=typeof module!=='undefined'?require('./timing.js'):root.DosulTiming,d=base.duration(skill,effect),extra=skill.timingEffects?.[effect];return {value:d.value??extra?.duration??null,source:d.source||extra?.source||null,application:extra?.application||'end',conditional:!!extra?.conditional};}
 // Ordered baseline: never overlap actions or silently skip a skill on cooldown.
 function simulate(data,ids,repeats=5){
  repeats=Math.max(1,Math.min(10,Math.floor(Number(repeats)||5)));const by=new Map(data.skills.map(s=>[s.id,s])),skills=ids.map(id=>by.get(id)),events=[],cycles=[],missing=[];

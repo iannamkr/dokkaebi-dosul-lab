@@ -1359,3 +1359,12 @@ body>header nav .tab{padding:0 10px;font-size:14px;line-height:21px;font-weight:
 .build-image-import-button.is-busy{pointer-events:none;opacity:.72}
 .build-image-import-button.is-busy span:after{content:' · 분석 중'}
 @media(max-width:900px){.build-image-import-status{max-width:none;flex-basis:100%;order:2}}
+
+/* Candidate direction uses the shared cards and existing timing eligibility. */
+#explore .candidate-directions{display:flex;flex-direction:column;gap:6px;flex:none;margin:0 0 10px;min-width:0}
+#explore .candidate-direction-buttons{display:flex;gap:4px}
+#explore .candidate-direction-buttons button{flex:1;min-width:0;min-height:32px;padding:5px 10px;border:1px solid #d3dace;border-radius:6px;background:#fff;color:#526157;font-size:13px;line-height:20px}
+#explore .candidate-direction-buttons button[aria-pressed="true"]{background:#28654d;color:#fff;border-color:#28654d;font-weight:700}
+#explore .candidate-direction-buttons button:focus-visible{outline:2px solid #b79a52;outline-offset:2px}
+#explore #candidate-direction-context{margin:0;font-size:12px;line-height:18px;color:#526157;overflow-wrap:anywhere}
+#explore #candidate-direction-context:empty{display:none}

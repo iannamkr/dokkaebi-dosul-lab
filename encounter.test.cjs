@@ -5,6 +5,11 @@ const ids=[s.id],opts={attack:10000,hp:100,damageRate:1,points:[{x:1,y:0}],scena
 const a=E.run(data,ids,'185547',20,opts),b=E.run(data,ids,'185547',20,opts);
 assert.deepEqual(a.encounter,b.encounter,'Deterministic world');assert(a.encounter.kills>=2&&a.encounter.kills<=3,'Respawn delay limits kills');assert(a.encounter.overkill>0);assert(a.encounter.damage<=300,'No damage farming on dead mobs');
 const slow=E.run(data,ids,'185547',20,{...opts,scenario:{respawn:1000}});assert.equal(slow.encounter.kills,1);assert.equal(slow.encounter.respawns,0);
+const noBasic=E.run(data,ids,'185547',20,{...opts,hp:100000}),withBasic=E.run(data,ids,'185547',20,{...opts,hp:100000,basicAttackDamage:100000,basicAttackInterval:1,basicAttackRange:2,trace:true});
+assert(withBasic.encounter.basicAttackMeasured&&withBasic.encounter.basicAttacks>0&&withBasic.encounter.basicDamage>0,'Measured basic attacks are included');
+assert(withBasic.encounter.kills>noBasic.encounter.kills,'Measured basic attacks can increase encounter kills');
+const starts=new Set(withBasic.encounter.events.filter(e=>e.type==='skill-start').map(e=>e.time));
+assert(withBasic.encounter.events.filter(e=>e.type==='basic-hit').every(e=>!starts.has(e.time)),'Basic attacks do not overlap skill starts');
 const dash=[id('도약 찌르기')],move=E.run(D,dash,'185547',20,{attack:100,hp:1e8,points:[{x:4,y:0}],scenario:{playerSpeed:0,monsterSpeed:0}}),fixed=E.run(D,dash,'185547',20,{attack:100,hp:1e8,points:[{x:4,y:0}],scenario:{playerSpeed:0,monsterSpeed:0},movement:false});
 assert(move.encounter.skillMoveMetres>0);assert.equal(fixed.encounter.skillMoveMetres,0);assert(move.encounter.attackers>fixed.encounter.attackers,'Approach changes exposure');
 assert.equal(E.movement({name:'연속 쇄도'}).kind,null,'Names are not movement evidence');assert.throws(()=>E.run(D,dash,'185547',20,{scenario:{step:0}}),/Invalid encounter/);
